@@ -1,394 +1,1044 @@
-
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tugas Akhir — AI & Big Data</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);color:var(--color-text-primary)}
-.wrap{padding:1.5rem 0}
-.topbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem}
-.filter-btn{font-size:12px;padding:5px 14px;border:0.5px solid var(--color-border-secondary);border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
-.filter-btn.active{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489}
-.cards-grid{display:grid;grid-template-columns:1fr;gap:1rem}
-.topic-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
-.card-header{padding:1rem 1.25rem 0.75rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;gap:12px;align-items:flex-start}
-.topic-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0;margin-top:2px}
-.header-text{flex:1;min-width:0}
-.topic-title{font-size:15px;font-weight:500;margin-bottom:4px}
-.topic-sub{font-size:12px;color:var(--color-text-secondary)}
-.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.tag{font-size:11px;padding:2px 8px;border-radius:12px}
-.card-body{padding:1rem 1.25rem}
-.section-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;margin-top:14px}
-.section-label:first-child{margin-top:0}
-.desc-text{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
-.dataset-row{display:flex;align-items:center;gap:8px;font-size:13px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
-.dataset-row:last-child{border-bottom:none}
-.ds-source{font-size:11px;padding:2px 7px;border-radius:10px;flex-shrink:0}
-.ds-kaggle{background:#E1F5EE;color:#085041}
-.ds-bps{background:#E6F1FB;color:#0C447C}
-.ds-uci{background:#FAEEDA;color:#633806}
-.ds-opendata{background:#FAECE7;color:#712B13}
-.hint-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;margin-top:6px}
-.hint-item{font-size:12.5px;color:var(--color-text-secondary);padding:3px 0;line-height:1.5;display:flex;gap:8px}
-.hint-dot{color:#7F77DD;flex-shrink:0;font-size:14px;margin-top:0px}
-.q-item{font-size:13px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);line-height:1.5;display:flex;gap:8px;color:var(--color-text-primary)}
-.q-item:last-child{border-bottom:none}
-.q-num{font-weight:500;color:#534AB7;flex-shrink:0;font-size:12px;margin-top:1px}
-.expand-btn{width:100%;font-size:12px;padding:8px;border:none;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
-.expand-btn:hover{color:var(--color-text-primary)}
-.collapsible{display:none}
-.collapsible.open{display:block}
-.chevron{display:inline-block;transition:transform .2s;font-size:10px}
-.chevron.open{transform:rotate(180deg)}
+  :root {
+    --bg: #f7f4ef;
+    --surface: #ffffff;
+    --surface2: #f0ece4;
+    --border: rgba(0,0,0,0.08);
+    --border-hover: rgba(0,0,0,0.16);
+    --text: #1a1714;
+    --text-muted: #5a534a;
+    --text-dim: #9a9188;
+    --accent-1: #7a5c2e;
+    --accent-2: #2e6e50;
+    --accent-3: #4a3f8a;
+    --accent-4: #8a3f3a;
+    --accent-5: #2e5f7a;
+    --accent-6: #3f6a2e;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 0 2.5rem;
+    position: relative;
+    overflow: hidden;
+    background: #f0ece2;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(122,92,46,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .course-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .course-label::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: var(--text-muted);
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3rem);
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: .75rem;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--accent-1);
+  }
+  .header-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 520px;
+    line-height: 1.6;
+  }
+  .header-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .meta-item { }
+  .meta-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .meta-val {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(247,244,239,0.96);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-inner::-webkit-scrollbar { display: none; }
+  .nav-link {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .06em;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: .9rem 1rem;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .nav-link:hover { color: var(--text-muted); }
+  .nav-link.active { color: var(--text); border-bottom-color: var(--accent-1); }
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─── MAIN ─── */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ─── TOPIC SECTION ─── */
+  .topic {
+    padding: 3.5rem 0;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp .5s ease both;
+  }
+  .topic:last-child { border-bottom: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .topic:nth-child(1) { animation-delay: .05s; }
+  .topic:nth-child(2) { animation-delay: .1s; }
+  .topic:nth-child(3) { animation-delay: .15s; }
+  .topic:nth-child(4) { animation-delay: .2s; }
+  .topic:nth-child(5) { animation-delay: .25s; }
+  .topic:nth-child(6) { animation-delay: .3s; }
+
+  .topic-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+  .topic-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    padding: 3px 10px;
+    border-radius: 2px;
+    border: 1px solid;
+    font-weight: 500;
+  }
+  .topic-category {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .topic-title {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 3vw, 1.75rem);
+    line-height: 1.2;
+    margin-bottom: .5rem;
+  }
+  .topic-source {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 1.25rem;
+  }
+  .topic-source span { color: var(--text-muted); }
+
+  /* tags */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .06em;
+    padding: 3px 10px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  /* description */
+  .topic-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.75;
+    max-width: 640px;
+    margin-bottom: 2rem;
+  }
+
+  /* ─── GRID 2-COL ─── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 600px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+  .col-block {
+    background: #faf8f4;
+    padding: 1.25rem 1.5rem;
+  }
+  .col-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: .75rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .col-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* dataset list */
+  .dataset-list { list-style: none; }
+  .dataset-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .dataset-item:last-child { border-bottom: none; }
+  .ds-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .06em;
+    padding: 2px 6px;
+    border-radius: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .ds-name { color: var(--text-muted); line-height: 1.5; }
+  .ds-link {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    display: block;
+    word-break: break-all;
+  }
+
+  /* steps */
+  .steps { list-style: none; }
+  .step {
+    display: flex;
+    gap: 14px;
+    padding: 6px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-n {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 3px;
+    width: 16px;
+  }
+
+  /* hints */
+  .hints-block {
+    background: #faf8f4;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .hints-list { list-style: none; }
+  .hint {
+    display: flex;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border);
+  }
+  .hint:last-child { border-bottom: none; }
+  .hint-arrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: #ede9e0;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 2px;
+    padding: 1px 5px;
+    color: #7a5c2e;
+  }
+
+  /* questions */
+  .questions { list-style: none; }
+  .question {
+    display: flex;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .question:last-child { border-bottom: none; }
+  .q-n {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 2px;
+    width: 24px;
+  }
+  .q-text { font-size: 14px; color: var(--text); line-height: 1.55; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+  }
+  .footer-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: .06em;
+  }
+
+  /* ─── SCROLL NAV ACTIVE STATE ─── */
+  .topic-sep {
+    height: 1px;
+    background: var(--border);
+    margin: 0;
+  }
+
+  /* ─── PRINT ─── */
+  @media print {
+    body { background: #fff; color: #111; }
+    nav { display: none; }
+    .topic { break-inside: avoid; }
+  }
 </style>
+</head>
+<body>
 
-<div class="wrap">
-<h2 style="font-size:18px;font-weight:500;margin-bottom:4px">6 topik tugas akhir — unsupervised learning</h2>
-<p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem">Klik kartu untuk membuka instruksi lengkap, hint, dan pertanyaan</p>
-
-<div class="topbar">
-  <button class="filter-btn active" onclick="filterCards('all',this)">Semua topik</button>
-  <button class="filter-btn" onclick="filterCards('sosial',this)">Sosial &amp; demografi</button>
-  <button class="filter-btn" onclick="filterCards('kesehatan',this)">Kesehatan</button>
-  <button class="filter-btn" onclick="filterCards('ekonomi',this)">Ekonomi</button>
-  <button class="filter-btn" onclick="filterCards('lingkungan',this)">Lingkungan</button>
-</div>
-
-<div class="cards-grid" id="cards">
-
-<div class="topic-card" data-cat="sosial">
-  <div class="card-header">
-    <div class="topic-num" style="background:#EEEDFE;color:#534AB7">T1</div>
-    <div class="header-text">
-      <div class="topic-title">Segmentasi kabupaten/kota Indonesia berdasarkan indikator pembangunan manusia</div>
-      <div class="topic-sub">Sumber: BPS — Indeks Pembangunan Manusia (IPM) 2023</div>
-      <div class="tags">
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">K-Means</span>
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">DBSCAN</span>
-        <span class="tag" style="background:#E1F5EE;color:#085041">PCA</span>
-        <span class="tag" style="background:#FAEEDA;color:#633806">Choropleth</span>
+<header>
+  <div class="header-inner">
+    <div class="course-label">Matakuliah AI &amp; Big Data</div>
+    <h1>Topik Tugas Akhir<br><em>Unsupervised Learning</em></h1>
+    <p class="header-desc">
+      Enam topik berbasis data nyata. Setiap topik mengharuskan komparasi K-Means, DBSCAN, dan reduksi dimensi,
+      dilengkapi visualisasi dan narasi analitik berbasis temuan.
+    </p>
+    <div class="header-meta">
+      <div class="meta-item">
+        <div class="meta-label">Jumlah topik</div>
+        <div class="meta-val">6 topik</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Teknik wajib</div>
+        <div class="meta-val">K-Means · DBSCAN · PCA / t-SNE</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Format</div>
+        <div class="meta-val">Notebook + Laporan PDF</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Deadline</div>
+        <div class="meta-val">2 minggu</div>
       </div>
     </div>
   </div>
-  <div class="card-body">
-    <div class="section-label">Deskripsi tugas</div>
-    <p class="desc-text">Mahasiswa mengunduh data IPM kabupaten/kota dari BPS (Umur Harapan Hidup, Harapan Lama Sekolah, Rata-rata Lama Sekolah, Pengeluaran per Kapita). Gunakan PCA untuk mereduksi dimensi, lalu bandingkan K-Means dan DBSCAN untuk mengelompokkan daerah. Visualisasikan hasil pada peta Indonesia dan ceritakan disparitas antar wilayah.</p>
+</header>
 
-    <div class="section-label">Dataset</div>
-    <div class="dataset-row"><span class="ds-source ds-bps">BPS</span> IPM kabupaten/kota — bps.go.id/indikator/indikator/view_data_pub/0000/api_pub/aHB0eE...</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "Indonesia Human Development Index" — kaggle.com/datasets</div>
-    <div class="dataset-row"><span class="ds-source ds-opendata">GeoJSON</span> Batas wilayah Indonesia — github.com/superpikar/indonesia-geojson</div>
+<nav>
+  <div class="nav-inner">
+    <a href="#t1" class="nav-link active">
+      <span class="nav-dot" style="background:#7a5c2e"></span>T1 · IPM Indonesia
+    </a>
+    <a href="#t2" class="nav-link">
+      <span class="nav-dot" style="background:#2e6e50"></span>T2 · Kesehatan Global
+    </a>
+    <a href="#t3" class="nav-link">
+      <span class="nav-dot" style="background:#7a5c2e"></span>T3 · Kemiskinan
+    </a>
+    <a href="#t4" class="nav-link">
+      <span class="nav-dot" style="background:#2e5f7a"></span>T4 · Kualitas Udara
+    </a>
+    <a href="#t5" class="nav-link">
+      <span class="nav-dot" style="background:#4a3f8a"></span>T5 · E-Commerce RFM
+    </a>
+    <a href="#t6" class="nav-link">
+      <span class="nav-dot" style="background:#3f6a2e"></span>T6 · Pendidikan
+    </a>
+  </div>
+</nav>
 
-    <button class="expand-btn" onclick="toggleCard(this)">
-      Lihat instruksi, hint &amp; pertanyaan <span class="chevron">▼</span>
-    </button>
-    <div class="collapsible">
-      <div style="padding:1rem 0 0">
-        <div class="section-label">Instruksi pengerjaan</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">1.</span><span>Load data IPM, cek missing value, lakukan normalisasi StandardScaler</span></div>
-          <div class="hint-item"><span class="hint-dot">2.</span><span>Jalankan PCA dengan 2 dan 3 komponen — analisis explained variance ratio</span></div>
-          <div class="hint-item"><span class="hint-dot">3.</span><span>Terapkan K-Means (Elbow + Silhouette) dan DBSCAN (k-distance graph) pada data hasil PCA</span></div>
-          <div class="hint-item"><span class="hint-dot">4.</span><span>Gabungkan label cluster dengan kode wilayah, visualisasi sebagai peta choropleth menggunakan Folium atau GeoPandas</span></div>
-          <div class="hint-item"><span class="hint-dot">5.</span><span>Buat narasi: daerah mana yang paling tertinggal? Apakah ada pola geografis (Jawa vs luar Jawa)?</span></div>
-        </div>
-        <div class="section-label">Hint teknis</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">→</span><span>Gunakan <code style="font-size:11px;background:var(--color-background-tertiary);padding:1px 4px;border-radius:3px">geopandas.merge()</code> untuk menggabungkan data cluster dengan shapefile</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Jika peta terlalu padat, coba visualisasi per pulau (Sumatera, Jawa, Kalimantan, dll.)</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Biplot PCA bisa membantu menunjukkan kontribusi setiap fitur terhadap komponen utama</span></div>
-        </div>
-        <div class="section-label">Pertanyaan yang harus dijawab</div>
-        <div class="q-item"><span class="q-num">Q1</span><span>Berapa varians yang dijelaskan oleh 2 komponen PCA pertama? Apakah cukup representatif?</span></div>
-        <div class="q-item"><span class="q-num">Q2</span><span>Cluster mana yang memiliki rata-rata IPM tertinggi dan terendah? Provinsi apa saja yang masuk ke dalamnya?</span></div>
-        <div class="q-item"><span class="q-num">Q3</span><span>Apakah DBSCAN menemukan outlier? Daerah mana saja, dan mengapa bisa menjadi outlier?</span></div>
-        <div class="q-item"><span class="q-num">Q4</span><span>Berdasarkan peta choropleth, apakah ada pola spasial pada cluster yang terbentuk?</span></div>
-        <div class="q-item"><span class="q-num">Q5</span><span>Rekomendasi kebijakan apa yang dapat disimpulkan dari hasil segmentasi ini?</span></div>
+<main>
+
+  <!-- ══════════════════════ T1 ══════════════════════ -->
+  <section class="topic" id="t1">
+    <div class="topic-eyebrow">
+      <span class="topic-num" style="color:#7a5c2e;border-color:rgba(122,92,46,0.25);background:rgba(122,92,46,0.07)">T — 01</span>
+      <span class="topic-category">Sosial &amp; Demografi</span>
+    </div>
+    <h2 class="topic-title">Segmentasi kabupaten/kota Indonesia<br>berdasarkan indikator pembangunan manusia</h2>
+    <div class="topic-source">Sumber data — <span>BPS · Indeks Pembangunan Manusia 2023</span></div>
+    <div class="tags">
+      <span class="tag">K-Means</span>
+      <span class="tag">DBSCAN</span>
+      <span class="tag">PCA</span>
+      <span class="tag">Choropleth Map</span>
+      <span class="tag">GeoPandas</span>
+    </div>
+    <p class="topic-desc">
+      Unduh data IPM kabupaten/kota dari BPS yang mencakup Umur Harapan Hidup, Harapan Lama Sekolah,
+      Rata-rata Lama Sekolah, dan Pengeluaran per Kapita. Gunakan PCA untuk mereduksi dimensi,
+      lalu bandingkan K-Means dan DBSCAN untuk mengelompokkan daerah. Visualisasikan hasil
+      pada peta Indonesia dan ceritakan disparitas antar wilayah secara analitik.
+    </p>
+
+    <div class="two-col">
+      <div class="col-block">
+        <div class="col-label">Dataset</div>
+        <ul class="dataset-list">
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(46,110,80,0.08);color:#2e6e50;border:1px solid rgba(46,110,80,0.25)">BPS</span>
+            <div>
+              <div class="ds-name">IPM kabupaten/kota — bps.go.id</div>
+              <span class="ds-link">bps.go.id/indikator/indikator/view_data_pub</span>
+            </div>
+          </li>
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(122,92,46,0.08);color:#7a5c2e;border:1px solid rgba(122,92,46,0.25)">Kaggle</span>
+            <div>
+              <div class="ds-name">Indonesia Human Development Index</div>
+              <span class="ds-link">kaggle.com/datasets</span>
+            </div>
+          </li>
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(74,63,138,0.08);color:#4a3f8a;border:1px solid rgba(74,63,138,0.25)">GeoJSON</span>
+            <div>
+              <div class="ds-name">Batas wilayah Indonesia</div>
+              <span class="ds-link">github.com/superpikar/indonesia-geojson</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-label">Langkah pengerjaan</div>
+        <ol class="steps">
+          <li class="step"><span class="step-n">01</span><span>Load data IPM, cek missing value, normalisasi StandardScaler</span></li>
+          <li class="step"><span class="step-n">02</span><span>Jalankan PCA 2 dan 3 komponen — analisis explained variance ratio</span></li>
+          <li class="step"><span class="step-n">03</span><span>K-Means dengan Elbow + Silhouette; DBSCAN dengan k-distance graph</span></li>
+          <li class="step"><span class="step-n">04</span><span>Gabungkan label cluster dengan kode wilayah, buat peta choropleth</span></li>
+          <li class="step"><span class="step-n">05</span><span>Narasi: daerah paling tertinggal, pola geografis Jawa vs luar Jawa</span></li>
+        </ol>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="topic-card" data-cat="kesehatan">
-  <div class="card-header">
-    <div class="topic-num" style="background:#E1F5EE;color:#0F6E56">T2</div>
-    <div class="header-text">
-      <div class="topic-title">Pengelompokan negara berdasarkan pola penyebaran penyakit global</div>
-      <div class="topic-sub">Sumber: WHO / Kaggle — Global Health Statistics</div>
-      <div class="tags">
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">K-Means</span>
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">DBSCAN</span>
-        <span class="tag" style="background:#E1F5EE;color:#085041">t-SNE</span>
-        <span class="tag" style="background:#E1F5EE;color:#085041">PCA</span>
+    <div class="hints-block">
+      <div class="col-label">Hint teknis</div>
+      <ul class="hints-list">
+        <li class="hint"><span class="hint-arrow">→</span><span>Gunakan <code>geopandas.merge()</code> untuk menggabungkan data cluster dengan shapefile wilayah</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Biplot PCA menunjukkan kontribusi setiap fitur — wajib disertakan dalam laporan sebagai bukti interpretasi</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Jika peta terlalu padat, visualisasi per pulau (Sumatera, Jawa, Kalimantan, Papua) lebih terbaca</span></li>
+      </ul>
+    </div>
+
+    <div class="col-label" style="margin-bottom:.75rem">Pertanyaan analisis</div>
+    <ol class="questions">
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q1</span>
+        <span class="q-text">Berapa varians yang dijelaskan oleh 2 komponen PCA pertama? Apakah cukup representatif — dan jika tidak, bagaimana keputusan Anda?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q2</span>
+        <span class="q-text">Cluster mana yang memiliki rata-rata IPM tertinggi dan terendah? Sebutkan provinsi spesifik yang masuk ke dalamnya.</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q3</span>
+        <span class="q-text">Apakah DBSCAN menemukan outlier? Daerah mana saja, dan mengapa secara statistik mereka bisa menjadi outlier?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q4</span>
+        <span class="q-text">Berdasarkan peta choropleth, apakah ada pola spasial yang jelas pada cluster yang terbentuk?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q5</span>
+        <span class="q-text">Rekomendasi kebijakan apa yang dapat disimpulkan dari hasil segmentasi ini? Kaitkan dengan cluster dan fitur yang ditemukan.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══════════════════════ T2 ══════════════════════ -->
+  <section class="topic" id="t2">
+    <div class="topic-eyebrow">
+      <span class="topic-num" style="color:#2e6e50;border-color:rgba(46,110,80,0.25);background:rgba(46,110,80,0.07)">T — 02</span>
+      <span class="topic-category">Kesehatan</span>
+    </div>
+    <h2 class="topic-title">Pengelompokan negara berdasarkan<br>pola penyebaran penyakit global</h2>
+    <div class="topic-source">Sumber data — <span>WHO Global Health Observatory · Kaggle Global Health Statistics</span></div>
+    <div class="tags">
+      <span class="tag">K-Means</span>
+      <span class="tag">DBSCAN</span>
+      <span class="tag">PCA</span>
+      <span class="tag">t-SNE</span>
+      <span class="tag">Heatmap</span>
+    </div>
+    <p class="topic-desc">
+      Analisis data kesehatan global untuk mengelompokkan negara berdasarkan kemiripan profil penyakit —
+      prevalensi, mortalitas, akses layanan kesehatan. Bandingkan reduksi dimensi menggunakan PCA vs t-SNE,
+      lalu gunakan K-Means dan DBSCAN. Ceritakan pola kesenjangan kesehatan global dan posisi Indonesia
+      di antara negara-negara lain.
+    </p>
+
+    <div class="two-col">
+      <div class="col-block">
+        <div class="col-label">Dataset</div>
+        <ul class="dataset-list">
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(46,110,80,0.08);color:#2e6e50;border:1px solid rgba(46,110,80,0.25)">WHO</span>
+            <div>
+              <div class="ds-name">Global Health Observatory</div>
+              <span class="ds-link">who.int/data/gho</span>
+            </div>
+          </li>
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(122,92,46,0.08);color:#7a5c2e;border:1px solid rgba(122,92,46,0.25)">Kaggle</span>
+            <div>
+              <div class="ds-name">Global Health Statistics</div>
+              <span class="ds-link">kaggle.com/datasets/henryshan/global-health-statistics</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-label">Langkah pengerjaan</div>
+        <ol class="steps">
+          <li class="step"><span class="step-n">01</span><span>Pilih fitur: prevalensi penyakit, life expectancy, infant mortality, health expenditure % GDP</span></li>
+          <li class="step"><span class="step-n">02</span><span>Jalankan PCA dan t-SNE secara terpisah — bandingkan visualisasi 2D keduanya</span></li>
+          <li class="step"><span class="step-n">03</span><span>Clustering K-Means dan DBSCAN pada ruang PCA, evaluasi Silhouette Score</span></li>
+          <li class="step"><span class="step-n">04</span><span>Heatmap korelasi fitur antar cluster untuk memahami karakteristik setiap kelompok</span></li>
+          <li class="step"><span class="step-n">05</span><span>Narasi: posisi Indonesia, kesenjangan negara berkembang vs maju</span></li>
+        </ol>
       </div>
     </div>
-  </div>
-  <div class="card-body">
-    <div class="section-label">Deskripsi tugas</div>
-    <p class="desc-text">Mahasiswa menganalisis data kesehatan global untuk mengelompokkan negara berdasarkan kemiripan profil penyakit (prevalensi, mortalitas, akses layanan kesehatan). Bandingkan reduksi dimensi menggunakan PCA vs t-SNE, lalu gunakan K-Means dan DBSCAN untuk clustering. Ceritakan pola kesenjangan kesehatan global.</p>
 
-    <div class="section-label">Dataset</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "Global Health Statistics" — kaggle.com/datasets/henryshan/global-health-statistics</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "World Health Organization Data" — kaggle.com/datasets</div>
-    <div class="dataset-row"><span class="ds-source ds-opendata">WHO</span> Global Health Observatory — who.int/data/gho</div>
+    <div class="hints-block">
+      <div class="col-label">Hint teknis</div>
+      <ul class="hints-list">
+        <li class="hint"><span class="hint-arrow">→</span><span>t-SNE sensitif terhadap parameter <code>perplexity</code> — coba nilai 5, 30, dan 50, bandingkan hasilnya dalam laporan</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>t-SNE hanya untuk <em>visualisasi</em> — lakukan clustering di ruang PCA, bukan di ruang t-SNE</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Annotasikan negara-negara tertentu (Indonesia, USA, Germany, Chad) di scatter plot agar narasi lebih konkret</span></li>
+      </ul>
+    </div>
 
-    <button class="expand-btn" onclick="toggleCard(this)">
-      Lihat instruksi, hint &amp; pertanyaan <span class="chevron">▼</span>
-    </button>
-    <div class="collapsible">
-      <div style="padding:1rem 0 0">
-        <div class="section-label">Instruksi pengerjaan</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">1.</span><span>Pilih fitur numerik: prevalensi penyakit, life expectancy, infant mortality, health expenditure % GDP</span></div>
-          <div class="hint-item"><span class="hint-dot">2.</span><span>Jalankan PCA dan t-SNE secara terpisah, bandingkan hasil visualisasi 2D keduanya</span></div>
-          <div class="hint-item"><span class="hint-dot">3.</span><span>Terapkan K-Means dan DBSCAN pada representasi PCA, evaluasi dengan Silhouette Score</span></div>
-          <div class="hint-item"><span class="hint-dot">4.</span><span>Buat heatmap korelasi fitur antar cluster untuk memahami karakteristik setiap kelompok negara</span></div>
-          <div class="hint-item"><span class="hint-dot">5.</span><span>Narasikan: negara berkembang vs maju — apakah cluster mencerminkan tingkat pembangunan ekonomi?</span></div>
-        </div>
-        <div class="section-label">Hint teknis</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">→</span><span>t-SNE sensitif terhadap parameter <code style="font-size:11px;background:var(--color-background-tertiary);padding:1px 4px;border-radius:3px">perplexity</code> (coba 5, 30, 50) — jalankan beberapa kali dan bandingkan</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>t-SNE hanya untuk visualisasi, bukan untuk clustering. Lakukan clustering di ruang PCA</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Annotasikan negara-negara tertentu (Indonesia, USA, Germany, Chad) di scatter plot</span></div>
-        </div>
-        <div class="section-label">Pertanyaan yang harus dijawab</div>
-        <div class="q-item"><span class="q-num">Q1</span><span>Apa perbedaan utama antara visualisasi PCA dan t-SNE? Kapan masing-masing lebih tepat digunakan?</span></div>
-        <div class="q-item"><span class="q-num">Q2</span><span>Indonesia masuk ke cluster mana? Negara apa saja yang berada satu cluster dengannya?</span></div>
-        <div class="q-item"><span class="q-num">Q3</span><span>Fitur mana yang paling membedakan cluster kesehatan buruk vs baik?</span></div>
-        <div class="q-item"><span class="q-num">Q4</span><span>Apakah DBSCAN menemukan negara yang "unik" (outlier)? Apa karakteristiknya?</span></div>
-        <div class="q-item"><span class="q-num">Q5</span><span>Bagaimana cluster yang terbentuk dapat membantu prioritas alokasi bantuan kesehatan internasional?</span></div>
+    <div class="col-label" style="margin-bottom:.75rem">Pertanyaan analisis</div>
+    <ol class="questions">
+      <li class="question">
+        <span class="q-n" style="color:#2e6e50">Q1</span>
+        <span class="q-text">Apa perbedaan utama antara visualisasi PCA dan t-SNE? Kapan masing-masing lebih tepat digunakan?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#2e6e50">Q2</span>
+        <span class="q-text">Indonesia masuk ke cluster mana? Negara apa saja yang berada satu cluster dengannya, dan apa kesamaannya?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#2e6e50">Q3</span>
+        <span class="q-text">Fitur mana yang paling membedakan cluster kesehatan buruk vs baik? Buktikan dengan data.</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#2e6e50">Q4</span>
+        <span class="q-text">Apakah DBSCAN menemukan negara yang "unik" (outlier)? Apa karakteristiknya yang menyebabkan hal tersebut?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#2e6e50">Q5</span>
+        <span class="q-text">Bagaimana cluster yang terbentuk dapat membantu prioritas alokasi bantuan kesehatan internasional?</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══════════════════════ T3 ══════════════════════ -->
+  <section class="topic" id="t3">
+    <div class="topic-eyebrow">
+      <span class="topic-num" style="color:#7a5c2e;border-color:rgba(122,92,46,0.25);background:rgba(122,92,46,0.07)">T — 03</span>
+      <span class="topic-category">Ekonomi</span>
+    </div>
+    <h2 class="topic-title">Pola pengeluaran dan kemiskinan<br>rumah tangga Indonesia</h2>
+    <div class="topic-source">Sumber data — <span>BPS Susenas · Kaggle Indonesia Poverty</span></div>
+    <div class="tags">
+      <span class="tag">K-Means</span>
+      <span class="tag">DBSCAN</span>
+      <span class="tag">PCA</span>
+      <span class="tag">Biplot</span>
+      <span class="tag">Box Plot</span>
+    </div>
+    <p class="topic-desc">
+      Menggunakan data pengeluaran rumah tangga dari Susenas BPS, kelompokkan provinsi/kabupaten berdasarkan
+      pola konsumsi dan kemiskinan. Gunakan PCA untuk eksplorasi, K-Means dan DBSCAN untuk segmentasi,
+      lalu visualisasikan disparitas ekonomi antar wilayah secara komprehensif.
+    </p>
+
+    <div class="two-col">
+      <div class="col-block">
+        <div class="col-label">Dataset</div>
+        <ul class="dataset-list">
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(46,110,80,0.08);color:#2e6e50;border:1px solid rgba(46,110,80,0.25)">BPS</span>
+            <div>
+              <div class="ds-name">Data kemiskinan provinsi</div>
+              <span class="ds-link">bps.go.id/subject/23/kemiskinan</span>
+            </div>
+          </li>
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(122,92,46,0.08);color:#7a5c2e;border:1px solid rgba(122,92,46,0.25)">Kaggle</span>
+            <div>
+              <div class="ds-name">Indonesia Poverty and Human Development</div>
+              <span class="ds-link">kaggle.com/datasets/muhammadkhalid/poverty</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-label">Langkah pengerjaan</div>
+        <ol class="steps">
+          <li class="step"><span class="step-n">01</span><span>Load data, pilih fitur: % kemiskinan, pengeluaran per kapita, Gini ratio, pengangguran</span></li>
+          <li class="step"><span class="step-n">02</span><span>EDA: distribusi, matrix korelasi, deteksi outlier dengan boxplot</span></li>
+          <li class="step"><span class="step-n">03</span><span>Reduksi dimensi PCA, analisis loading vector fitur dominan</span></li>
+          <li class="step"><span class="step-n">04</span><span>Clustering K-Means dan DBSCAN, bandingkan komposisi cluster</span></li>
+          <li class="step"><span class="step-n">05</span><span>Box plot per fitur per cluster, bar chart rata-rata, narasi disparitas</span></li>
+        </ol>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="topic-card" data-cat="ekonomi">
-  <div class="card-header">
-    <div class="topic-num" style="background:#FAEEDA;color:#854F0B">T3</div>
-    <div class="header-text">
-      <div class="topic-title">Pola pengeluaran dan kemiskinan rumah tangga Indonesia</div>
-      <div class="topic-sub">Sumber: BPS — Susenas / Kaggle Indonesia Poverty</div>
-      <div class="tags">
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">K-Means</span>
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">DBSCAN</span>
-        <span class="tag" style="background:#E1F5EE;color:#085041">PCA</span>
-        <span class="tag" style="background:#FAEEDA;color:#633806">Bar &amp; Box plot</span>
+    <div class="hints-block">
+      <div class="col-label">Hint teknis</div>
+      <ul class="hints-list">
+        <li class="hint"><span class="hint-arrow">→</span><span>Gunakan <code>sns.pairplot(hue='cluster')</code> untuk eksplorasi visual hubungan antar fitur setelah clustering</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Biplot PCA sangat membantu menjelaskan faktor apa yang memisahkan cluster secara geometris</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Gini ratio tidak selalu berkorelasi dengan kemiskinan absolut — ini adalah temuan menarik yang layak dibahas</span></li>
+      </ul>
+    </div>
+
+    <div class="col-label" style="margin-bottom:.75rem">Pertanyaan analisis</div>
+    <ol class="questions">
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q1</span>
+        <span class="q-text">Komponen PCA mana yang paling dominan? Fitur apa yang berkontribusi besar pada PC1 dan PC2?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q2</span>
+        <span class="q-text">Berapa jumlah cluster optimal yang ditemukan K-Means? Apakah DBSCAN menghasilkan jumlah yang sama? Mengapa berbeda atau sama?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q3</span>
+        <span class="q-text">Provinsi mana yang masuk kategori "kemiskinan tinggi"? Apa yang secara statistik membedakannya dari cluster lain?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q4</span>
+        <span class="q-text">Apakah Gini ratio berkorelasi kuat dengan persentase kemiskinan berdasarkan analisis cluster? Buktikan dengan data.</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#7a5c2e">Q5</span>
+        <span class="q-text">Berikan 3 rekomendasi konkret untuk program pengentasan kemiskinan — masing-masing berbasis pada temuan cluster yang berbeda.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══════════════════════ T4 ══════════════════════ -->
+  <section class="topic" id="t4">
+    <div class="topic-eyebrow">
+      <span class="topic-num" style="color:#2e5f7a;border-color:rgba(46,95,122,0.25);background:rgba(46,95,122,0.07)">T — 04</span>
+      <span class="topic-category">Lingkungan</span>
+    </div>
+    <h2 class="topic-title">Analisis pola kualitas udara<br>kota-kota besar dunia</h2>
+    <div class="topic-source">Sumber data — <span>Kaggle World Air Quality Index · OpenAQ</span></div>
+    <div class="tags">
+      <span class="tag">K-Means</span>
+      <span class="tag">DBSCAN</span>
+      <span class="tag">PCA</span>
+      <span class="tag">Peta Interaktif</span>
+      <span class="tag">Radar Chart</span>
+    </div>
+    <p class="topic-desc">
+      Dataset berisi indeks kualitas udara (AQI) dan konsentrasi polutan (PM2.5, PM10, NO2, CO, O3)
+      dari ratusan kota. Kelompokkan kota berdasarkan profil polusinya, gunakan PCA untuk reduksi dimensi,
+      dan visualisasikan pola polusi secara geografis dan komparatif.
+    </p>
+
+    <div class="two-col">
+      <div class="col-block">
+        <div class="col-label">Dataset</div>
+        <ul class="dataset-list">
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(122,92,46,0.08);color:#7a5c2e;border:1px solid rgba(122,92,46,0.25)">Kaggle</span>
+            <div>
+              <div class="ds-name">World Air Quality Index by City</div>
+              <span class="ds-link">kaggle.com/datasets/adityaramachandran27/world-air-quality-index-by-city-and-coordinates</span>
+            </div>
+          </li>
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(46,95,122,0.08);color:#2e5f7a;border:1px solid rgba(46,95,122,0.25)">OpenAQ</span>
+            <div>
+              <div class="ds-name">Real-time global air quality</div>
+              <span class="ds-link">openaq.org</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-label">Langkah pengerjaan</div>
+        <ol class="steps">
+          <li class="step"><span class="step-n">01</span><span>Pilih fitur polutan, tangani missing value (imputasi median), normalisasi</span></li>
+          <li class="step"><span class="step-n">02</span><span>PCA — analisis kontribusi setiap polutan terhadap PC1/PC2</span></li>
+          <li class="step"><span class="step-n">03</span><span>K-Means dan DBSCAN — DBSCAN relevan karena kota super-polusi cenderung jadi outlier</span></li>
+          <li class="step"><span class="step-n">04</span><span>Scatter plot geografis (lat vs lon, warna = cluster) untuk pola regional</span></li>
+          <li class="step"><span class="step-n">05</span><span>Radar chart profil polutan per cluster, narasi kota paling berbahaya</span></li>
+        </ol>
       </div>
     </div>
-  </div>
-  <div class="card-body">
-    <div class="section-label">Deskripsi tugas</div>
-    <p class="desc-text">Menggunakan data pengeluaran rumah tangga dari Susenas BPS atau dataset Kaggle terkait kemiskinan Indonesia, mahasiswa mengelompokkan provinsi/kabupaten berdasarkan pola konsumsi. Gunakan PCA untuk eksplorasi, K-Means dan DBSCAN untuk segmentasi, lalu visualisasikan disparitas ekonomi antar wilayah.</p>
 
-    <div class="section-label">Dataset</div>
-    <div class="dataset-row"><span class="ds-source ds-bps">BPS</span> Data kemiskinan provinsi — bps.go.id/subject/23/kemiskinan</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "Indonesia Poverty and Human Development" — kaggle.com/datasets/muhammadkhalid/poverty</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "Indonesia Socioeconomic Data" — kaggle.com/datasets</div>
+    <div class="hints-block">
+      <div class="col-label">Hint teknis</div>
+      <ul class="hints-list">
+        <li class="hint"><span class="hint-arrow">→</span><span>PM2.5 dan PM10 berkorelasi sangat tinggi (r &gt; 0.85) — pertimbangkan apakah keduanya perlu dimasukkan bersamaan</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Gunakan <code>plotly.express.scatter_mapbox()</code> untuk peta interaktif yang lebih informatif dari scatter biasa</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Bandingkan nilai PM2.5 cluster terburuk dengan ambang batas WHO (5 μg/m³ annual mean) sebagai konteks</span></li>
+      </ul>
+    </div>
 
-    <button class="expand-btn" onclick="toggleCard(this)">
-      Lihat instruksi, hint &amp; pertanyaan <span class="chevron">▼</span>
-    </button>
-    <div class="collapsible">
-      <div style="padding:1rem 0 0">
-        <div class="section-label">Instruksi pengerjaan</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">1.</span><span>Load data, pilih fitur: persentase kemiskinan, pengeluaran per kapita, Gini ratio, tingkat pengangguran</span></div>
-          <div class="hint-item"><span class="hint-dot">2.</span><span>Lakukan EDA: distribusi setiap fitur, matrix korelasi, deteksi outlier dengan boxplot</span></div>
-          <div class="hint-item"><span class="hint-dot">3.</span><span>Reduksi dimensi dengan PCA, analisis loading vector untuk memahami fitur dominan</span></div>
-          <div class="hint-item"><span class="hint-dot">4.</span><span>Clustering dengan K-Means dan DBSCAN, bandingkan jumlah cluster dan komposisinya</span></div>
-          <div class="hint-item"><span class="hint-dot">5.</span><span>Buat visualisasi ringkasan per cluster: box plot tiap fitur, bar chart rata-rata cluster</span></div>
-        </div>
-        <div class="section-label">Hint teknis</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">→</span><span>Gunakan <code style="font-size:11px;background:var(--color-background-tertiary);padding:1px 4px;border-radius:3px">sns.pairplot(hue='cluster')</code> untuk eksplorasi hubungan antar fitur setelah clustering</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Loading vector PCA (biplot) sangat membantu menjelaskan faktor apa yang memisahkan cluster</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Coba juga variasi DBSCAN dengan data asli (tanpa PCA) dan bandingkan hasilnya</span></div>
-        </div>
-        <div class="section-label">Pertanyaan yang harus dijawab</div>
-        <div class="q-item"><span class="q-num">Q1</span><span>Komponen PCA mana yang paling dominan? Fitur apa yang berkontribusi besar pada PC1 dan PC2?</span></div>
-        <div class="q-item"><span class="q-num">Q2</span><span>Berapa jumlah cluster optimal yang ditemukan K-Means? Apakah DBSCAN menghasilkan jumlah yang sama?</span></div>
-        <div class="q-item"><span class="q-num">Q3</span><span>Provinsi mana yang masuk kategori "rentan kemiskinan tinggi"? Apa yang membedakannya dari cluster lain?</span></div>
-        <div class="q-item"><span class="q-num">Q4</span><span>Apakah Gini ratio memiliki korelasi kuat dengan persentase kemiskinan berdasarkan analisis cluster?</span></div>
-        <div class="q-item"><span class="q-num">Q5</span><span>Berikan 3 rekomendasi konkret berdasarkan temuan clustering untuk program pengentasan kemiskinan.</span></div>
+    <div class="col-label" style="margin-bottom:.75rem">Pertanyaan analisis</div>
+    <ol class="questions">
+      <li class="question">
+        <span class="q-n" style="color:#2e5f7a">Q1</span>
+        <span class="q-text">Polutan mana yang paling berkorelasi satu sama lain? Apa implikasinya terhadap hasil dan interpretasi PCA?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#2e5f7a">Q2</span>
+        <span class="q-text">Berapa kota yang dianggap outlier oleh DBSCAN? Kota apa saja, dan apa yang membuat profil polusinya tidak biasa?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#2e5f7a">Q3</span>
+        <span class="q-text">Apakah ada pola regional yang jelas (Asia vs Eropa vs Amerika) dalam cluster kualitas udara yang terbentuk?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#2e5f7a">Q4</span>
+        <span class="q-text">Cluster mana yang paling berbahaya bagi kesehatan? Polutan apa yang mendominasinya, dan mengapa berbahaya?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#2e5f7a">Q5</span>
+        <span class="q-text">Jika Anda adalah pembuat kebijakan, cluster mana yang harus diprioritaskan untuk intervensi segera? Justifikasi berbasis data.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══════════════════════ T5 ══════════════════════ -->
+  <section class="topic" id="t5">
+    <div class="topic-eyebrow">
+      <span class="topic-num" style="color:#4a3f8a;border-color:rgba(74,63,138,0.25);background:rgba(74,63,138,0.07)">T — 05</span>
+      <span class="topic-category">Ekonomi · Bisnis</span>
+    </div>
+    <h2 class="topic-title">Segmentasi pelanggan e-commerce<br>berdasarkan perilaku transaksi RFM</h2>
+    <div class="topic-source">Sumber data — <span>UCI Online Retail II · Kaggle E-Commerce</span></div>
+    <div class="tags">
+      <span class="tag">K-Means</span>
+      <span class="tag">DBSCAN</span>
+      <span class="tag">PCA</span>
+      <span class="tag">RFM Analysis</span>
+      <span class="tag">3D Scatter</span>
+    </div>
+    <p class="topic-desc">
+      Lakukan analisis RFM (Recency, Frequency, Monetary) dari data transaksi e-commerce,
+      lalu gunakan clustering untuk mensegmentasi pelanggan. Bandingkan K-Means dan DBSCAN
+      dalam menemukan segmen pelanggan bernilai tinggi. Visualisasikan dan narasikan profil
+      setiap segmen untuk strategi pemasaran berbasis data.
+    </p>
+
+    <div class="two-col">
+      <div class="col-block">
+        <div class="col-label">Dataset</div>
+        <ul class="dataset-list">
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(74,63,138,0.08);color:#4a3f8a;border:1px solid rgba(74,63,138,0.25)">UCI</span>
+            <div>
+              <div class="ds-name">Online Retail II Dataset</div>
+              <span class="ds-link">archive.ics.uci.edu/dataset/502/online+retail+ii</span>
+            </div>
+          </li>
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(122,92,46,0.08);color:#7a5c2e;border:1px solid rgba(122,92,46,0.25)">Kaggle</span>
+            <div>
+              <div class="ds-name">Brazilian E-Commerce (Olist)</div>
+              <span class="ds-link">kaggle.com/datasets/olistbr/brazilian-ecommerce</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-label">Langkah pengerjaan</div>
+        <ol class="steps">
+          <li class="step"><span class="step-n">01</span><span>Hitung RFM per pelanggan: Recency (hari), Frequency (jumlah transaksi), Monetary (total belanja)</span></li>
+          <li class="step"><span class="step-n">02</span><span>Tangani outlier ekstrem — terapkan log transformation sebelum normalisasi</span></li>
+          <li class="step"><span class="step-n">03</span><span>PCA untuk visualisasi dari 3 fitur RFM, analisis variance yang hilang</span></li>
+          <li class="step"><span class="step-n">04</span><span>K-Means dan DBSCAN, evaluasi Silhouette Score dan Davies-Bouldin Index</span></li>
+          <li class="step"><span class="step-n">05</span><span>Beri nama segmen (Champions, Loyal, At Risk, Lost) dan buat profil per segmen</span></li>
+        </ol>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="topic-card" data-cat="lingkungan">
-  <div class="card-header">
-    <div class="topic-num" style="background:#E1F5EE;color:#0F6E56">T4</div>
-    <div class="header-text">
-      <div class="topic-title">Analisis pola kualitas udara kota-kota besar dunia</div>
-      <div class="topic-sub">Sumber: Kaggle — World Air Quality Index</div>
-      <div class="tags">
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">K-Means</span>
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">DBSCAN</span>
-        <span class="tag" style="background:#E1F5EE;color:#085041">PCA</span>
-        <span class="tag" style="background:#FAECE7;color:#712B13">Time series plot</span>
+    <div class="hints-block">
+      <div class="col-label">Hint teknis</div>
+      <ul class="hints-list">
+        <li class="hint"><span class="hint-arrow">→</span><span>Distribusi RFM sangat right-skewed — gunakan <code>np.log1p()</code> sebelum scaling agar clustering lebih bermakna</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>3D scatter plot R-F-M dengan warna cluster memberikan gambaran intuitif yang kuat untuk presentasi</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Outlier DBSCAN bisa berupa pelanggan korporat/grosir — periksa quantity per invoice untuk mengidentifikasi jenisnya</span></li>
+      </ul>
+    </div>
+
+    <div class="col-label" style="margin-bottom:.75rem">Pertanyaan analisis</div>
+    <ol class="questions">
+      <li class="question">
+        <span class="q-n" style="color:#4a3f8a">Q1</span>
+        <span class="q-text">Mengapa log transformation penting sebelum menerapkan clustering pada data RFM? Tunjukkan perbandingan distribusi sebelum dan sesudah.</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#4a3f8a">Q2</span>
+        <span class="q-text">Berapa persen pelanggan masuk kategori "Champions"? Berapa kontribusi revenue mereka terhadap total?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#4a3f8a">Q3</span>
+        <span class="q-text">Outlier DBSCAN — apakah mereka fraud, pelanggan korporat, atau segmen premium? Buktikan dengan data transaksi.</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#4a3f8a">Q4</span>
+        <span class="q-text">Strategi pemasaran apa yang tepat untuk setiap segmen? Justifikasi setiap rekomendasi berdasarkan profil RFM cluster.</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#4a3f8a">Q5</span>
+        <span class="q-text">Apakah PCA dengan 2 komponen cukup untuk menangkap variasi RFM? Bandingkan Silhouette Score clustering di ruang PCA vs ruang asli 3D.</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ══════════════════════ T6 ══════════════════════ -->
+  <section class="topic" id="t6">
+    <div class="topic-eyebrow">
+      <span class="topic-num" style="color:#3f6a2e;border-color:rgba(63,106,46,0.25);background:rgba(63,106,46,0.07)">T — 06</span>
+      <span class="topic-category">Sosial · Pendidikan</span>
+    </div>
+    <h2 class="topic-title">Pemetaan pola pendidikan dan<br>literasi digital kabupaten/kota Indonesia</h2>
+    <div class="topic-source">Sumber data — <span>BPS · Kemendikbud · Data Pokok Pendidikan</span></div>
+    <div class="tags">
+      <span class="tag">K-Means</span>
+      <span class="tag">DBSCAN</span>
+      <span class="tag">PCA</span>
+      <span class="tag">Heatmap</span>
+      <span class="tag">Choropleth</span>
+    </div>
+    <p class="topic-desc">
+      Menggunakan data pendidikan dari BPS dan Kemendikbud (APM, APK, tingkat melek huruf,
+      rasio guru-siswa, akses internet sekolah), kelompokkan kabupaten/kota berdasarkan profil pendidikannya.
+      Terapkan PCA, bandingkan K-Means dan DBSCAN, serta visualisasikan kesenjangan pendidikan
+      di Indonesia secara komprehensif.
+    </p>
+
+    <div class="two-col">
+      <div class="col-block">
+        <div class="col-label">Dataset</div>
+        <ul class="dataset-list">
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(46,110,80,0.08);color:#2e6e50;border:1px solid rgba(46,110,80,0.25)">BPS</span>
+            <div>
+              <div class="ds-name">Statistik pendidikan Indonesia</div>
+              <span class="ds-link">bps.go.id/subject/28/pendidikan</span>
+            </div>
+          </li>
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(63,106,46,0.08);color:#3f6a2e;border:1px solid rgba(63,106,46,0.25)">Kemendikbud</span>
+            <div>
+              <div class="ds-name">Data Pokok Pendidikan (Dapodik)</div>
+              <span class="ds-link">dapo.dikdasmen.kemdikbud.go.id</span>
+            </div>
+          </li>
+          <li class="dataset-item">
+            <span class="ds-badge" style="background:rgba(122,92,46,0.08);color:#7a5c2e;border:1px solid rgba(122,92,46,0.25)">Kaggle</span>
+            <div>
+              <div class="ds-name">Indonesia Education Statistics</div>
+              <span class="ds-link">kaggle.com/datasets</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="col-block">
+        <div class="col-label">Langkah pengerjaan</div>
+        <ol class="steps">
+          <li class="step"><span class="step-n">01</span><span>Kumpulkan fitur: APK SD/SMP/SMA, melek huruf, rasio guru-siswa, % sekolah berinternet</span></li>
+          <li class="step"><span class="step-n">02</span><span>EDA: heatmap korelasi, missing value per kabupaten, distribusi per provinsi</span></li>
+          <li class="step"><span class="step-n">03</span><span>PCA — perhatikan komponen yang mewakili "kualitas" vs "akses" pendidikan</span></li>
+          <li class="step"><span class="step-n">04</span><span>Clustering dan labeling deskriptif per cluster, evaluasi metrik</span></li>
+          <li class="step"><span class="step-n">05</span><span>Peta choropleth Indonesia + heatmap rata-rata fitur per cluster</span></li>
+        </ol>
       </div>
     </div>
-  </div>
-  <div class="card-body">
-    <div class="section-label">Deskripsi tugas</div>
-    <p class="desc-text">Dataset berisi indeks kualitas udara (AQI) dan konsentrasi polutan (PM2.5, PM10, NO2, CO, O3) dari ratusan kota. Mahasiswa mengelompokkan kota berdasarkan profil polusinya menggunakan K-Means dan DBSCAN, mereduksi dimensi dengan PCA, serta memvisualisasikan tren dan pola polusi secara informatif.</p>
 
-    <div class="section-label">Dataset</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "World Air Quality Index by City and Coordinates" — kaggle.com/datasets/adityaramachandran27/world-air-quality-index-by-city-and-coordinates</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "Air Quality Data in India" — kaggle.com/datasets/rohanrao/air-quality-data-in-india</div>
-    <div class="dataset-row"><span class="ds-source ds-opendata">OpenAQ</span> Real-time data — openaq.org</div>
-
-    <button class="expand-btn" onclick="toggleCard(this)">
-      Lihat instruksi, hint &amp; pertanyaan <span class="chevron">▼</span>
-    </button>
-    <div class="collapsible">
-      <div style="padding:1rem 0 0">
-        <div class="section-label">Instruksi pengerjaan</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">1.</span><span>Pilih fitur polutan, tangani missing value (imputasi median atau drop baris), normalisasi</span></div>
-          <div class="hint-item"><span class="hint-dot">2.</span><span>Jalankan PCA dan analisis kontribusi setiap polutan terhadap PC1/PC2</span></div>
-          <div class="hint-item"><span class="hint-dot">3.</span><span>Bandingkan K-Means dan DBSCAN — DBSCAN sangat relevan di sini karena kota super-polusi bisa menjadi outlier</span></div>
-          <div class="hint-item"><span class="hint-dot">4.</span><span>Buat scatter plot geografis (latitude vs longitude, warna = cluster) untuk melihat pola regional</span></div>
-          <div class="hint-item"><span class="hint-dot">5.</span><span>Narasikan: kota-kota apa saja yang berada di cluster paling berbahaya? Di benua/kawasan mana?</span></div>
-        </div>
-        <div class="section-label">Hint teknis</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">→</span><span>DBSCAN sangat cocok di sini — kota dengan polusi ekstrem akan muncul sebagai outlier alami</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Gunakan <code style="font-size:11px;background:var(--color-background-tertiary);padding:1px 4px;border-radius:3px">plotly.express.scatter_mapbox()</code> untuk peta interaktif yang mengesankan</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Radar chart (spider chart) efektif untuk membandingkan profil polutan antar cluster</span></div>
-        </div>
-        <div class="section-label">Pertanyaan yang harus dijawab</div>
-        <div class="q-item"><span class="q-num">Q1</span><span>Polutan mana yang paling berkorelasi satu sama lain? Apa implikasinya terhadap hasil PCA?</span></div>
-        <div class="q-item"><span class="q-num">Q2</span><span>Berapa kota yang dianggap outlier oleh DBSCAN? Kota apa saja dan apa yang membuatnya unik?</span></div>
-        <div class="q-item"><span class="q-num">Q3</span><span>Apakah ada pola regional (Asia vs Eropa vs Amerika) dalam cluster kualitas udara yang terbentuk?</span></div>
-        <div class="q-item"><span class="q-num">Q4</span><span>Cluster mana yang paling berbahaya? Polutan apa yang mendominasi cluster tersebut?</span></div>
-        <div class="q-item"><span class="q-num">Q5</span><span>Jika Anda adalah pembuat kebijakan, cluster mana yang harus diprioritaskan untuk intervensi segera?</span></div>
-      </div>
+    <div class="hints-block">
+      <div class="col-label">Hint teknis</div>
+      <ul class="hints-list">
+        <li class="hint"><span class="hint-arrow">→</span><span>Fitur pendidikan sangat berkorelasi — PCA sangat efektif di sini, expected variance explained PC1 bisa &gt;60%</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span>Coba pisahkan analisis Jawa dan luar Jawa untuk insight yang lebih tajam tentang disparitas regional</span></li>
+        <li class="hint"><span class="hint-arrow">→</span><span><code>sns.clustermap()</code> menggabungkan dendogram hierarki dan heatmap — bisa menjadi visualisasi paling informatif di topik ini</span></li>
+      </ul>
     </div>
+
+    <div class="col-label" style="margin-bottom:.75rem">Pertanyaan analisis</div>
+    <ol class="questions">
+      <li class="question">
+        <span class="q-n" style="color:#3f6a2e">Q1</span>
+        <span class="q-text">Apakah PC1 merepresentasikan "indeks kualitas pendidikan keseluruhan"? Jelaskan berdasarkan loading vector yang Anda temukan.</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#3f6a2e">Q2</span>
+        <span class="q-text">Cluster mana yang mencerminkan daerah dengan akses pendidikan paling tertinggal? Faktor apa yang paling membedakannya?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#3f6a2e">Q3</span>
+        <span class="q-text">Apakah ada daerah dengan APK tinggi tapi rasio guru-siswa buruk? Termasuk cluster mana, dan apa penjelasannya?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#3f6a2e">Q4</span>
+        <span class="q-text">Bagaimana perbedaan K-Means vs DBSCAN dalam mengidentifikasi daerah tertinggal pendidikan? Apa implikasi perbedaan tersebut?</span>
+      </li>
+      <li class="question">
+        <span class="q-n" style="color:#3f6a2e">Q5</span>
+        <span class="q-text">Berikan rekomendasi berbasis data untuk pemerataan pendidikan Indonesia — setiap rekomendasi harus merujuk cluster dan fitur spesifik.</span>
+      </li>
+    </ol>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    Matakuliah AI &amp; Big Data &nbsp;·&nbsp; Unsupervised Learning &nbsp;·&nbsp; 6 Topik Tugas Akhir
   </div>
-</div>
-
-<div class="topic-card" data-cat="ekonomi">
-  <div class="card-header">
-    <div class="topic-num" style="background:#FAECE7;color:#993C1D">T5</div>
-    <div class="header-text">
-      <div class="topic-title">Segmentasi pelanggan e-commerce berdasarkan perilaku transaksi</div>
-      <div class="topic-sub">Sumber: Kaggle — E-Commerce / Online Retail Dataset</div>
-      <div class="tags">
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">K-Means</span>
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">DBSCAN</span>
-        <span class="tag" style="background:#E1F5EE;color:#085041">PCA</span>
-        <span class="tag" style="background:#FAECE7;color:#712B13">RFM Analysis</span>
-      </div>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="section-label">Deskripsi tugas</div>
-    <p class="desc-text">Mahasiswa melakukan analisis RFM (Recency, Frequency, Monetary) dari data transaksi e-commerce, lalu menggunakan teknik clustering untuk mensegmentasi pelanggan. Bandingkan K-Means dan DBSCAN dalam menemukan segmen pelanggan bernilai tinggi. Visualisasikan dan narasikan profil setiap segmen untuk keperluan strategi pemasaran.</p>
-
-    <div class="section-label">Dataset</div>
-    <div class="dataset-row"><span class="ds-source ds-uci">UCI</span> Online Retail II Dataset — archive.ics.uci.edu/dataset/502/online+retail+ii</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "E-Commerce Data" — kaggle.com/datasets/carrie1/ecommerce-data</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "Brazilian E-Commerce Public Dataset (Olist)" — kaggle.com/datasets/olistbr/brazilian-ecommerce</div>
-
-    <button class="expand-btn" onclick="toggleCard(this)">
-      Lihat instruksi, hint &amp; pertanyaan <span class="chevron">▼</span>
-    </button>
-    <div class="collapsible">
-      <div style="padding:1rem 0 0">
-        <div class="section-label">Instruksi pengerjaan</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">1.</span><span>Hitung fitur RFM per pelanggan: Recency (hari sejak transaksi terakhir), Frequency (jumlah transaksi), Monetary (total belanja)</span></div>
-          <div class="hint-item"><span class="hint-dot">2.</span><span>Tangani outlier ekstrem (pelanggan korporat/bot) — pertimbangkan log transformation sebelum normalisasi</span></div>
-          <div class="hint-item"><span class="hint-dot">3.</span><span>Terapkan PCA untuk visualisasi dan reduksi dimensi dari 3 fitur RFM</span></div>
-          <div class="hint-item"><span class="hint-dot">4.</span><span>Jalankan K-Means dan DBSCAN, evaluasi dengan Silhouette Score dan Davies-Bouldin Index</span></div>
-          <div class="hint-item"><span class="hint-dot">5.</span><span>Beri nama segmen (Champions, Loyal Customers, At Risk, Lost) dan buat profil visualisasi per segmen</span></div>
-        </div>
-        <div class="section-label">Hint teknis</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">→</span><span>RFM distribution sangat skewed — gunakan <code style="font-size:11px;background:var(--color-background-tertiary);padding:1px 4px;border-radius:3px">np.log1p()</code> sebelum scaling untuk distribusi yang lebih normal</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>3D scatter plot R-F-M dengan warna cluster sangat membantu memberi gambaran intuitif</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>DBSCAN akan mengidentifikasi pelanggan dengan pola transaksi sangat tidak biasa sebagai outlier</span></div>
-        </div>
-        <div class="section-label">Pertanyaan yang harus dijawab</div>
-        <div class="q-item"><span class="q-num">Q1</span><span>Mengapa log transformation penting sebelum menerapkan clustering pada data RFM?</span></div>
-        <div class="q-item"><span class="q-num">Q2</span><span>Berapa persen pelanggan masuk kategori "Champions" (R tinggi, F tinggi, M tinggi)?</span></div>
-        <div class="q-item"><span class="q-num">Q3</span><span>Pelanggan DBSCAN outlier — apakah mereka fraud, korporat, atau segmen premium? Bagaimana Anda membuktikannya?</span></div>
-        <div class="q-item"><span class="q-num">Q4</span><span>Strategi pemasaran apa yang tepat untuk setiap segmen? Justifikasi berdasarkan profil cluster.</span></div>
-        <div class="q-item"><span class="q-num">Q5</span><span>Apakah PCA dengan 2 komponen cukup untuk menangkap variasi RFM? Berapa persen variance yang hilang?</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="topic-card" data-cat="sosial">
-  <div class="card-header">
-    <div class="topic-num" style="background:#F1EFE8;color:#444441">T6</div>
-    <div class="header-text">
-      <div class="topic-title">Pemetaan pola pendidikan dan literasi digital kabupaten/kota Indonesia</div>
-      <div class="topic-sub">Sumber: BPS + Kemendikbud / Kaggle Indonesia Education</div>
-      <div class="tags">
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">K-Means</span>
-        <span class="tag" style="background:#EEEDFE;color:#3C3489">DBSCAN</span>
-        <span class="tag" style="background:#E1F5EE;color:#085041">PCA</span>
-        <span class="tag" style="background:#F1EFE8;color:#444441">Heatmap &amp; peta</span>
-      </div>
-    </div>
-  </div>
-  <div class="card-body">
-    <div class="section-label">Deskripsi tugas</div>
-    <p class="desc-text">Menggunakan data pendidikan dari BPS dan Kemendikbud (APM, APK, tingkat melek huruf, rasio guru-siswa, akses internet), mahasiswa mengelompokkan kabupaten/kota berdasarkan profil pendidikannya. Terapkan PCA untuk reduksi dimensi, bandingkan K-Means vs DBSCAN, dan ceritakan kesenjangan pendidikan di Indonesia secara visual.</p>
-
-    <div class="section-label">Dataset</div>
-    <div class="dataset-row"><span class="ds-source ds-bps">BPS</span> Statistik pendidikan — bps.go.id/subject/28/pendidikan</div>
-    <div class="dataset-row"><span class="ds-source ds-kaggle">Kaggle</span> "Indonesia Education Statistics" — kaggle.com/datasets</div>
-    <div class="dataset-row"><span class="ds-source ds-opendata">Kemendikbud</span> Data pokok pendidikan — dapo.dikdasmen.kemdikbud.go.id</div>
-
-    <button class="expand-btn" onclick="toggleCard(this)">
-      Lihat instruksi, hint &amp; pertanyaan <span class="chevron">▼</span>
-    </button>
-    <div class="collapsible">
-      <div style="padding:1rem 0 0">
-        <div class="section-label">Instruksi pengerjaan</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">1.</span><span>Kumpulkan fitur: APK SD/SMP/SMA, tingkat melek huruf, rasio guru-siswa, % sekolah dengan internet</span></div>
-          <div class="hint-item"><span class="hint-dot">2.</span><span>EDA menyeluruh: heatmap korelasi, deteksi missing value per kabupaten, distribusi per provinsi</span></div>
-          <div class="hint-item"><span class="hint-dot">3.</span><span>Terapkan PCA — perhatikan komponen yang mewakili "kualitas" vs "akses" pendidikan</span></div>
-          <div class="hint-item"><span class="hint-dot">4.</span><span>Clustering K-Means dan DBSCAN, evaluasi dan beri label deskriptif per cluster</span></div>
-          <div class="hint-item"><span class="hint-dot">5.</span><span>Buat visualisasi: peta choropleth Indonesia + heatmap rata-rata fitur per cluster</span></div>
-        </div>
-        <div class="section-label">Hint teknis</div>
-        <div class="hint-box">
-          <div class="hint-item"><span class="hint-dot">→</span><span>Fitur pendidikan sering berkorelasi tinggi — PCA akan sangat efektif di sini, expected variance explained PC1 bisa &gt;60%</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Coba pisahkan analisis Jawa dan luar Jawa untuk insight yang lebih tajam tentang disparitas</span></div>
-          <div class="hint-item"><span class="hint-dot">→</span><span>Heatmap <code style="font-size:11px;background:var(--color-background-tertiary);padding:1px 4px;border-radius:3px">sns.clustermap()</code> yang menggabungkan hierarki dan heatmap bisa menjadi visualisasi terkuat</span></div>
-        </div>
-        <div class="section-label">Pertanyaan yang harus dijawab</div>
-        <div class="q-item"><span class="q-num">Q1</span><span>Apakah PC1 merepresentasikan "indeks kualitas pendidikan keseluruhan"? Jelaskan berdasarkan loading vector.</span></div>
-        <div class="q-item"><span class="q-num">Q2</span><span>Cluster mana yang mencerminkan daerah dengan akses pendidikan paling tertinggal? Faktor apa yang dominan?</span></div>
-        <div class="q-item"><span class="q-num">Q3</span><span>Apakah ada daerah yang secara APK tinggi tapi rasio guru-siswa buruk? Termasuk cluster mana?</span></div>
-        <div class="q-item"><span class="q-num">Q4</span><span>Bagaimana perbedaan hasil clustering K-Means vs DBSCAN dalam mengidentifikasi daerah tertinggal pendidikan?</span></div>
-        <div class="q-item"><span class="q-num">Q5</span><span>Berikan rekomendasi berbasis data untuk pemerataan pendidikan di Indonesia berdasarkan temuan clustering.</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-</div>
-</div>
+</footer>
 
 <script>
-function toggleCard(btn){
-  var col=btn.nextElementSibling;
-  var chev=btn.querySelector('.chevron');
-  var isOpen=col.classList.contains('open');
-  col.classList.toggle('open',!isOpen);
-  chev.classList.toggle('open',!isOpen);
-  btn.querySelector('span:first-child').textContent=isOpen?'Lihat instruksi, hint & pertanyaan ':'Tutup ';
-}
-function filterCards(cat,btn){
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.topic-card').forEach(c=>{
-    c.style.display=(cat==='all'||c.dataset.cat===cat)?'block':'none';
-  });
-}
+  const sections = document.querySelectorAll('.topic');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
 </script>
+</body>
+</html>
