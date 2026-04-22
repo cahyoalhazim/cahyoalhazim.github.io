@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Ethical Hacking</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070d14;
+    --surface: #0d1a26;
+    --surface2: #112233;
+    --accent: #00f5c4;
+    --accent2: #0af;
+    --danger: #ff3e6c;
+    --warning: #ffd166;
+    --text: #cce8ff;
+    --text-dim: #5a8aaa;
+    --border: #1a3a55;
+    --glow: 0 0 20px rgba(0,245,196,0.3);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* Grid lines background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,170,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,170,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Scan line effect */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.8s ease;
+  }
+  .header .badge {
+    display: inline-block;
+    background: rgba(0,245,196,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 5px 16px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-size: clamp(28px,5vw,48px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(0,170,255,0.5);
+  }
+  .header h1 span { color: var(--accent); }
+  .header p {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-top: 10px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 30px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 10px var(--accent);
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .progress-info span { color: var(--accent); }
+
+  /* CATEGORY TAG */
+  .category-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 14px;
+  }
+  .cat-recon { background: rgba(0,170,255,0.1); border: 1px solid rgba(0,170,255,0.5); color: var(--accent2); }
+  .cat-enum  { background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.5); color: var(--warning); }
+  .cat-vuln  { background: rgba(255,62,108,0.1); border: 1px solid rgba(255,62,108,0.5); color: var(--danger); }
+  .cat-exploit { background: rgba(0,245,196,0.1); border: 1px solid rgba(0,245,196,0.5); color: var(--accent); }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease;
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--accent2), var(--accent));
+  }
+  .q-number {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: #fff;
+    margin-bottom: 22px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    line-height: 1.5;
+    user-select: none;
+  }
+  .option:hover {
+    border-color: var(--accent2);
+    background: rgba(0,170,255,0.07);
+    transform: translateX(4px);
+  }
+  .option.selected {
+    border-color: var(--accent2);
+    background: rgba(0,170,255,0.12);
+  }
+  .option.correct {
+    border-color: var(--accent);
+    background: rgba(0,245,196,0.12);
+    color: var(--accent);
+  }
+  .option.incorrect {
+    border-color: var(--danger);
+    background: rgba(255,62,108,0.1);
+    color: var(--danger);
+  }
+  .option-letter {
+    min-width: 26px; height: 26px;
+    border-radius: 4px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    font-weight: bold;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .option.selected .option-letter { background: var(--accent2); border-color: var(--accent2); color: #000; }
+  .option.correct .option-letter { background: var(--accent); border-color: var(--accent); color: #000; }
+  .option.incorrect .option-letter { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+  /* EXPLANATION */
+  .explanation {
+    margin-top: 16px;
+    padding: 14px 16px;
+    background: rgba(0,245,196,0.06);
+    border: 1px solid rgba(0,245,196,0.2);
+    border-radius: 6px;
+    font-size: 13px;
+    color: #a0d8c0;
+    line-height: 1.6;
+    display: none;
+  }
+  .explanation.show { display: block; animation: fadeUp 0.3s ease; }
+  .explanation strong { color: var(--accent); }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 28px;
+    border-radius: 5px;
+    border: none;
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #000;
+    box-shadow: 0 4px 20px rgba(0,170,255,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(0,245,196,0.4); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+  .btn-ghost:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* RESULT SCREEN */
+  .result-screen {
+    display: none;
+    text-align: center;
+    animation: fadeUp 0.6s ease;
+    padding: 40px 20px;
+  }
+  .result-screen.show { display: block; }
+  .score-ring {
+    width: 160px; height: 160px;
+    margin: 0 auto 30px;
+    position: relative;
+  }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle { fill: none; stroke-width: 10; }
+  .score-ring .bg { stroke: var(--surface2); }
+  .score-ring .fill { stroke: var(--accent); stroke-linecap: round; transition: stroke-dashoffset 1.5s ease; }
+  .score-text {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .score-text .num { font-size: 36px; font-weight: bold; color: var(--accent); }
+  .score-text .label { font-size: 12px; color: var(--text-dim); }
+  .result-title { font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 10px; }
+  .result-msg { color: var(--text-dim); font-size: 14px; margin-bottom: 30px; line-height: 1.6; }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    max-width: 400px;
+    margin: 0 auto 30px;
+  }
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .stat-box .val { font-family: 'Share Tech Mono', monospace; font-size: 24px; font-weight: bold; }
+  .stat-box .lbl { font-size: 11px; color: var(--text-dim); margin-top: 4px; letter-spacing: 1px; text-transform: uppercase; }
+  .stat-box.green .val { color: var(--accent); }
+  .stat-box.red .val { color: var(--danger); }
+
+  .cat-breakdown {
+    max-width: 500px;
+    margin: 0 auto 30px;
+    text-align: left;
+  }
+  .cat-breakdown h3 {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .cat-row {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px; font-size: 13px;
+  }
+  .cat-name { width: 140px; flex-shrink: 0; }
+  .cat-bar-bg { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+  .cat-bar { height: 100%; border-radius: 3px; transition: width 1s ease; }
+  .cat-score { width: 40px; text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text-dim); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* LANDING */
+  .landing { text-align: center; padding: 20px 0 40px; animation: fadeUp 0.6s ease; }
+  .landing .info-grid {
+    display: grid; grid-template-columns: repeat(2,1fr); gap: 12px;
+    max-width: 500px; margin: 30px auto;
+  }
+  .info-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 18px;
+    font-size: 13px;
+  }
+  .info-box .ico { font-size: 22px; margin-bottom: 6px; }
+  .info-box strong { display: block; font-size: 18px; font-weight: 900; color: var(--accent); }
+
+  .nav-dots {
+    display: flex; justify-content: center; gap: 6px;
+    flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .nav-dot {
+    width: 20px; height: 20px; border-radius: 3px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    color: transparent;
+  }
+  .nav-dot.answered { background: rgba(0,170,255,0.3); border-color: var(--accent2); color: var(--accent2); }
+  .nav-dot.current { background: var(--accent2); border-color: var(--accent2); color: #000; }
+  .nav-dot.answered.correct-dot { background: rgba(0,245,196,0.3); border-color: var(--accent); }
+  .nav-dot.answered.wrong-dot { background: rgba(255,62,108,0.2); border-color: var(--danger); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- LANDING -->
+  <div class="landing" id="landing">
+    <div class="header">
+      <div class="badge">⚡ CYBERSECURITY ASSESSMENT</div>
+      <h1>Ethical <span>Hacking</span><br>Quiz</h1>
+      <p>// Reconnaissance · Enumeration · Vulnerability · Exploitation</p>
+    </div>
+    <div class="info-grid">
+      <div class="info-box"><div class="ico">📋</div><strong>30</strong>Soal Pilihan Ganda</div>
+      <div class="info-box"><div class="ico">📂</div><strong>4</strong>Topik Utama</div>
+      <div class="info-box"><div class="ico">🎯</div><strong>A-D</strong>Empat Pilihan</div>
+      <div class="info-box"><div class="ico">✅</div><strong>Ada</strong>Penjelasan Jawaban</div>
+    </div>
+    <button class="btn btn-primary" onclick="startQuiz()">MULAI QUIZ →</button>
+  </div>
+
+  <!-- QUIZ AREA -->
+  <div id="quizArea" style="display:none">
+    <div class="progress-info">
+      <span>Soal <span id="qNum">1</span> dari 30</span>
+      <span id="catLabel"></span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill" style="width:3.33%"></div>
+    </div>
+
+    <div class="nav-dots" id="navDots"></div>
+
+    <div class="question-card" id="questionCard">
+      <div class="q-number" id="qNumberLabel"></div>
+      <div id="catTag"></div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="prevBtn" onclick="prevQ()">← PREV</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQ()" disabled>NEXT →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-screen" id="resultScreen">
+    <div class="score-ring">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle class="bg" cx="80" cy="80" r="70"/>
+        <circle class="fill" id="scoreCircle" cx="80" cy="80" r="70"
+          stroke-dasharray="439.8"
+          stroke-dashoffset="439.8"/>
+      </svg>
+      <div class="score-text">
+        <div class="num" id="scorePct">0%</div>
+        <div class="label">SKOR</div>
+      </div>
+    </div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <div class="stat-grid">
+      <div class="stat-box green"><div class="val" id="correctCount">0</div><div class="lbl">Benar</div></div>
+      <div class="stat-box red"><div class="val" id="wrongCount">0</div><div class="lbl">Salah</div></div>
+      <div class="stat-box"><div class="val" id="totalSoal">30</div><div class="lbl">Total Soal</div></div>
+      <div class="stat-box"><div class="val" id="finalGrade">-</div><div class="lbl">Nilai</div></div>
+    </div>
+    <div class="cat-breakdown">
+      <h3>// BREAKDOWN PER TOPIK</h3>
+      <div id="catBreakdown"></div>
+    </div>
+    <button class="btn btn-primary" onclick="restartQuiz()" style="margin-right:10px">🔄 ULANGI</button>
+    <button class="btn btn-ghost" onclick="printResult()">🖨️ CETAK HASIL</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  // ===== RECONNAISSANCE (8 soal) =====
+  {cat:'recon', catName:'Reconnaissance',
+   q:'Apa yang dimaksud dengan Passive Reconnaissance dalam ethical hacking?',
+   opts:['Mengumpulkan informasi dengan berinteraksi langsung dengan target','Mengumpulkan informasi tanpa berinteraksi langsung dengan target','Melakukan scanning port pada sistem target','Mengeksploitasi kerentanan yang ditemukan pada target'],
+   ans:1, exp:'Passive Reconnaissance adalah teknik pengumpulan informasi tanpa kontak langsung dengan sistem target, misalnya melalui OSINT, pencarian Google, WHOIS, dll. Berbeda dengan Active Recon yang berinteraksi langsung.'},
+  {cat:'recon', catName:'Reconnaissance',
+   q:'Tool manakah yang digunakan untuk mencari informasi WHOIS sebuah domain?',
+   opts:['Nmap','Metasploit','whois','Burp Suite'],
+   ans:2, exp:'Perintah <strong>whois</strong> digunakan untuk mengambil data registrasi domain, termasuk pemilik, server nama, tanggal registrasi, dan kontak administratif.'},
+  {cat:'recon', catName:'Reconnaissance',
+   q:'Teknik "Google Hacking" atau "Google Dorking" menggunakan operator khusus. Operator apa yang digunakan untuk mencari file dengan ekstensi tertentu?',
+   opts:['inurl:','site:','filetype:','intitle:'],
+   ans:2, exp:'Operator <strong>filetype:</strong> (contoh: filetype:pdf) digunakan dalam Google Dorking untuk mencari file dengan ekstensi tertentu yang mungkin berisi informasi sensitif.'},
+  {cat:'recon', catName:'Reconnaissance',
+   q:'Apa fungsi utama dari tools seperti Maltego dalam proses reconnaissance?',
+   opts:['Melakukan brute force password','Memetakan hubungan antar entitas (link analysis) untuk OSINT','Melakukan SQL Injection secara otomatis','Meng-crack hash password'],
+   ans:1, exp:'Maltego adalah tool OSINT untuk <strong>link analysis</strong> — memetakan hubungan antara domain, IP, orang, organisasi, dan entitas lainnya secara visual.'},
+  {cat:'recon', catName:'Reconnaissance',
+   q:'DNS Zone Transfer yang berhasil oleh penyerang dapat mengungkap?',
+   opts:['Password administrator domain','Seluruh catatan DNS termasuk semua host dalam domain','Kode sumber aplikasi web','Sesi cookie pengguna aktif'],
+   ans:1, exp:'Zone Transfer (AXFR) yang tidak diamankan memungkinkan penyerang mendapatkan <strong>semua record DNS</strong> dari domain, termasuk subdomain tersembunyi, IP internal, dan struktur jaringan.'},
+  {cat:'recon', catName:'Reconnaissance',
+   q:'Shodan adalah search engine yang digunakan untuk?',
+   opts:['Mencari informasi sosial media target','Menemukan perangkat yang terhubung ke internet beserta layanannya','Menelusuri riwayat browsing pengguna','Mencari kerentanan dalam kode Python'],
+   ans:1, exp:'<strong>Shodan</strong> adalah search engine untuk perangkat IoT dan sistem yang terhubung ke internet. Menampilkan port terbuka, banner layanan, dan informasi teknis perangkat.'},
+  {cat:'recon', catName:'Reconnaissance',
+   q:'Wayback Machine (web.archive.org) berguna dalam reconnaissance karena?',
+   opts:['Dapat melakukan brute force login','Menyimpan snapshot historis halaman web yang mungkin berisi info lama','Memberikan daftar password default perangkat','Menganalisis traffic jaringan target'],
+   ans:1, exp:'Wayback Machine menyimpan <strong>salinan historis</strong> halaman web. Penyerang dapat menemukan halaman admin lama, struktur direktori, atau informasi yang sudah dihapus.'},
+  {cat:'recon', catName:'Reconnaissance',
+   q:'Footprinting adalah tahap awal reconnaissance yang bertujuan untuk?',
+   opts:['Mengeksploitasi sistem target','Membuat profil lengkap tentang target termasuk teknologi, jaringan, dan personil','Memasang backdoor pada sistem','Melakukan serangan DoS'],
+   ans:1, exp:'<strong>Footprinting</strong> adalah proses membuat profil komprehensif tentang target: topologi jaringan, teknologi yang digunakan, nama karyawan, email, dan data publik lainnya.'},
+
+  // ===== ENUMERATION (8 soal) =====
+  {cat:'enum', catName:'Enumeration',
+   q:'Apa perbedaan utama antara Scanning dan Enumeration?',
+   opts:['Scanning lebih berbahaya dari Enumeration','Enumeration mengekstrak informasi detail (user, share, service) setelah scanning mengidentifikasi host aktif','Scanning dilakukan setelah Enumeration','Keduanya adalah proses yang sama'],
+   ans:1, exp:'<strong>Scanning</strong> mengidentifikasi host aktif dan port terbuka. <strong>Enumeration</strong> melangkah lebih jauh — mengekstrak detail seperti username, share SMB, layanan aktif, dan versi software.'},
+  {cat:'enum', catName:'Enumeration',
+   q:'Perintah Nmap mana yang digunakan untuk mendeteksi versi layanan yang berjalan pada port terbuka?',
+   opts:['nmap -sS target','nmap -sV target','nmap -sP target','nmap -O target'],
+   ans:1, exp:'Flag <strong>-sV</strong> (version detection) pada Nmap digunakan untuk mendeteksi versi layanan yang berjalan di port terbuka, sangat penting untuk vulnerability assessment.'},
+  {cat:'enum', catName:'Enumeration',
+   q:'NetBIOS enumeration dapat mengungkap informasi apa tentang jaringan Windows?',
+   opts:['Password hash seluruh domain','Nama host, pengguna yang login, dan share yang tersedia','Konfigurasi firewall','Source code aplikasi'],
+   ans:1, exp:'NetBIOS enumeration (tools: nbtstat, nbtscan) dapat mengungkap <strong>nama komputer, domain/workgroup, pengguna yang sedang login, dan shared folder</strong> pada jaringan Windows.'},
+  {cat:'enum', catName:'Enumeration',
+   q:'LDAP Enumeration pada lingkungan Active Directory dapat memberikan informasi tentang?',
+   opts:['Isi database MySQL','Daftar user, grup, dan struktur organisasi AD','Password plaintext user','Log akses web server'],
+   ans:1, exp:'LDAP enumeration terhadap Active Directory mengungkap <strong>daftar user, grup, atribut akun, organizational unit (OU)</strong>, dan struktur direktori perusahaan.'},
+  {cat:'enum', catName:'Enumeration',
+   q:'SNMP (Simple Network Management Protocol) versi 1 dan 2c rentan terhadap enumeration karena?',
+   opts:['Menggunakan enkripsi yang lemah','Menggunakan community string default yang mudah ditebak (public/private) tanpa enkripsi','Tidak mendukung IPv6','Membutuhkan autentikasi biometrik'],
+   ans:1, exp:'SNMPv1 dan v2c menggunakan <strong>community string</strong> (biasanya "public" atau "private") sebagai autentikasi tanpa enkripsi, memungkinkan enumeration konfigurasi perangkat jaringan.'},
+  {cat:'enum', catName:'Enumeration',
+   q:'Tool "enum4linux" digunakan untuk melakukan enumeration pada?',
+   opts:['Server Linux berbasis Apache','Sistem Windows/Samba melalui protokol SMB','Database Oracle','Router Cisco'],
+   ans:1, exp:'<strong>enum4linux</strong> adalah tool untuk enumerasi informasi dari sistem Windows dan Samba melalui SMB, menghasilkan info pengguna, share, password policy, dan grup.'},
+  {cat:'enum', catName:'Enumeration',
+   q:'Apa yang dimaksud dengan Banner Grabbing dalam proses enumeration?',
+   opts:['Teknik menyembunyikan identitas penyerang','Mengambil informasi versi dan identitas layanan dari respons server','Mengunduh banner iklan dari website','Membuat script banner untuk phishing'],
+   ans:1, exp:'<strong>Banner Grabbing</strong> adalah teknik mengambil informasi (banner) yang dikirim server saat koneksi dibuat, mengungkap tipe software, versi, dan OS yang digunakan.'},
+  {cat:'enum', catName:'Enumeration',
+   q:'Dalam enumerasi web, tools seperti Gobuster atau DirBuster digunakan untuk?',
+   opts:['Meng-crack password hash','Menemukan direktori dan file tersembunyi di web server','Melakukan SQL injection','Menganalisis paket jaringan'],
+   ans:1, exp:'<strong>Gobuster/DirBuster</strong> melakukan brute-force terhadap path URL menggunakan wordlist untuk menemukan direktori, file, dan halaman tersembunyi yang tidak terdaftar di sitemap.'},
+
+  // ===== VULNERABILITY ASSESSMENT (7 soal) =====
+  {cat:'vuln', catName:'Vulnerability Assessment',
+   q:'Apa perbedaan antara Vulnerability Assessment dan Penetration Testing?',
+   opts:['Keduanya sama saja','VA hanya mengidentifikasi dan melaporkan kerentanan; Pentest juga mengeksploitasi kerentanan tersebut','Pentest lebih murah dari VA','VA selalu memerlukan akses root'],
+   ans:1, exp:'<strong>VA</strong> berfokus pada identifikasi, klasifikasi, dan pelaporan kerentanan tanpa mengeksploitasinya. <strong>Pentest</strong> melanjutkan dengan mengeksploitasi kerentanan untuk membuktikan dampak nyata.'},
+  {cat:'vuln', catName:'Vulnerability Assessment',
+   q:'CVE (Common Vulnerabilities and Exposures) adalah?',
+   opts:['Tool scanning kerentanan buatan NIST','Sistem penomoran standar untuk identifikasi kerentanan keamanan publik','Database password yang bocor','Framework untuk pentest'],
+   ans:1, exp:'<strong>CVE</strong> adalah sistem identifikasi standar untuk kerentanan keamanan yang diketahui publik. Format: CVE-TAHUN-NOMOR. Dikelola oleh MITRE Corporation.'},
+  {cat:'vuln', catName:'Vulnerability Assessment',
+   q:'CVSS (Common Vulnerability Scoring System) digunakan untuk?',
+   opts:['Menghitung biaya penetration testing','Memberikan skor numerik (0-10) tentang tingkat keparahan suatu kerentanan','Mengotomatisasi eksploitasi','Membuat laporan pentest'],
+   ans:1, exp:'<strong>CVSS</strong> memberikan skor 0.0–10.0 untuk kerentanan. Kategori: None(0), Low(0.1-3.9), Medium(4.0-6.9), High(7.0-8.9), Critical(9.0-10.0). Membantu prioritisasi patching.'},
+  {cat:'vuln', catName:'Vulnerability Assessment',
+   q:'Nessus, OpenVAS, dan Qualys adalah contoh dari?',
+   opts:['Exploit framework','Vulnerability Scanner','Password cracker','Network sniffer'],
+   ans:1, exp:'Nessus, OpenVAS, dan Qualys adalah <strong>Vulnerability Scanner</strong> — tools yang secara otomatis memindai sistem untuk menemukan kerentanan berdasarkan database CVE dan signature yang terupdate.'},
+  {cat:'vuln', catName:'Vulnerability Assessment',
+   q:'False Positive dalam vulnerability scanning adalah?',
+   opts:['Kerentanan nyata yang terdeteksi scanner','Scanner melaporkan kerentanan yang sebenarnya tidak ada','Kerentanan yang tidak terdeteksi scanner','Exploit yang gagal dijalankan'],
+   ans:1, exp:'<strong>False Positive</strong> terjadi ketika scanner melaporkan kerentanan yang tidak benar-benar ada. Menyebabkan pemborosan sumber daya investigasi. Kebalikannya adalah False Negative (kerentanan nyata yang tidak terdeteksi).'},
+  {cat:'vuln', catName:'Vulnerability Assessment',
+   q:'Dalam konteks web application, kerentanan OWASP Top 10 nomor satu yang paling kritis adalah?',
+   opts:['Cross-Site Scripting (XSS)','Broken Access Control','SQL Injection','Security Misconfiguration'],
+   ans:1, exp:'Sejak OWASP Top 10 2021, <strong>Broken Access Control</strong> menempati posisi pertama, menggantikan Injection. Ini mencakup kegagalan pembatasan akses user terhadap resource yang tidak seharusnya mereka akses.'},
+  {cat:'vuln', catName:'Vulnerability Assessment',
+   q:'Threat Modeling adalah proses yang dilakukan untuk?',
+   opts:['Mengidentifikasi dan memprioritaskan ancaman potensial sebelum eksploitasi terjadi','Membuat model 3D sistem yang diserang','Melatih tim SOC melawan serangan nyata','Mendokumentasikan prosedur backup'],
+   ans:0, exp:'<strong>Threat Modeling</strong> (misal dengan STRIDE atau PASTA) adalah proses proaktif mengidentifikasi, mengkategorikan, dan memprioritaskan ancaman terhadap sistem sebelum kerentanan dieksploitasi.'},
+
+  // ===== EXPLOITATION (7 soal) =====
+  {cat:'exploit', catName:'Exploitation',
+   q:'Metasploit Framework adalah?',
+   opts:['Web application firewall','Platform penetration testing yang menyediakan exploit, payload, dan auxiliary modules','Sistem deteksi intrusi (IDS)','Tool monitoring jaringan'],
+   ans:1, exp:'<strong>Metasploit Framework</strong> adalah platform open-source untuk penetration testing yang menyediakan exploit, payload (shellcode), auxiliary modules, dan post-exploitation tools dalam satu lingkungan terintegrasi.'},
+  {cat:'exploit', catName:'Exploitation',
+   q:'Apa yang dimaksud dengan "Payload" dalam konteks Metasploit?',
+   opts:['Dokumen target yang dieksfiltrasi','Kode yang dieksekusi di sistem target setelah exploit berhasil','File log dari proses scanning','Laporan vulnerability assessment'],
+   ans:1, exp:'<strong>Payload</strong> adalah kode yang berjalan di sistem target setelah eksploit berhasil. Contoh: reverse shell, meterpreter, bind shell. Menentukan apa yang dilakukan penyerang setelah masuk.'},
+  {cat:'exploit', catName:'Exploitation',
+   q:'SQL Injection berhasil dieksploitasi ketika?',
+   opts:['Server menggunakan HTTPS','Input pengguna tidak divalidasi/disanitasi sebelum dimasukkan ke query database','Password database terlalu lemah','Firewall tidak dikonfigurasi'],
+   ans:1, exp:'<strong>SQL Injection</strong> terjadi karena input pengguna tidak disanitasi, sehingga karakter seperti \' atau -- dapat mengubah struktur query SQL dan memanipulasi database.'},
+  {cat:'exploit', catName:'Exploitation',
+   q:'Apa yang dimaksud dengan "Privilege Escalation" setelah mendapatkan akses awal?',
+   opts:['Meningkatkan kecepatan serangan','Menaikkan level akses dari user biasa ke administrator/root','Memperbesar bandwidth yang digunakan','Menginstal lebih banyak tools hacking'],
+   ans:1, exp:'<strong>Privilege Escalation</strong> adalah proses meningkatkan hak akses dari user non-privileged ke level yang lebih tinggi (admin/root). Bisa dilakukan secara vertikal (user→admin) atau horizontal (user A→user B).'},
+  {cat:'exploit', catName:'Exploitation',
+   q:'Buffer Overflow exploit bekerja dengan cara?',
+   opts:['Membanjiri jaringan dengan traffic berlebih','Memasukkan data melebihi kapasitas buffer untuk menimpa memori dan mengarahkan eksekusi program','Mencuri cookie sesi pengguna','Memalsukan identitas server SSL'],
+   ans:1, exp:'<strong>Buffer Overflow</strong> terjadi ketika program menulis data melebihi batas buffer yang dialokasikan, menimpa memori seperti return address, memungkinkan penyerang mengalihkan alur eksekusi ke kode berbahaya.'},
+  {cat:'exploit', catName:'Exploitation',
+   q:'Cross-Site Scripting (XSS) yang tersimpan (Stored XSS) berbeda dari Reflected XSS karena?',
+   opts:['Stored XSS tidak berbahaya','Script berbahaya tersimpan permanen di database server dan dieksekusi setiap user mengakses halaman','Stored XSS hanya menyerang admin','Reflected XSS lebih berbahaya'],
+   ans:1, exp:'<strong>Stored XSS</strong>: script jahat tersimpan di server (database) dan dieksekusi setiap kali halaman diakses. <strong>Reflected XSS</strong>: script dikembalikan server langsung dari URL dan hanya mempengaruhi user yang mengklik link berbahaya.'},
+  {cat:'exploit', catName:'Exploitation',
+   q:'Dalam penetration testing, "Covering Tracks" dilakukan untuk?',
+   opts:['Meningkatkan performa serangan','Menghapus jejak aktivitas penyerang untuk menghindari deteksi (dalam simulasi red team)','Mendokumentasikan serangan untuk laporan','Berbagi hasil dengan klien'],
+   ans:1, exp:'<strong>Covering Tracks</strong> adalah fase post-exploitation di mana penyerang (atau red teamer) menghapus log, artefak, dan bukti intrusi untuk menghindari deteksi. Dalam pentest, ini diuji untuk mengevaluasi kemampuan blue team.'},
+];
+
+let current = 0;
+let answers = new Array(30).fill(null);
+let answered = new Array(30).fill(false);
+let catStats = {};
+
+function startQuiz() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  buildNavDots();
+  loadQuestion();
+}
+
+function buildNavDots() {
+  const container = document.getElementById('navDots');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot';
+    dot.id = `dot-${i}`;
+    dot.title = `Soal ${i+1}`;
+    dot.onclick = () => goToQ(i);
+    container.appendChild(dot);
+  });
+  updateNavDots();
+}
+
+function updateNavDots() {
+  questions.forEach((q, i) => {
+    const dot = document.getElementById(`dot-${i}`);
+    dot.className = 'nav-dot';
+    if (answered[i]) {
+      dot.classList.add('answered');
+      dot.classList.add(answers[i] === q.ans ? 'correct-dot' : 'wrong-dot');
+    }
+    if (i === current) dot.classList.add('current');
+  });
+}
+
+function goToQ(i) {
+  current = i;
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const q = questions[current];
+  const letters = ['A','B','C','D'];
+  document.getElementById('qNum').textContent = current + 1;
+  document.getElementById('qNumberLabel').textContent = `SOAL ${current+1} / 30`;
+  document.getElementById('progressFill').style.width = `${((current+1)/30)*100}%`;
+
+  // Category tag
+  const catColors = {recon:'cat-recon',enum:'cat-enum',vuln:'cat-vuln',exploit:'cat-exploit'};
+  document.getElementById('catTag').innerHTML = `<div class="category-tag ${catColors[q.cat]}">${q.catName.toUpperCase()}</div>`;
+  document.getElementById('catLabel').textContent = q.catName;
+
+  document.getElementById('qText').textContent = q.q;
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.id = `opt-${i}`;
+    div.innerHTML = `<div class="option-letter">${letters[i]}</div><div>${opt}</div>`;
+    if (!answered[current]) {
+      div.onclick = () => selectAnswer(i);
+    }
+    container.appendChild(div);
+  });
+
+  // Restore state
+  const expEl = document.getElementById('explanation');
+  expEl.className = 'explanation';
+  expEl.innerHTML = '';
+
+  if (answered[current]) {
+    restoreAnswerState();
+    document.getElementById('nextBtn').disabled = false;
+  } else {
+    document.getElementById('nextBtn').disabled = true;
+  }
+
+  document.getElementById('prevBtn').style.visibility = current > 0 ? 'visible' : 'hidden';
+  document.getElementById('nextBtn').textContent = current === 29 ? 'LIHAT HASIL →' : 'NEXT →';
+  updateNavDots();
+}
+
+function selectAnswer(idx) {
+  if (answered[current]) return;
+  answers[current] = idx;
+  answered[current] = true;
+
+  const q = questions[current];
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((_, i) => {
+    const el = document.getElementById(`opt-${i}`);
+    el.onclick = null;
+    if (i === q.ans) el.classList.add('correct');
+    else if (i === idx && idx !== q.ans) el.classList.add('incorrect');
+    else el.style.opacity = '0.5';
+  });
+
+  const expEl = document.getElementById('explanation');
+  expEl.innerHTML = `<strong>💡 Penjelasan:</strong> ${q.exp}`;
+  expEl.classList.add('show');
+  document.getElementById('nextBtn').disabled = false;
+  updateNavDots();
+}
+
+function restoreAnswerState() {
+  const q = questions[current];
+  const userAns = answers[current];
+  q.opts.forEach((_, i) => {
+    const el = document.getElementById(`opt-${i}`);
+    if (el) {
+      el.onclick = null;
+      if (i === q.ans) el.classList.add('correct');
+      else if (i === userAns && userAns !== q.ans) el.classList.add('incorrect');
+      else el.style.opacity = '0.5';
+    }
+  });
+  const expEl = document.getElementById('explanation');
+  expEl.innerHTML = `<strong>💡 Penjelasan:</strong> ${q.exp}`;
+  expEl.classList.add('show');
+}
+
+function nextQ() {
+  if (current < 29) {
+    current++;
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function prevQ() {
+  if (current > 0) { current--; loadQuestion(); }
+}
+
+function showResult() {
+  document.getElementById('quizArea').style.display = 'none';
+  const rs = document.getElementById('resultScreen');
+  rs.classList.add('show');
+
+  let correct = 0;
+  const cats = {recon:{c:0,t:0,name:'Reconnaissance'},enum:{c:0,t:0,name:'Enumeration'},vuln:{c:0,t:0,name:'Vulnerability Asmt'},exploit:{c:0,t:0,name:'Exploitation'}};
+
+  questions.forEach((q, i) => {
+    cats[q.cat].t++;
+    if (answers[i] === q.ans) { correct++; cats[q.cat].c++; }
+  });
+
+  const pct = Math.round((correct/30)*100);
+  const grade = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'E';
+  const titles = {A:'🏆 Luar Biasa!', B:'🎯 Sangat Baik!', C:'📚 Cukup Baik', D:'💪 Perlu Belajar Lagi', E:'🔄 Ulangi Materi'};
+  const msgs = {
+    A:'Penguasaan materi ethical hacking Anda sangat baik! Siap untuk tantangan berikutnya.',
+    B:'Pemahaman yang solid! Sedikit lagi dan Anda akan mencapai sempurna.',
+    C:'Dasar yang cukup. Fokus pada topik yang masih kurang dipahami.',
+    D:'Perlu pengulangan materi. Pelajari kembali konsep-konsep dasar.',
+    E:'Jangan menyerah! Pelajari kembali semua materi dari awal.'
+  };
+
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('wrongCount').textContent = 30 - correct;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('finalGrade').textContent = grade;
+  document.getElementById('resultTitle').textContent = titles[grade];
+  document.getElementById('resultMsg').textContent = msgs[grade];
+
+  setTimeout(() => {
+    const circumference = 439.8;
+    const offset = circumference - (pct/100)*circumference;
+    document.getElementById('scoreCircle').style.strokeDashoffset = offset;
+  }, 200);
+
+  const catColors = {recon:'#0af',enum:'#ffd166',vuln:'#ff3e6c',exploit:'#00f5c4'};
+  const breakdown = document.getElementById('catBreakdown');
+  breakdown.innerHTML = '';
+  Object.entries(cats).forEach(([key, val]) => {
+    const catPct = val.t > 0 ? Math.round((val.c/val.t)*100) : 0;
+    breakdown.innerHTML += `
+      <div class="cat-row">
+        <div class="cat-name" style="color:${catColors[key]};font-size:12px">${val.name}</div>
+        <div class="cat-bar-bg"><div class="cat-bar" style="width:0%;background:${catColors[key]}" id="bar-${key}"></div></div>
+        <div class="cat-score">${val.c}/${val.t}</div>
+      </div>`;
+  });
+
+  setTimeout(() => {
+    Object.entries(cats).forEach(([key, val]) => {
+      const catPct = val.t > 0 ? Math.round((val.c/val.t)*100) : 0;
+      const bar = document.getElementById(`bar-${key}`);
+      if (bar) bar.style.width = catPct + '%';
+    });
+  }, 400);
+}
+
+function restartQuiz() {
+  answers = new Array(30).fill(null);
+  answered = new Array(30).fill(false);
+  current = 0;
+  document.getElementById('resultScreen').classList.remove('show');
+  document.getElementById('quizArea').style.display = 'block';
+  buildNavDots();
+  loadQuestion();
+}
+
+function printResult() {
+  window.print();
+}
+</script>
+</body>
+</html>
