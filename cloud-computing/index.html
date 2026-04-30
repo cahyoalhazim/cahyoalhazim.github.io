@@ -1,0 +1,3097 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 1 — Cloud Computing: Docker & Ngrok Deployment</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0f0f;
+    --paper: #faf8f4;
+    --accent: #c84b2f;
+    --accent2: #1a5c8a;
+    --muted: #6b6560;
+    --rule: #d8d3cc;
+    --tag-bg: #eef4f9;
+    --tag-border: #b0cce0;
+    --warn-bg: #fdf3ee;
+    --warn-border: #e89070;
+    --code-bg: #1c1a18;
+    --code-text: #e8dfc8;
+    --code-green: #7ec88a;
+    --code-blue: #7ab8d8;
+    --code-orange: #e8a06a;
+    --highlight: #fffbe6;
+    --col-w: 860px;
+    --hint-bg: #f4f9f4;
+    --hint-border: #5a9e6a;
+    --hint-header-bg: #eaf4ea;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media print {
+    body { background: white; font-size: 12px; }
+    .no-print { display: none !important; }
+    .page-break { page-break-before: always; }
+    header { background: white !important; color: black !important; }
+    .cover-stripe { background: #0f0f0f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    code, .code-block { background: #f0ede8 !important; color: #1c1a18 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .repo-card { break-inside: avoid; }
+    .step-card { break-inside: avoid; }
+    .hint-group-body { display: block !important; }
+    .hint-a { display: block !important; }
+  }
+
+  .toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--ink); color: white;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 32px; font-size: 13px; letter-spacing: .04em;
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  }
+  .toolbar span { opacity: .6; }
+  .btn-print {
+    background: var(--accent); color: white; border: none;
+    padding: 7px 20px; border-radius: 4px; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase;
+    transition: background .2s;
+  }
+  .btn-print:hover { background: #a83820; }
+
+  .wrapper { max-width: var(--col-w); margin: 0 auto; padding: 80px 40px 80px; }
+
+  header {
+    background: var(--ink); color: white;
+    padding: 64px 40px 48px;
+    position: relative; overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 320px; height: 100%;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent, transparent 8px,
+      rgba(255,255,255,.03) 8px, rgba(255,255,255,.03) 16px
+    );
+  }
+  .cover-stripe {
+    display: inline-block;
+    background: var(--accent);
+    color: white; font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    padding: 4px 12px; margin-bottom: 20px;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.1; font-weight: 400;
+    max-width: 600px; margin-bottom: 12px;
+  }
+  header h1 em { color: #f0a080; font-style: italic; }
+  .header-sub {
+    font-size: 14px; opacity: .6; letter-spacing: .06em;
+    text-transform: uppercase; margin-top: 20px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .header-sub span::before { content: '— '; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--accent); opacity: .3;
+  }
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; font-weight: 400;
+    margin-bottom: 20px; line-height: 1.2;
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 15px;
+    letter-spacing: .04em; margin-bottom: 12px;
+    color: var(--accent2);
+  }
+
+  section { margin-bottom: 64px; }
+  section:first-of-type { margin-top: 16px; }
+
+  p { margin-bottom: 12px; color: var(--ink); }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; }
+
+  hr { border: none; border-top: 1px solid var(--rule); margin: 40px 0; }
+
+  .info-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2px; margin: 24px 0; border: 2px solid var(--ink);
+  }
+  .info-cell { padding: 16px 20px; border-right: 1px solid var(--rule); }
+  .info-cell:last-child { border-right: none; }
+  .info-cell .label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .info-cell .value { font-weight: 700; font-size: 16px; color: var(--ink); }
+  .info-cell .value.red { color: var(--accent); }
+
+  .warn-box {
+    background: var(--warn-bg); border-left: 4px solid var(--accent);
+    padding: 16px 20px; margin: 20px 0; border-radius: 0 4px 4px 0;
+  }
+  .warn-box strong { color: var(--accent); }
+
+  .note-box {
+    background: var(--tag-bg); border-left: 4px solid var(--accent2);
+    padding: 16px 20px; margin: 20px 0; border-radius: 0 4px 4px 0;
+  }
+  .note-box strong { color: var(--accent2); }
+
+  .success-box {
+    background: #f2faf3; border-left: 4px solid #4a9e5c;
+    padding: 16px 20px; margin: 20px 0; border-radius: 0 4px 4px 0;
+  }
+  .success-box strong { color: #2e7a3e; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text);
+    font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.8;
+    padding: 20px 24px; margin: 16px 0; border-radius: 4px;
+    overflow-x: auto; position: relative;
+  }
+  .code-block .c-label {
+    position: absolute; top: 10px; right: 14px;
+    font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: rgba(255,255,255,.25);
+  }
+  .code-block .g { color: var(--code-green); }
+  .code-block .b { color: var(--code-blue); }
+  .code-block .o { color: var(--code-orange); }
+  .code-block .d { color: rgba(255,255,255,.35); }
+  code {
+    font-family: 'DM Mono', monospace; font-size: .9em;
+    background: #eeeae4; padding: 2px 6px; border-radius: 3px;
+    color: var(--accent);
+  }
+
+  .repo-grid { display: grid; gap: 16px; margin: 24px 0; }
+  .repo-card {
+    border: 1px solid var(--rule);
+    display: grid; grid-template-columns: 56px 1fr;
+    gap: 0; overflow: hidden; transition: box-shadow .2s;
+  }
+  .repo-card:hover { box-shadow: 4px 4px 0 var(--ink); }
+  .repo-num {
+    background: var(--ink); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 400;
+  }
+  .repo-body { padding: 16px 20px; }
+  .repo-name {
+    font-family: 'DM Mono', monospace; font-weight: 500;
+    font-size: 13px; color: var(--accent2);
+    margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+  }
+  .repo-name a { color: inherit; text-decoration: none; }
+  .repo-name a:hover { text-decoration: underline; }
+  .repo-desc { font-size: 14px; margin-bottom: 8px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 2px 8px; border-radius: 2px;
+    background: var(--tag-bg); border: 1px solid var(--tag-border);
+    color: var(--accent2);
+  }
+  .tag.red { background: var(--warn-bg); border-color: var(--warn-border); color: var(--accent); }
+
+  .steps { display: grid; gap: 16px; margin: 20px 0; }
+  .step-card {
+    display: grid; grid-template-columns: 48px 1fr;
+    border: 1px solid var(--rule); overflow: hidden;
+  }
+  .step-num {
+    background: var(--accent2); color: white;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 18px;
+    font-family: 'DM Serif Display', serif; font-size: 20px;
+  }
+  .step-body { padding: 16px 20px; }
+  .step-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; letter-spacing: .03em; }
+
+  .rubrik-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13.5px; }
+  .rubrik-table th {
+    background: var(--ink); color: white;
+    padding: 10px 14px; text-align: left;
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+  }
+  .rubrik-table td { padding: 11px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .rubrik-table tr:nth-child(even) td { background: #f5f2ec; }
+  .rubrik-table tr:last-child td { border-bottom: none; }
+  .rubrik-table .bobot { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--accent); font-size: 14px; text-align: center; }
+  .rubrik-table .poin { text-align: center; font-weight: 700; }
+  .total-row td { background: var(--ink) !important; color: white; font-weight: 700; font-size: 14px; }
+  .total-row td.bobot { color: #f0a080 !important; }
+
+  .kelompok-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+  .kelompok-table th {
+    background: var(--accent2); color: white;
+    padding: 9px 12px; text-align: left;
+    font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+  }
+  .kelompok-table td { padding: 9px 12px; border-bottom: 1px solid var(--rule); }
+  .kelompok-table tr:nth-child(even) td { background: var(--tag-bg); }
+  .kelompok-table td:first-child { font-family: 'DM Mono', monospace; font-weight: 500; text-align: center; font-size: 15px; }
+  .badge { display: inline-block; font-size: 11px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 2px; font-weight: 500; }
+  .badge-blue { background: var(--tag-bg); border: 1px solid var(--tag-border); color: var(--accent2); }
+  .badge-red { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--accent); }
+
+  .flow {
+    display: flex; align-items: center; flex-wrap: wrap;
+    gap: 4px; margin: 24px 0; padding: 20px;
+    background: var(--ink); border-radius: 4px;
+  }
+  .flow-node {
+    background: white; color: var(--ink);
+    padding: 8px 14px; border-radius: 3px;
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.accent { background: var(--accent); color: white; }
+  .flow-node.blue { background: var(--accent2); color: white; }
+  .flow-arrow { color: rgba(255,255,255,.4); font-size: 18px; padding: 0 2px; }
+
+  /* ── HINT SYSTEM ── */
+  .hint-system { display: grid; gap: 12px; margin-top: 24px; }
+
+  .hint-group {
+    border: 1px solid #c5ddc5;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .hint-group-title {
+    background: var(--hint-header-bg);
+    padding: 14px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+    transition: background .15s;
+    border-bottom: 1px solid #c5ddc5;
+  }
+  .hint-group-title:hover { background: #dceedd; }
+  .hint-group-title .hint-icon { font-size: 18px; flex-shrink: 0; }
+  .hint-group-title > span:nth-child(2) {
+    font-weight: 700; font-size: 14px; flex: 1;
+    color: #1e5c2a;
+  }
+  .hint-chevron {
+    font-size: 12px; color: #4a9e5c;
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+  .hint-chevron.open { transform: rotate(180deg); }
+
+  .hint-group-body {
+    display: none;
+    padding: 16px;
+    background: var(--hint-bg);
+    display: none;
+  }
+  .hint-group-body.open { display: block; }
+
+  .hint-card {
+    border: 1px solid #d0e8d0;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: white;
+  }
+  .hint-card:last-child { margin-bottom: 0; }
+
+  .hint-q {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    background: #f9fdf9;
+    border-bottom: 1px solid #d0e8d0;
+    user-select: none;
+    transition: background .15s;
+  }
+  .hint-q:hover { background: #eef7ee; }
+  .hint-q.open { background: #e5f4e5; border-bottom-color: #a3d4a3; }
+
+  .hint-badge {
+    background: var(--hint-border);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: .05em;
+    flex-shrink: 0;
+  }
+
+  .hint-toggle-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #4a9e5c;
+    font-weight: 400;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: transform .2s;
+  }
+  .hint-toggle-icon.open { transform: rotate(45deg); }
+
+  .hint-a {
+    display: none;
+    padding: 16px 20px;
+    font-size: 13.5px;
+    border-top: none;
+    background: white;
+  }
+  .hint-a.open { display: block; }
+  .hint-a p { margin-bottom: 10px; }
+  .hint-a ul, .hint-a ol { margin-bottom: 10px; }
+  .hint-a li { margin-bottom: 5px; }
+
+  /* OS tab system */
+  .os-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid var(--rule); }
+  .os-tab {
+    padding: 7px 16px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .04em;
+    border: 1px solid var(--rule);
+    border-bottom: none;
+    background: #f5f2ec;
+    color: var(--muted);
+    transition: background .15s, color .15s;
+    margin-right: 2px;
+    border-radius: 4px 4px 0 0;
+  }
+  .os-tab.active { background: var(--code-bg); color: var(--code-green); border-color: #444; }
+  .os-panel { display: none; }
+  .os-panel.active { display: block; }
+
+  footer {
+    background: var(--ink); color: white;
+    padding: 32px 40px; text-align: center;
+    font-size: 13px;
+  }
+  footer p { color: rgba(255,255,255,.5); margin: 0; }
+  footer strong { color: white; }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar no-print">
+  <span>Soal Praktikum Cloud Computing — Project 1</span>
+  <button class="btn-print" onclick="window.print()">⎙ Print / Save PDF</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="wrapper" style="padding-top:0;padding-bottom:0;">
+    <div class="cover-stripe">Mata Kuliah Cloud Computing · Project 1</div>
+    <h1>Deploy, <em>Tunnel</em>,<br>Verify.</h1>
+    <div class="header-sub">
+      <span>Docker + Ngrok Deployment</span>
+      <span>Public Repo · No Coding</span>
+      <span>Kelompok Mandiri</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- INFO STRIP -->
+  <div class="info-grid">
+    <div class="info-cell">
+      <div class="label">Waktu Pengerjaan</div>
+      <div class="value red">120 menit</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Metode</div>
+      <div class="value">Kelompok Mandiri</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Output Utama</div>
+      <div class="value">URL Ngrok Publik</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Deadline Laporan</div>
+      <div class="value">7 Hari Pasca Ujian</div>
+    </div>
+  </div>
+
+  <!-- A. GAMBARAN UMUM -->
+  <section>
+    <div class="section-label">A</div>
+    <h2>Gambaran Umum</h2>
+    <p>Pada project ini, setiap kelompok diminta untuk menjalankan aplikasi web menggunakan <strong>Docker Compose</strong> dari repository publik yang telah ditentukan, lalu mengeksposnya ke internet menggunakan <strong>Ngrok</strong> agar dapat diakses oleh siapa saja — termasuk dosen — tanpa perlu server cloud berbayar.</p>
+    <p>Tidak ada coding dari nol. Fokus sepenuhnya pada <strong>deployment, konfigurasi container, networking, dan tunneling</strong>.</p>
+
+    <div class="flow">
+      <div class="flow-node">git clone</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">docker compose up</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">verify localhost</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node accent">ngrok http [port]</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node blue">URL Publik</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Kirim ke Dosen</div>
+    </div>
+
+    <div class="warn-box">
+      <strong>Penting:</strong> Setiap kelompok mendapat repo yang berbeda. URL Ngrok setiap kelompok bersifat unik dan real-time. Tidak ada cara untuk "copy-paste" hasil kelompok lain.
+    </div>
+  </section>
+
+  <!-- B. REPO PUBLIK -->
+  <section>
+    <div class="section-label">B</div>
+    <h2>Repository per Kelompok</h2>
+    <p>Dosen akan menentukan kelompok mana menggunakan repo mana. Setiap repo sudah memiliki <code>docker-compose.yml</code> dan bisa langsung dijalankan.</p>
+
+    <div class="repo-grid">
+      <div class="repo-card">
+        <div class="repo-num">1</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/docker/getting-started-todo-app" target="_blank">docker/getting-started-todo-app</a></div>
+          <div class="repo-desc">Aplikasi To-Do List resmi dari Docker. React frontend + Node.js backend + MySQL + phpMyAdmin. Satu perintah langsung jalan, dokumentasi lengkap.</div>
+          <div class="tag-row">
+            <span class="tag">React</span><span class="tag">Node.js</span><span class="tag">MySQL</span><span class="tag">phpMyAdmin</span><span class="tag red">Port: 80</span>
+          </div>
+        </div>
+      </div>
+      <div class="repo-card">
+        <div class="repo-num">2</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/dockersamples/example-voting-app" target="_blank">dockersamples/example-voting-app</a></div>
+          <div class="repo-desc">Aplikasi voting klasik dari Docker Samples. 5 container: Python app, Node.js worker, Redis, PostgreSQL, dan result dashboard. Ideal untuk memahami multi-service architecture.</div>
+          <div class="tag-row">
+            <span class="tag">Python</span><span class="tag">Node.js</span><span class="tag">Redis</span><span class="tag">PostgreSQL</span><span class="tag red">Port: 8080 & 8081</span>
+          </div>
+        </div>
+      </div>
+      <div class="repo-card">
+        <div class="repo-num">3</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/louislam/uptime-kuma" target="_blank">louislam/uptime-kuma</a></div>
+          <div class="repo-desc">Dashboard monitoring uptime yang profesional dan populer (50k+ stars). UI modern, login system, dapat memantau URL manapun. Sangat mudah dijalankan via Docker.</div>
+          <div class="tag-row">
+            <span class="tag">Node.js</span><span class="tag">SQLite</span><span class="tag">Dashboard UI</span><span class="tag red">Port: 3001</span>
+          </div>
+        </div>
+      </div>
+      <div class="repo-card">
+        <div class="repo-num">4</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/nicholasjackson/fake-service" target="_blank">nicholasjackson/fake-service + custom compose</a></div>
+          <div class="repo-desc">Fake microservice yang ringan dan fleksibel. Kelompok membuat <code>docker-compose.yml</code> sendiri dari template yang diberikan dosen untuk menjalankan beberapa instance yang saling berkomunikasi.</div>
+          <div class="tag-row">
+            <span class="tag">Go</span><span class="tag">Microservice</span><span class="tag">Service Mesh</span><span class="tag red">Port: 9090</span>
+          </div>
+        </div>
+      </div>
+      <div class="repo-card">
+        <div class="repo-num">5</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/HardevKhandhar/dockerized-fullstack-application" target="_blank">HardevKhandhar/dockerized-fullstack-application</a></div>
+          <div class="repo-desc">Full-stack aplikasi manajemen item dengan Node.js + Express + MongoDB. UI berbasis EJS template, ada CRUD lengkap. Docker Compose siap pakai dengan dua service (app + db).</div>
+          <div class="tag-row">
+            <span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">MongoDB</span><span class="tag red">Port: 3000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px;">Pembagian Kelompok</h3>
+    <table class="kelompok-table">
+      <thead>
+        <tr>
+          <th>No</th><th>Repo yang Digunakan</th><th>Stack Utama</th><th>Port Target Ngrok</th><th>Tantangan Tambahan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>docker/getting-started-todo-app</td><td><span class="badge badge-blue">React + Node + MySQL</span></td><td><code>80</code></td><td>Ubah nama database via <code>.env</code>, tambahkan data dummy</td></tr>
+        <tr><td>2</td><td>dockersamples/example-voting-app</td><td><span class="badge badge-blue">Python + Redis + PgSQL</span></td><td><code>8080</code></td><td>Jalankan kedua port (vote & result), tunnel keduanya</td></tr>
+        <tr><td>3</td><td>louislam/uptime-kuma</td><td><span class="badge badge-blue">Node.js + SQLite</span></td><td><code>3001</code></td><td>Setup monitoring untuk URL Ngrok kelompok lain</td></tr>
+        <tr><td>4</td><td>nicholasjackson/fake-service</td><td><span class="badge badge-red">Go Microservice</span></td><td><code>9090</code></td><td>Buat <code>docker-compose.yml</code> dari template, jalankan 3 service</td></tr>
+        <tr><td>5</td><td>HardevKhandhar/dockerized-fullstack</td><td><span class="badge badge-blue">Node + Express + MongoDB</span></td><td><code>3000</code></td><td>Modifikasi environment variable koneksi DB, tambah volume</td></tr>
+        <tr><td>6</td><td>docker/getting-started-todo-app</td><td><span class="badge badge-blue">React + Node + MySQL</span></td><td><code>80</code></td><td>Tambahkan Nginx reverse proxy di depan aplikasi</td></tr>
+        <tr><td>7</td><td>dockersamples/example-voting-app</td><td><span class="badge badge-blue">Python + Redis + PgSQL</span></td><td><code>8080</code></td><td>Scale vote container menjadi 2 replica via <code>--scale</code></td></tr>
+        <tr><td>8</td><td>louislam/uptime-kuma</td><td><span class="badge badge-blue">Node.js + SQLite</span></td><td><code>3001</code></td><td>Persist data dengan Docker volume, restart container, verifikasi data tidak hilang</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- C. LANGKAH PENGERJAAN -->
+  <section>
+    <div class="section-label">C</div>
+    <h2>Alur Pengerjaan</h2>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Clone Repository & Periksa Struktur</div>
+          <p>Clone repo yang telah ditentukan. Baca <code>README.md</code> dan pahami struktur file sebelum menjalankan apapun.</p>
+          <div class="code-block">
+            <span class="c-label">bash</span>
+            <span class="g">git</span> clone https://github.com/<span class="o">[repo-kelompok]</span><br>
+            <span class="g">cd</span> [nama-folder]<br>
+            <span class="d"># Lihat isi docker-compose.yml</span><br>
+            <span class="g">cat</span> docker-compose.yml<br>
+            <span class="g">ls</span> -la
+          </div>
+          <div class="note-box" style="margin-top:8px;">
+            <strong>Catat:</strong> berapa service yang ada, port mana yang di-expose, environment variable apa yang bisa dikustomisasi.
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Terapkan Kustomisasi Wajib</div>
+          <p>Setiap kelompok wajib melakukan minimal <strong>1 modifikasi</strong> pada <code>docker-compose.yml</code> atau file <code>.env</code> sebelum menjalankan container. Modifikasi ini harus didokumentasikan.</p>
+          <p>Contoh modifikasi yang valid:</p>
+          <ul>
+            <li>Mengubah nama database atau kredensial default</li>
+            <li>Mengganti port expose ke host</li>
+            <li>Menambahkan volume untuk persistensi data</li>
+            <li>Menambahkan environment variable baru</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Jalankan dengan Docker Compose</div>
+          <div class="code-block">
+            <span class="c-label">bash</span>
+            <span class="d"># Jalankan semua service di background</span><br>
+            <span class="g">docker</span> compose up -d<br><br>
+            <span class="d"># Verifikasi semua container berjalan</span><br>
+            <span class="g">docker</span> ps<br><br>
+            <span class="d"># Cek log jika ada masalah</span><br>
+            <span class="g">docker</span> compose logs -f
+          </div>
+          <p>Verifikasi aplikasi bisa diakses di <code>http://localhost:[port]</code> dari browser host sebelum lanjut ke langkah berikutnya.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Install & Konfigurasi Ngrok</div>
+          <div class="code-block">
+            <span class="c-label">bash — Linux/Ubuntu</span>
+            <span class="d"># Download dan install Ngrok</span><br>
+            <span class="g">curl</span> -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \<br>
+            &nbsp;&nbsp;| sudo tee /etc/apt/trusted.gpg.d/ngrok.asc &gt; /dev/null<br>
+            <span class="g">echo</span> <span class="o">"deb https://ngrok-agent.s3.amazonaws.com buster main"</span> \<br>
+            &nbsp;&nbsp;| sudo tee /etc/apt/sources.list.d/ngrok.list<br>
+            <span class="g">sudo</span> apt update &amp;&amp; sudo apt install ngrok<br><br>
+            <span class="d"># Daftarkan authtoken (dari akun ngrok.com)</span><br>
+            <span class="g">ngrok</span> config add-authtoken <span class="o">[YOUR_TOKEN]</span><br><br>
+            <span class="d"># Tunnel ke port aplikasi</span><br>
+            <span class="g">ngrok</span> http <span class="b">[PORT]</span>
+          </div>
+          <div class="warn-box" style="margin-top:8px;">
+            <strong>Daftar akun gratis</strong> di <a href="https://ngrok.com" target="_blank">ngrok.com</a> untuk mendapatkan authtoken. Akun gratis sudah cukup untuk keperluan ujian ini.
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Verifikasi & Kirim URL ke Dosen</div>
+          <p>Setelah Ngrok berjalan, akan muncul URL publik seperti:</p>
+          <div class="code-block">
+            <span class="c-label">output ngrok</span>
+            Forwarding &nbsp;&nbsp;<span class="g">https://a1b2c3d4.ngrok-free.app</span> → http://localhost:<span class="b">3000</span><br>
+            Web Interface &nbsp;http://127.0.0.1:4040
+          </div>
+          <ul>
+            <li>Akses URL tersebut dari browser yang berbeda / HP untuk verifikasi</li>
+            <li>Kirim URL ke dosen melalui LMS atau group yang ditentukan</li>
+            <li>Screenshot Ngrok terminal + halaman web yang terbuka dari URL publik</li>
+            <li>Buka <code>http://localhost:4040</code> untuk melihat Ngrok dashboard (request log) — screenshot ini wajib masuk laporan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. TANTANGAN TAMBAHAN -->
+  <section>
+    <div class="section-label">D</div>
+    <h2>Tantangan Tambahan per Kelompok</h2>
+    <p>Selain alur utama, setiap kelompok memiliki tantangan teknis spesifik (lihat kolom "Tantangan Tambahan" di tabel pembagian). Tantangan ini dinilai terpisah dan mencerminkan kemampuan eksplorasi kelompok.</p>
+    <div class="note-box">
+      <strong>Tips:</strong> Semua tantangan bisa diselesaikan hanya dengan memodifikasi <code>docker-compose.yml</code>, file <code>.env</code>, atau menambahkan perintah Docker CLI — tidak perlu mengubah source code aplikasi.
+    </div>
+    <h3 style="margin-top:24px;">Referensi Perintah Berguna</h3>
+    <div class="code-block">
+      <span class="c-label">docker cheatsheet</span>
+      <span class="d"># Inspeksi network</span><br>
+      <span class="g">docker</span> network ls<br>
+      <span class="g">docker</span> network inspect <span class="o">[network-name]</span><br><br>
+      <span class="d"># Volume management</span><br>
+      <span class="g">docker</span> volume ls<br>
+      <span class="g">docker</span> volume inspect <span class="o">[volume-name]</span><br><br>
+      <span class="d"># Scale service</span><br>
+      <span class="g">docker</span> compose up -d --scale <span class="o">vote=2</span><br><br>
+      <span class="d"># Masuk ke dalam container</span><br>
+      <span class="g">docker</span> exec -it <span class="o">[container-name]</span> bash<br><br>
+      <span class="d"># Lihat environment variable aktif di container</span><br>
+      <span class="g">docker</span> inspect <span class="o">[container-name]</span> | grep -A 20 <span class="b">"Env"</span><br><br>
+      <span class="d"># Stop semua dan bersihkan</span><br>
+      <span class="g">docker</span> compose down -v
+    </div>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- E. OUTPUT WAJIB -->
+  <section>
+    <div class="section-label">E</div>
+    <h2>Output yang Harus Dikumpulkan</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin:20px 0;">
+      <div style="border:1px solid var(--rule); padding:20px;">
+        <h3>📄 Laporan Tertulis</h3>
+        <ul>
+          <li>Identitas anggota kelompok</li>
+          <li>Repo yang digunakan & alasan teknis</li>
+          <li>Isi <code>docker-compose.yml</code> + penjelasan tiap service</li>
+          <li>Modifikasi yang dilakukan + alasan</li>
+          <li>Screenshot: <code>docker ps</code>, browser localhost, Ngrok terminal, Ngrok dashboard (4040), URL publik dari HP/browser lain</li>
+          <li>Tantangan tambahan: langkah & bukti</li>
+          <li>Kendala dan solusi</li>
+          <li>Analisis: apa yang dipelajari tentang Docker networking & tunneling</li>
+        </ul>
+      </div>
+      <div style="border:1px solid var(--rule); padding:20px;">
+        <h3>🎬 Video Rekaman</h3>
+        <ul>
+          <li>Durasi minimal <strong>5 menit</strong></li>
+          <li>Tampilkan: proses <code>docker compose up</code></li>
+          <li>Tampilkan: output <code>docker ps</code> semua container running</li>
+          <li>Tampilkan: akses aplikasi dari <code>localhost</code></li>
+          <li>Tampilkan: proses Ngrok berjalan dan URL publik muncul</li>
+          <li>Tampilkan: akses URL publik dari browser yang berbeda atau HP</li>
+          <li>Tampilkan: tantangan tambahan dikerjakan</li>
+        </ul>
+      </div>
+    </div>
+    <div style="border:1px solid var(--rule); padding:20px; margin-top:0;">
+      <h3>🖥️ Demo Langsung (Presentasi)</h3>
+      <ul style="column-count:2; column-gap:24px;">
+        <li>Durasi minimal <strong>7 menit</strong> per kelompok</li>
+        <li>Semua container harus running saat presentasi</li>
+        <li>Tunjukkan <code>docker ps</code> live di terminal</li>
+        <li>Buka URL Ngrok dari HP dosen atau laptop lain</li>
+        <li>Jelaskan isi <code>docker-compose.yml</code> line by line</li>
+        <li>Jelaskan bagaimana Ngrok bekerja (tunneling)</li>
+        <li>Demonstrasikan tantangan tambahan</li>
+        <li>Jawab minimal 2 pertanyaan dari dosen</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- F. RUBRIK -->
+  <section>
+    <div class="section-label">F</div>
+    <h2>Rubrik Penilaian</h2>
+    <p>Total nilai = <strong>100 poin</strong>.</p>
+    <table class="rubrik-table">
+      <thead>
+        <tr><th style="width:32px;">#</th><th>Komponen</th><th>Indikator Keberhasilan</th><th style="width:70px;">Bobot</th><th style="width:60px;">Poin</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Docker Compose Berjalan</strong></td><td>Semua service dalam <code>docker-compose.yml</code> berstatus <code>Up</code> saat <code>docker ps</code> dijalankan</td><td class="bobot">20%</td><td class="poin">20</td></tr>
+        <tr><td>2</td><td><strong>Aplikasi Dapat Diakses via Ngrok</strong></td><td>URL publik Ngrok dapat dibuka dari browser berbeda / perangkat lain dan menampilkan aplikasi</td><td class="bobot">25%</td><td class="poin">25</td></tr>
+        <tr><td>3</td><td><strong>Kustomisasi docker-compose</strong></td><td>Minimal 1 modifikasi pada <code>docker-compose.yml</code> atau <code>.env</code> yang didokumentasikan dan berfungsi</td><td class="bobot">15%</td><td class="poin">15</td></tr>
+        <tr><td>4</td><td><strong>Tantangan Tambahan</strong></td><td>Tantangan spesifik kelompok berhasil diselesaikan dan dapat diverifikasi</td><td class="bobot">15%</td><td class="poin">15</td></tr>
+        <tr><td>5</td><td><strong>Laporan & Dokumentasi</strong></td><td>Laporan lengkap dengan semua screenshot wajib, penjelasan teknis, dan analisis</td><td class="bobot">10%</td><td class="poin">10</td></tr>
+        <tr><td>6</td><td><strong>Video Rekaman</strong></td><td>Video min. 5 menit menampilkan semua tahap dari clone hingga URL publik aktif</td><td class="bobot">10%</td><td class="poin">10</td></tr>
+        <tr><td>7</td><td><strong>Presentasi & Pemahaman</strong></td><td>Mampu menjelaskan arsitektur, isi compose file, cara kerja Ngrok, dan menjawab pertanyaan dosen</td><td class="bobot">5%</td><td class="poin">5</td></tr>
+        <tr class="total-row"><td colspan="3" style="text-align:right; letter-spacing:.06em;">TOTAL NILAI MAKSIMUM</td><td class="bobot">100%</td><td class="poin">100</td></tr>
+      </tbody>
+    </table>
+    <h3 style="margin-top:24px;">Pengurangan Nilai</h3>
+    <ul>
+      <li>URL Ngrok tidak aktif saat presentasi (bisa diperbaiki on-the-spot): <strong>−10 poin</strong></li>
+      <li>Tidak ada modifikasi sama sekali pada <code>docker-compose.yml</code>: <strong>−10 poin</strong></li>
+      <li>Laporan tidak memiliki screenshot Ngrok dashboard (<code>localhost:4040</code>): <strong>−5 poin</strong></li>
+      <li>Video tidak menampilkan akses dari perangkat lain: <strong>−5 poin</strong></li>
+      <li>Terdeteksi konfigurasi identik dengan kelompok lain: <strong>komponen kustomisasi = 0</strong></li>
+    </ul>
+  </section>
+
+  <!-- G. PERTANYAAN ACUAN -->
+  <section>
+    <div class="section-label">G</div>
+    <h2>Pertanyaan Acuan Saat Demo</h2>
+    <p>Dosen dapat mengajukan pertanyaan dari daftar berikut. Setiap kelompok wajib menjawab minimal 2 pertanyaan.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;">
+      <div style="padding:14px 16px; border:1px solid var(--rule); border-left:3px solid var(--accent2);">
+        <strong style="font-size:12px; color:var(--accent2); letter-spacing:.06em; text-transform:uppercase;">Docker</strong>
+        <ul style="margin-top:8px; font-size:13.5px;">
+          <li>Apa fungsi <code>depends_on</code> di docker-compose?</li>
+          <li>Apa perbedaan <code>volumes</code> dan <code>bind mount</code>?</li>
+          <li>Kenapa container bisa saling berkomunikasi tanpa IP eksplisit?</li>
+          <li>Apa yang terjadi pada data jika <code>docker compose down -v</code> dijalankan?</li>
+        </ul>
+      </div>
+      <div style="padding:14px 16px; border:1px solid var(--rule); border-left:3px solid var(--accent);">
+        <strong style="font-size:12px; color:var(--accent); letter-spacing:.06em; text-transform:uppercase;">Ngrok & Networking</strong>
+        <ul style="margin-top:8px; font-size:13.5px;">
+          <li>Jelaskan cara kerja Ngrok secara konseptual.</li>
+          <li>Apa perbedaan Ngrok dengan port forwarding di VirtualBox?</li>
+          <li>Kenapa URL Ngrok berubah setiap kali dijalankan ulang (versi gratis)?</li>
+          <li>Di industri, alternatif Ngrok yang lebih production-ready apa saja?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- H. HINT PENGERJAAN -->
+  <section>
+    <div class="section-label">H</div>
+    <h2>Hint Pengerjaan</h2>
+    <p>Bagian ini berisi petunjuk teknis untuk membantu ketika mengalami kebuntuan. Klik judul kelompok hint untuk membuka, klik pertanyaan untuk melihat jawabannya.</p>
+    <div class="warn-box" style="margin-bottom:20px;">
+      <strong>Etika Pengerjaan:</strong> Baca hint hanya jika sudah mencoba sendiri minimal 10 menit. Mendokumentasikan proses trial-and-error sebelum menemukan solusi justru memberi nilai lebih pada laporan.
+    </div>
+
+    <div class="hint-system">
+
+      <!-- ══ HINT UMUM ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">💡</span>
+          <span>Hint Umum — Semua Kelompok</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H0</span> Persiapan: pastikan Docker sudah terinstall dengan benar
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Sebelum mulai, verifikasi Docker dan Docker Compose tersedia:</p>
+              <div class="code-block">
+                <span class="c-label">bash</span>
+                <span class="d"># Cek versi Docker</span><br>
+                <span class="g">docker</span> --version<br>
+                <span class="d"># Output yang diharapkan: Docker version 24.x.x atau lebih baru</span><br><br>
+                <span class="d"># Cek Docker Compose (plugin baru, tanpa tanda hubung)</span><br>
+                <span class="g">docker</span> compose version<br>
+                <span class="d"># Output yang diharapkan: Docker Compose version v2.x.x</span><br><br>
+                <span class="d"># Pastikan Docker daemon berjalan</span><br>
+                <span class="g">docker</span> ps<br>
+                <span class="d"># Jika error "Cannot connect to the Docker daemon" → jalankan Docker Desktop atau: sudo systemctl start docker</span>
+              </div>
+              <div class="note-box">
+                <strong>Catatan Windows:</strong> Pastikan Docker Desktop sudah dibuka dan berjalan (icon di system tray). Jika menggunakan WSL2, jalankan semua perintah di dalam terminal WSL, bukan PowerShell.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H1</span> Container langsung exit setelah <code>docker compose up</code> — kenapa?
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Jalankan <code>docker compose logs [nama-service]</code> untuk melihat pesan error. Penyebab umum:</p>
+              <ul>
+                <li><strong>Port sudah dipakai proses lain</strong> → cek dengan <code>sudo lsof -i :[port]</code> (Linux/Mac) atau <code>netstat -ano | findstr :[port]</code> (Windows), matikan prosesnya</li>
+                <li><strong>Environment variable tidak lengkap</strong> → pastikan file <code>.env</code> ada dan diisi dengan benar</li>
+                <li><strong>Image gagal pull</strong> → cek koneksi internet, coba <code>docker pull [nama-image]</code> manual</li>
+                <li><strong>Dependency belum siap</strong> → database kadang butuh 10–30 detik sebelum siap menerima koneksi dari app</li>
+              </ul>
+              <div class="code-block" style="margin-top:10px;">
+                <span class="d"># Lihat log spesifik satu service</span><br>
+                <span class="g">docker</span> compose logs --tail=50 <span class="o">app</span><br><br>
+                <span class="d"># Jalankan tanpa -d untuk lihat output langsung di terminal</span><br>
+                <span class="g">docker</span> compose up<br><br>
+                <span class="d"># Cek status semua container</span><br>
+                <span class="g">docker</span> compose ps
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H2</span> Cara install dan setup Ngrok dari awal (step-by-step lengkap)
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p><strong>Langkah 1:</strong> Daftar akun gratis di <a href="https://ngrok.com" target="_blank">ngrok.com</a> → Login → pergi ke <a href="https://dashboard.ngrok.com/get-started/your-authtoken" target="_blank">Your Authtoken</a> → copy token.</p>
+              <p><strong>Langkah 2:</strong> Install Ngrok sesuai OS:</p>
+
+              <div class="os-tabs" id="os-tabs-install">
+                <div class="os-tab active" onclick="switchTab('install', 'linux', this)">Linux/Ubuntu</div>
+                <div class="os-tab" onclick="switchTab('install', 'windows', this)">Windows</div>
+                <div class="os-tab" onclick="switchTab('install', 'mac', this)">macOS</div>
+              </div>
+              <div id="os-tab-install-linux" class="os-panel active">
+                <div class="code-block" style="margin-top:0; border-radius:0 4px 4px 4px;">
+                  <span class="d"># Cara 1: Via apt (Ubuntu/Debian)</span><br>
+                  <span class="g">curl</span> -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \<br>
+                  &nbsp;&nbsp;| sudo tee /etc/apt/trusted.gpg.d/ngrok.asc &gt; /dev/null<br>
+                  <span class="g">echo</span> <span class="o">"deb https://ngrok-agent.s3.amazonaws.com buster main"</span> \<br>
+                  &nbsp;&nbsp;| sudo tee /etc/apt/sources.list.d/ngrok.list<br>
+                  <span class="g">sudo</span> apt update &amp;&amp; sudo apt install ngrok<br><br>
+                  <span class="d"># Cara 2: Download langsung (lebih cepat)</span><br>
+                  <span class="g">wget</span> https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz<br>
+                  <span class="g">tar</span> xvzf ngrok-v3-stable-linux-amd64.tgz<br>
+                  <span class="g">sudo</span> mv ngrok /usr/local/bin/<br>
+                  <span class="g">ngrok</span> --version
+                </div>
+              </div>
+              <div id="os-tab-install-windows" class="os-panel">
+                <div class="code-block" style="margin-top:0; border-radius:0 4px 4px 4px;">
+                  <span class="d"># Cara 1: Via Chocolatey (jalankan PowerShell sebagai Admin)</span><br>
+                  <span class="g">choco</span> install ngrok<br><br>
+                  <span class="d"># Cara 2: Via Winget</span><br>
+                  <span class="g">winget</span> install ngrok.ngrok<br><br>
+                  <span class="d"># Cara 3: Download .exe dari https://ngrok.com/download</span><br>
+                  <span class="d"># Extract zip → letakkan ngrok.exe di folder yang ada di PATH</span><br>
+                  <span class="d"># Atau jalankan langsung dari folder download: .\ngrok.exe http 3000</span>
+                </div>
+              </div>
+              <div id="os-tab-install-mac" class="os-panel">
+                <div class="code-block" style="margin-top:0; border-radius:0 4px 4px 4px;">
+                  <span class="d"># Via Homebrew (disarankan)</span><br>
+                  <span class="g">brew</span> install ngrok/ngrok/ngrok<br><br>
+                  <span class="d"># Verifikasi</span><br>
+                  <span class="g">ngrok</span> --version
+                </div>
+              </div>
+
+              <p style="margin-top:12px;"><strong>Langkah 3:</strong> Daftarkan authtoken:</p>
+              <div class="code-block">
+                <span class="g">ngrok</span> config add-authtoken <span class="o">TOKEN_YANG_DICOPY_DARI_DASHBOARD</span><br>
+                <span class="d"># Konfirmasi token tersimpan:</span><br>
+                <span class="g">cat</span> ~/.config/ngrok/ngrok.yml &nbsp;<span class="d"># Linux/Mac</span><br>
+                <span class="d"># Windows: %USERPROFILE%\AppData\Local\ngrok\ngrok.yml</span>
+              </div>
+
+              <p><strong>Langkah 4:</strong> Jalankan tunnel:</p>
+              <div class="code-block">
+                <span class="d"># Ganti [PORT] dengan port aplikasi yang sedang berjalan</span><br>
+                <span class="g">ngrok</span> http <span class="b">[PORT]</span>
+              </div>
+              <div class="success-box">
+                <strong>Berhasil!</strong> Jika muncul baris "Forwarding https://xxxx.ngrok-free.app → http://localhost:[PORT]", Ngrok sudah berjalan. Copy URL tersebut dan buka dari HP atau browser lain.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H3</span> Ngrok error <em>"authentication failed"</em> atau <em>"invalid token"</em>
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Authtoken belum didaftarkan atau salah. Langkah perbaikan:</p>
+              <ol>
+                <li>Login ke <a href="https://dashboard.ngrok.com/get-started/your-authtoken" target="_blank">dashboard.ngrok.com/get-started/your-authtoken</a></li>
+                <li>Klik tombol copy di sebelah token</li>
+                <li>Jalankan: <code>ngrok config add-authtoken TOKEN_ANDA</code></li>
+                <li>Verifikasi: <code>cat ~/.config/ngrok/ngrok.yml</code> — pastikan ada baris <code>authtoken: ...</code></li>
+              </ol>
+              <div class="warn-box">
+                <strong>Jangan share authtoken!</strong> Token ini terhubung ke akun pribadi. Setiap anggota kelompok sebaiknya pakai akun masing-masing, tapi satu akun cukup untuk menjalankan tunnel selama ujian.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H4</span> Ngrok berjalan tapi browser menampilkan halaman kosong, error, atau <em>"502 Bad Gateway"</em>
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Ngrok sudah jalan tapi aplikasi di dalam Docker belum merespons. Cek urutan ini:</p>
+              <ol>
+                <li><strong>Test localhost dulu:</strong> buka <code>http://localhost:[port]</code> di browser. Kalau localhost saja gagal, Ngrok tidak akan bisa — selesaikan masalah Docker dulu.</li>
+                <li><strong>Port tidak cocok:</strong> pastikan port yang kamu berikan ke Ngrok sama dengan yang ada di <code>docker ps</code> kolom PORTS.</li>
+                <li><strong>App butuh waktu:</strong> beberapa aplikasi butuh 30–60 detik inisialisasi database. Tunggu dan coba lagi.</li>
+                <li><strong>Ngrok Interstitial Page:</strong> pertama kali buka URL Ngrok di browser akan ada halaman peringatan "This site was tunneled through Ngrok" — klik "Visit Site" untuk lanjut.</li>
+              </ol>
+              <div class="code-block">
+                <span class="d"># Cek port yang benar-benar di-expose</span><br>
+                <span class="g">docker</span> ps --format <span class="o">"table {{.Names}}\t{{.Ports}}"</span><br><br>
+                <span class="d"># Contoh output:</span><br>
+                <span class="d"># app_1    0.0.0.0:3000->3000/tcp</span><br>
+                <span class="d"># → berarti jalankan: ngrok http 3000</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H5</span> Cara aman mengubah <code>docker-compose.yml</code> tanpa menghapus data
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Perbedaan penting antara <code>down</code> dan <code>down -v</code>:</p>
+              <div class="code-block">
+                <span class="d"># AMAN: Stop container, volume data TETAP ada</span><br>
+                <span class="g">docker</span> compose down<br><br>
+                <span class="d"># Edit file</span><br>
+                <span class="g">nano</span> docker-compose.yml<br><br>
+                <span class="d"># Jalankan ulang</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d">─────────────────────────────────────────</span><br>
+                <span class="d"># RESET TOTAL: Stop + hapus volume (data hilang!)</span><br>
+                <span class="g">docker</span> compose down -v<br>
+                <span class="d"># Gunakan hanya jika ingin mulai dari awal bersih</span>
+              </div>
+              <div class="warn-box">
+                <strong>Hati-hati <code>down -v</code>!</strong> Flag <code>-v</code> menghapus semua volume Docker yang terdefinisi di compose file. Data database akan hilang permanen. Gunakan hanya kalau memang ingin reset total.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H6</span> Ngrok berjalan tapi URL berubah terus — bagaimana cara menyimpan URL tetap selama sesi?
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Ini perilaku normal Ngrok versi gratis — setiap kali <code>ngrok http [port]</code> dijalankan ulang, URL berubah. Solusinya:</p>
+              <ul>
+                <li><strong>Jangan tutup terminal Ngrok</strong> selama sesi berlangsung. Buka terminal baru untuk perintah lain.</li>
+                <li>Jalankan Docker terlebih dahulu, pastikan stabil, <em>baru</em> jalankan Ngrok.</li>
+                <li>Jika Ngrok terpaksa di-restart, segera kirim ulang URL baru ke dosen sebelum presentasi.</li>
+              </ul>
+              <div class="note-box">
+                <strong>Tip presentasi:</strong> Buka Ngrok di terminal tersendiri (jangan di tab yang sama dengan Docker logs). Gunakan <code>tmux</code> atau buka beberapa jendela terminal untuk manajemen yang lebih mudah.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H7</span> Cara membuka dan membaca Ngrok Web Dashboard (<code>localhost:4040</code>)
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Selama Ngrok berjalan, ada web interface lokal yang menampilkan semua request yang masuk melalui tunnel:</p>
+              <ol>
+                <li>Buka browser → ketik <code>http://localhost:4040</code></li>
+                <li>Klik tab <strong>"Requests"</strong> untuk melihat HTTP request yang masuk</li>
+                <li>Setiap kali seseorang mengakses URL Ngrok kamu, request akan muncul di sini real-time</li>
+                <li>Klik satu request untuk melihat detail: headers, body, response code</li>
+              </ol>
+              <div class="success-box">
+                <strong>Screenshot wajib!</strong> Tampilan dashboard 4040 yang menampilkan minimal 1 request masuk harus ada di laporan. Minta rekan kelompok mengakses URL Ngrok dari HP mereka agar ada request yang muncul.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 1 & 6 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">🗂️</span>
+          <span>Hint Kelompok 1 & 6 — docker/getting-started-todo-app</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H8</span> Langkah awal: cara clone dan menjalankan repo ini
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <div class="code-block">
+                <span class="d"># Clone repo</span><br>
+                <span class="g">git</span> clone https://github.com/docker/getting-started-todo-app<br>
+                <span class="g">cd</span> getting-started-todo-app<br><br>
+                <span class="d"># Lihat struktur file</span><br>
+                <span class="g">ls</span> -la<br>
+                <span class="g">cat</span> compose.yaml &nbsp;<span class="d"># file compose-nya bernama compose.yaml, bukan docker-compose.yml</span><br><br>
+                <span class="d"># Jalankan (proses build pertama bisa makan 5-10 menit)</span><br>
+                <span class="g">docker</span> compose up<br>
+                <span class="d"># Tunggu muncul: "webpack compiled successfully"</span><br>
+                <span class="d"># Lalu buka: http://localhost:3000 atau http://localhost:80</span>
+              </div>
+              <div class="note-box">
+                <strong>Perhatikan:</strong> File compose-nya mungkin bernama <code>compose.yaml</code> bukan <code>docker-compose.yml</code> — keduanya dibaca otomatis oleh Docker Compose.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H9</span> Aplikasi tidak muncul — hanya halaman default Nginx atau blank
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Repo ini menggunakan multi-stage build. Proses build frontend React membutuhkan waktu ekstra. Solusi:</p>
+              <div class="code-block">
+                <span class="d"># Jalankan TANPA flag -d agar bisa lihat progress</span><br>
+                <span class="g">docker</span> compose up<br><br>
+                <span class="d"># Tunggu hingga muncul pesan seperti:</span><br>
+                <span class="d"># "webpack compiled successfully" atau "ready on port"</span><br>
+                <span class="d"># Proses ini bisa memakan 3-8 menit pertama kali</span><br><br>
+                <span class="d"># Baru setelah itu buka browser ke localhost</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H10</span> <em>(Kelompok 1)</em> Cara mengubah nama database via environment variable
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Buat file <code>.env</code> di folder yang sama dengan <code>compose.yaml</code>:</p>
+              <div class="code-block">
+                <span class="d"># Buat file .env</span><br>
+                <span class="g">nano</span> .env<br><br>
+                <span class="d"># Isi dengan (sesuaikan dengan nama kelompok):</span><br>
+                <span class="b">MYSQL_DATABASE</span>=todo_kelompok1<br>
+                <span class="b">MYSQL_USER</span>=user_kel1<br>
+                <span class="b">MYSQL_PASSWORD</span>=password_kel1<br>
+                <span class="b">MYSQL_ROOT_PASSWORD</span>=rootpass_kel1
+              </div>
+              <p style="margin-top:8px;">Lalu pastikan di <code>compose.yaml</code> bagian service MySQL sudah mereferensikan variabel ini dengan sintaks <code>${MYSQL_DATABASE}</code>. Setelah edit, jalankan <code>docker compose down</code> lalu <code>docker compose up -d</code>.</p>
+              <div class="note-box">
+                <strong>Verifikasi:</strong> Setelah container jalan, masuk ke container MySQL dan cek nama database: <code>docker exec -it [nama-container-mysql] mysql -u root -p -e "SHOW DATABASES;"</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H11</span> <em>(Kelompok 6)</em> Cara menambahkan Nginx reverse proxy di depan aplikasi
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Buat file <code>nginx.conf</code> baru, lalu tambahkan service Nginx di <code>compose.yaml</code>:</p>
+              <div class="code-block">
+                <span class="d"># File: nginx.conf</span><br>
+                server {<br>
+                &nbsp;&nbsp;listen 80;<br>
+                &nbsp;&nbsp;location / {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;proxy_pass http://<span class="b">app:3000</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header Host $host;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header X-Real-IP $remote_addr;<br>
+                &nbsp;&nbsp;}<br>
+                }
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Tambahkan di bagian services di compose.yaml:</span><br>
+                <span class="b">nginx-proxy:</span><br>
+                &nbsp;&nbsp;<span class="g">image:</span> nginx:alpine<br>
+                &nbsp;&nbsp;<span class="g">ports:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">"8080:80"</span><br>
+                &nbsp;&nbsp;<span class="g">volumes:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">./nginx.conf:/etc/nginx/conf.d/default.conf:ro</span><br>
+                &nbsp;&nbsp;<span class="g">depends_on:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">app</span>
+              </div>
+              <p style="margin-top:8px;">Tunnel Ngrok ke port <code>8080</code> (port Nginx), bukan port app langsung. Verifikasi dengan <code>docker ps</code> bahwa ada container nginx-proxy dengan port 8080.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 2 & 7 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">🗳️</span>
+          <span>Hint Kelompok 2 & 7 — dockersamples/example-voting-app</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H12</span> Langkah awal: clone dan jalankan voting app
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <div class="code-block">
+                <span class="g">git</span> clone https://github.com/dockersamples/example-voting-app<br>
+                <span class="g">cd</span> example-voting-app<br>
+                <span class="g">cat</span> docker-compose.yml<br><br>
+                <span class="d"># Jalankan semua 5 service</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Cek semua container berjalan (butuh ~1 menit)</span><br>
+                <span class="g">docker</span> compose ps<br><br>
+                <span class="d"># Akses halaman voting</span><br>
+                <span class="d"># http://localhost:8080  ← halaman vote (pilih kucing/anjing)</span><br>
+                <span class="d"># http://localhost:8081  ← halaman result (grafik real-time)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H13</span> Ada 2 port (8080 dan 8081) — bagaimana cara tunnel keduanya sekaligus?
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Ngrok versi gratis hanya bisa 1 tunnel aktif per sesi. Gunakan 2 terminal secara paralel:</p>
+              <div class="code-block">
+                <span class="d"># Terminal 1 — tunnel halaman voting (vote)</span><br>
+                <span class="g">ngrok</span> http <span class="b">8080</span><br><br>
+                <span class="d"># Terminal 2 (buka terminal baru) — tunnel halaman result</span><br>
+                <span class="g">ngrok</span> http <span class="b">8081</span>
+              </div>
+              <p style="margin-top:8px;">Catat kedua URL Ngrok yang muncul. Dalam laporan, sertakan screenshot kedua URL aktif. Untuk membuktikan fungsi: buka URL vote dari HP → pilih opsi → buka URL result dari browser lain → lihat grafik berubah real-time.</p>
+              <div class="note-box">
+                <strong>Jika error "limit reached":</strong> Akun gratis Ngrok membatasi 1 tunnel simultan. Tunjukkan satu per satu: screenshot port 8080 aktif, lalu ganti ke port 8081 untuk screenshot berikutnya. Atau daftar akun Ngrok kedua untuk anggota lain.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H14</span> Worker container terus restart — status <em>Restarting</em> di <code>docker ps</code>
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Worker bergantung pada Redis dan PostgreSQL yang butuh waktu startup. Ini normal di 1–2 menit pertama. Langkah yang benar:</p>
+              <ol>
+                <li>Tunggu dulu 2 menit setelah <code>docker compose up -d</code></li>
+                <li>Jalankan <code>docker compose ps</code> ulang — status Worker harus berubah jadi <strong>Up</strong></li>
+                <li>Jika masih Restarting setelah 5 menit, cek log: <code>docker compose logs worker --tail=30</code></li>
+              </ol>
+              <div class="code-block">
+                <span class="d"># Monitor status secara live</span><br>
+                <span class="g">watch</span> -n 2 docker compose ps<br>
+                <span class="d"># Ctrl+C untuk keluar dari watch</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H15</span> <em>(Kelompok 7)</em> Cara scale container vote menjadi 2 replica
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Container yang di-scale tidak boleh punya port host yang fixed (akan konflik). Edit <code>docker-compose.yml</code> terlebih dahulu:</p>
+              <div class="code-block">
+                <span class="d"># Di docker-compose.yml, cari bagian service 'vote'</span><br>
+                <span class="d"># Ubah dari:</span><br>
+                ports:<br>
+                &nbsp;&nbsp;- <span class="o">"8080:80"</span><br><br>
+                <span class="d"># Menjadi (expose port tanpa binding host tetap):</span><br>
+                ports:<br>
+                &nbsp;&nbsp;- <span class="o">"80"</span> &nbsp;<span class="d"># Docker akan assign port host secara otomatis</span>
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Jalankan dengan scale 2 replica</span><br>
+                <span class="g">docker</span> compose up -d --scale <span class="b">vote=2</span><br><br>
+                <span class="d"># Verifikasi ada 2 container vote</span><br>
+                <span class="g">docker</span> ps | grep vote<br>
+                <span class="d"># Harus ada 2 baris dengan nama seperti:</span><br>
+                <span class="d"># example-voting-app-vote-1</span><br>
+                <span class="d"># example-voting-app-vote-2</span>
+              </div>
+              <div class="note-box">
+                <strong>Screenshot yang dibutuhkan:</strong> Output <code>docker ps</code> yang menampilkan 2 container vote berjalan bersamaan + penjelasan di laporan tentang kegunaan scaling.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 3 & 8 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">📊</span>
+          <span>Hint Kelompok 3 & 8 — louislam/uptime-kuma</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H16</span> Cara membuat dan menjalankan Uptime Kuma via Docker Compose
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Repo Uptime Kuma tidak punya <code>docker-compose.yml</code> bawaan — buat sendiri di folder baru:</p>
+              <div class="code-block">
+                <span class="d"># Buat folder baru</span><br>
+                <span class="g">mkdir</span> uptime-kuma-deploy &amp;&amp; cd uptime-kuma-deploy<br><br>
+                <span class="d"># Buat file docker-compose.yml</span><br>
+                <span class="g">nano</span> docker-compose.yml
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Isi dengan:</span><br>
+                <span class="b">version:</span> <span class="o">'3.8'</span><br>
+                <span class="b">services:</span><br>
+                &nbsp;&nbsp;<span class="g">uptime-kuma:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> louislam/uptime-kuma:1<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">container_name:</span> uptime-kuma<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">volumes:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uptime-kuma-data:/app/data<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">ports:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">"3001:3001"</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">restart:</span> unless-stopped<br><br>
+                <span class="b">volumes:</span><br>
+                &nbsp;&nbsp;<span class="g">uptime-kuma-data:</span>
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Jalankan</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Buka http://localhost:3001</span><br>
+                <span class="d"># Pertama kali: buat akun admin (username & password)</span><br>
+                <span class="d"># Simpan credentials — dibutuhkan untuk login ulang</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H17</span> <em>(Kelompok 3)</em> Cara menambahkan monitor untuk URL Ngrok kelompok lain
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Setelah login ke Uptime Kuma di <code>localhost:3001</code>:</p>
+              <ol>
+                <li>Klik tombol <strong>"Add New Monitor"</strong> (atau + di pojok kanan)</li>
+                <li><strong>Monitor Type:</strong> pilih <code>HTTP(s)</code></li>
+                <li><strong>Friendly Name:</strong> isi nama kelompok yang dipantau (misal: "Kelompok 1 - Todo App")</li>
+                <li><strong>URL:</strong> masukkan URL Ngrok kelompok lain, misal <code>https://abc123.ngrok-free.app</code></li>
+                <li><strong>Heartbeat Interval:</strong> set ke <strong>60 detik</strong></li>
+                <li>Klik <strong>Save</strong> — status akan muncul: <span style="color:green">●</span> Up atau <span style="color:red">●</span> Down</li>
+                <li>Ulangi untuk minimal 2 kelompok lain</li>
+              </ol>
+              <div class="success-box">
+                <strong>Screenshot yang dibutuhkan:</strong> Dashboard Uptime Kuma yang menampilkan minimal 2 monitor URL kelompok lain dengan status Up (hijau). Koordinasi dengan kelompok lain agar URL Ngrok mereka aktif saat kamu screenshot.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H18</span> <em>(Kelompok 8)</em> Cara membuktikan data tidak hilang setelah container di-restart
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Langkah step-by-step untuk demonstrasi persistensi:</p>
+              <div class="code-block">
+                <span class="d"># 1. Pastikan volume sudah ada di compose.yml (lihat hint H16)</span><br><br>
+                <span class="d"># 2. Jalankan container</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># 3. Buka localhost:3001, buat akun, tambah beberapa monitor</span><br>
+                <span class="d"># 4. Screenshot dashboard (ini "before")</span><br><br>
+                <span class="d"># 5. Stop container (TANPA -v agar volume tetap ada)</span><br>
+                <span class="g">docker</span> compose down<br><br>
+                <span class="d"># 6. Verifikasi volume masih ada</span><br>
+                <span class="g">docker</span> volume ls<br>
+                <span class="d"># Harus ada: [nama-folder]_uptime-kuma-data</span><br><br>
+                <span class="d"># 7. Jalankan lagi</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># 8. Buka localhost:3001 → login dengan akun yang sama</span><br>
+                <span class="d"># 9. Monitor yang dibuat sebelumnya harus masih ada</span><br>
+                <span class="d"># 10. Screenshot dashboard (ini "after") — bandingkan dengan "before"</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 4 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">⚙️</span>
+          <span>Hint Kelompok 4 — nicholasjackson/fake-service</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H19</span> Memahami fake-service dan apa yang akan dibangun
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p><code>fake-service</code> adalah aplikasi Go yang mensimulasikan microservice — ia menerima HTTP request dan meneruskannya ke service lain (upstream). Ini memudahkan demo arsitektur tanpa perlu kode nyata.</p>
+              <p>Yang akan dibangun: rantai <strong>frontend → api → backend</strong> di mana setiap panggilan ke frontend secara otomatis memanggil api, yang memanggil backend. Responsnya berupa JSON yang menunjukkan jalur lengkap panggilan.</p>
+              <div class="code-block">
+                <span class="d"># Buat folder kerja</span><br>
+                <span class="g">mkdir</span> fake-service-demo &amp;&amp; cd fake-service-demo<br>
+                <span class="g">nano</span> docker-compose.yml
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H20</span> Template <code>docker-compose.yml</code> untuk menjalankan 3 fake-service
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <div class="code-block">
+                <span class="b">version:</span> <span class="o">'3'</span><br>
+                <span class="b">services:</span><br><br>
+                &nbsp;&nbsp;<span class="g">frontend:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> nicholasjackson/fake-service:v0.26.2<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">ports:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">"9090:9090"</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">environment:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">LISTEN_ADDR:</span> 0.0.0.0:9090<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">NAME:</span> frontend<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">MESSAGE:</span> "Hello from Frontend!"<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">UPSTREAM_URIS:</span> http://api:9091<br><br>
+                &nbsp;&nbsp;<span class="g">api:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> nicholasjackson/fake-service:v0.26.2<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">environment:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">LISTEN_ADDR:</span> 0.0.0.0:9091<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">NAME:</span> api<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">MESSAGE:</span> "Hello from API!"<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">UPSTREAM_URIS:</span> http://backend:9092<br><br>
+                &nbsp;&nbsp;<span class="g">backend:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> nicholasjackson/fake-service:v0.26.2<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">environment:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">LISTEN_ADDR:</span> 0.0.0.0:9092<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">NAME:</span> backend<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">MESSAGE:</span> "Hello from Backend!"
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Jalankan</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Test: akses frontend dan lihat JSON response</span><br>
+                <span class="g">curl</span> http://localhost:9090<br>
+                <span class="d"># atau buka http://localhost:9090 di browser</span><br>
+                <span class="d"># Response JSON akan menampilkan chain pemanggilan frontend→api→backend</span>
+              </div>
+              <p style="margin-top:8px;">Tunnel Ngrok ke port <code>9090</code> (frontend). Akses URL Ngrok dari browser → akan tampil JSON yang membuktikan 3 service saling berkomunikasi.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 5 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">🗃️</span>
+          <span>Hint Kelompok 5 — HardevKhandhar/dockerized-fullstack-application</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H21</span> Langkah awal: clone dan jalankan fullstack app ini
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <div class="code-block">
+                <span class="g">git</span> clone https://github.com/HardevKhandhar/dockerized-fullstack-application<br>
+                <span class="g">cd</span> dockerized-fullstack-application<br><br>
+                <span class="d"># Lihat struktur dan compose file</span><br>
+                <span class="g">ls</span> -la<br>
+                <span class="g">cat</span> docker-compose.yml<br><br>
+                <span class="d"># Jalankan</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Tunggu ~30 detik untuk MongoDB siap</span><br>
+                <span class="g">docker</span> compose ps<br><br>
+                <span class="d"># Akses di</span><br>
+                <span class="d"># http://localhost:3000</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H22</span> MongoDB tidak terkoneksi — app error <em>"MongoNetworkError"</em>
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Penyebab paling umum: nama host MongoDB di connection string tidak sesuai dengan nama service Docker.</p>
+              <div class="code-block">
+                <span class="d"># Cek nama service MongoDB di docker-compose.yml</span><br>
+                <span class="g">grep</span> -A 3 <span class="o">"mongo\|db:"</span> docker-compose.yml<br><br>
+                <span class="d"># Nama service di sini dipakai sebagai hostname!</span><br>
+                <span class="d"># Jika nama servicenya "mongo", maka connection string harus:</span><br>
+                <span class="b">MONGO_URI</span>=mongodb://<span class="o">mongo</span>:27017/appdb<br><br>
+                <span class="d"># BUKAN: mongodb://localhost:27017/appdb (ini tidak akan bisa)</span><br>
+                <span class="d"># BUKAN: mongodb://127.0.0.1:27017/appdb</span>
+              </div>
+              <p style="margin-top:8px;">Edit environment variable di <code>docker-compose.yml</code> bagian service app, sesuaikan MONGO_URI-nya, lalu restart.</p>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H23</span> Cara modifikasi environment variable dan menambahkan volume untuk MongoDB
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Edit bagian service <code>mongo</code> di <code>docker-compose.yml</code> untuk menambahkan volume:</p>
+              <div class="code-block">
+                <span class="b">services:</span><br>
+                &nbsp;&nbsp;<span class="g">app:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">environment:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="d"># Ubah connection string jika perlu</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">MONGO_URI:</span> mongodb://mongo:27017/myapp_kelompok5<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">PORT:</span> <span class="o">3000</span><br><br>
+                &nbsp;&nbsp;<span class="g">mongo:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> mongo:6<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">volumes:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">mongo-data:/data/db</span> &nbsp;<span class="d"># tambahkan baris ini</span><br><br>
+                <span class="d"># Di bagian paling bawah file, tambahkan:</span><br>
+                <span class="b">volumes:</span><br>
+                &nbsp;&nbsp;<span class="g">mongo-data:</span>
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Terapkan perubahan</span><br>
+                <span class="g">docker</span> compose down<br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Verifikasi volume terbuat</span><br>
+                <span class="g">docker</span> volume ls<br>
+                <span class="d"># Harus ada: dockerized-fullstack-application_mongo-data</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /hint-system -->
+  </section>
+
+</div><!-- /wrapper -->
+
+<footer>
+  <p><strong>Mata Kuliah Cloud Computing</strong> &nbsp;·&nbsp; Project 1: Docker + Ngrok Deployment &nbsp;·&nbsp; Dibuat untuk evaluasi praktikum kelompok</p>
+</footer>
+
+<script>
+  function toggleGroup(titleEl) {
+    const body = titleEl.nextElementSibling;
+    const chevron = titleEl.querySelector('.hint-chevron');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    chevron.classList.toggle('open', !isOpen);
+  }
+
+  function toggleHint(qEl) {
+    const answerEl = qEl.nextElementSibling;
+    const toggleIcon = qEl.querySelector('.hint-toggle-icon');
+    const isOpen = answerEl.classList.contains('open');
+    answerEl.classList.toggle('open', !isOpen);
+    qEl.classList.toggle('open', !isOpen);
+    toggleIcon.classList.toggle('open', !isOpen);
+  }
+
+  function switchTab(groupId, tabId, tabEl) {
+    // Hide all panels in group
+    const panels = document.querySelectorAll(`[id^="os-tab-${groupId}-"]`);
+    panels.forEach(p => p.classList.remove('active'));
+    // Remove active from sibling tabs
+    const allTabs = tabEl.parentElement.querySelectorAll('.os-tab');
+    allTabs.forEach(t => t.classList.remove('active'));
+    // Show selected
+    document.getElementById(`os-tab-${groupId}-${tabId}`).classList.add('active');
+    tabEl.classList.add('active');
+  }
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project 1 — Cloud Computing: Docker & Ngrok Deployment</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0f0f;
+    --paper: #faf8f4;
+    --accent: #c84b2f;
+    --accent2: #1a5c8a;
+    --muted: #6b6560;
+    --rule: #d8d3cc;
+    --tag-bg: #eef4f9;
+    --tag-border: #b0cce0;
+    --warn-bg: #fdf3ee;
+    --warn-border: #e89070;
+    --code-bg: #1c1a18;
+    --code-text: #e8dfc8;
+    --code-green: #7ec88a;
+    --code-blue: #7ab8d8;
+    --code-orange: #e8a06a;
+    --highlight: #fffbe6;
+    --col-w: 860px;
+    --hint-bg: #f4f9f4;
+    --hint-border: #5a9e6a;
+    --hint-header-bg: #eaf4ea;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media print {
+    body { background: white; font-size: 12px; }
+    .no-print { display: none !important; }
+    .page-break { page-break-before: always; }
+    header { background: white !important; color: black !important; }
+    .cover-stripe { background: #0f0f0f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    code, .code-block { background: #f0ede8 !important; color: #1c1a18 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .repo-card { break-inside: avoid; }
+    .step-card { break-inside: avoid; }
+    .hint-group-body { display: block !important; }
+    .hint-a { display: block !important; }
+  }
+
+  .toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--ink); color: white;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 32px; font-size: 13px; letter-spacing: .04em;
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  }
+  .toolbar span { opacity: .6; }
+  .btn-print {
+    background: var(--accent); color: white; border: none;
+    padding: 7px 20px; border-radius: 4px; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase;
+    transition: background .2s;
+  }
+  .btn-print:hover { background: #a83820; }
+
+  .wrapper { max-width: var(--col-w); margin: 0 auto; padding: 80px 40px 80px; }
+
+  header {
+    background: var(--ink); color: white;
+    padding: 64px 40px 48px;
+    position: relative; overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 320px; height: 100%;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent, transparent 8px,
+      rgba(255,255,255,.03) 8px, rgba(255,255,255,.03) 16px
+    );
+  }
+  .cover-stripe {
+    display: inline-block;
+    background: var(--accent);
+    color: white; font-family: 'DM Mono', monospace;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    padding: 4px 12px; margin-bottom: 20px;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.1; font-weight: 400;
+    max-width: 600px; margin-bottom: 12px;
+  }
+  header h1 em { color: #f0a080; font-style: italic; }
+  .header-sub {
+    font-size: 14px; opacity: .6; letter-spacing: .06em;
+    text-transform: uppercase; margin-top: 20px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .header-sub span::before { content: '— '; }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--accent); opacity: .3;
+  }
+  h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; font-weight: 400;
+    margin-bottom: 20px; line-height: 1.2;
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 15px;
+    letter-spacing: .04em; margin-bottom: 12px;
+    color: var(--accent2);
+  }
+
+  section { margin-bottom: 64px; }
+  section:first-of-type { margin-top: 16px; }
+
+  p { margin-bottom: 12px; color: var(--ink); }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; }
+
+  hr { border: none; border-top: 1px solid var(--rule); margin: 40px 0; }
+
+  .info-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 2px; margin: 24px 0; border: 2px solid var(--ink);
+  }
+  .info-cell { padding: 16px 20px; border-right: 1px solid var(--rule); }
+  .info-cell:last-child { border-right: none; }
+  .info-cell .label {
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+  }
+  .info-cell .value { font-weight: 700; font-size: 16px; color: var(--ink); }
+  .info-cell .value.red { color: var(--accent); }
+
+  .warn-box {
+    background: var(--warn-bg); border-left: 4px solid var(--accent);
+    padding: 16px 20px; margin: 20px 0; border-radius: 0 4px 4px 0;
+  }
+  .warn-box strong { color: var(--accent); }
+
+  .note-box {
+    background: var(--tag-bg); border-left: 4px solid var(--accent2);
+    padding: 16px 20px; margin: 20px 0; border-radius: 0 4px 4px 0;
+  }
+  .note-box strong { color: var(--accent2); }
+
+  .success-box {
+    background: #f2faf3; border-left: 4px solid #4a9e5c;
+    padding: 16px 20px; margin: 20px 0; border-radius: 0 4px 4px 0;
+  }
+  .success-box strong { color: #2e7a3e; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text);
+    font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.8;
+    padding: 20px 24px; margin: 16px 0; border-radius: 4px;
+    overflow-x: auto; position: relative;
+  }
+  .code-block .c-label {
+    position: absolute; top: 10px; right: 14px;
+    font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: rgba(255,255,255,.25);
+  }
+  .code-block .g { color: var(--code-green); }
+  .code-block .b { color: var(--code-blue); }
+  .code-block .o { color: var(--code-orange); }
+  .code-block .d { color: rgba(255,255,255,.35); }
+  code {
+    font-family: 'DM Mono', monospace; font-size: .9em;
+    background: #eeeae4; padding: 2px 6px; border-radius: 3px;
+    color: var(--accent);
+  }
+
+  .repo-grid { display: grid; gap: 16px; margin: 24px 0; }
+  .repo-card {
+    border: 1px solid var(--rule);
+    display: grid; grid-template-columns: 56px 1fr;
+    gap: 0; overflow: hidden; transition: box-shadow .2s;
+  }
+  .repo-card:hover { box-shadow: 4px 4px 0 var(--ink); }
+  .repo-num {
+    background: var(--ink); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 400;
+  }
+  .repo-body { padding: 16px 20px; }
+  .repo-name {
+    font-family: 'DM Mono', monospace; font-weight: 500;
+    font-size: 13px; color: var(--accent2);
+    margin-bottom: 4px; display: flex; align-items: center; gap: 8px;
+  }
+  .repo-name a { color: inherit; text-decoration: none; }
+  .repo-name a:hover { text-decoration: underline; }
+  .repo-desc { font-size: 14px; margin-bottom: 8px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag {
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 2px 8px; border-radius: 2px;
+    background: var(--tag-bg); border: 1px solid var(--tag-border);
+    color: var(--accent2);
+  }
+  .tag.red { background: var(--warn-bg); border-color: var(--warn-border); color: var(--accent); }
+
+  .steps { display: grid; gap: 16px; margin: 20px 0; }
+  .step-card {
+    display: grid; grid-template-columns: 48px 1fr;
+    border: 1px solid var(--rule); overflow: hidden;
+  }
+  .step-num {
+    background: var(--accent2); color: white;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding-top: 18px;
+    font-family: 'DM Serif Display', serif; font-size: 20px;
+  }
+  .step-body { padding: 16px 20px; }
+  .step-title { font-weight: 700; font-size: 14px; margin-bottom: 8px; letter-spacing: .03em; }
+
+  .rubrik-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13.5px; }
+  .rubrik-table th {
+    background: var(--ink); color: white;
+    padding: 10px 14px; text-align: left;
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600;
+  }
+  .rubrik-table td { padding: 11px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .rubrik-table tr:nth-child(even) td { background: #f5f2ec; }
+  .rubrik-table tr:last-child td { border-bottom: none; }
+  .rubrik-table .bobot { font-family: 'DM Mono', monospace; font-weight: 500; color: var(--accent); font-size: 14px; text-align: center; }
+  .rubrik-table .poin { text-align: center; font-weight: 700; }
+  .total-row td { background: var(--ink) !important; color: white; font-weight: 700; font-size: 14px; }
+  .total-row td.bobot { color: #f0a080 !important; }
+
+  .kelompok-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+  .kelompok-table th {
+    background: var(--accent2); color: white;
+    padding: 9px 12px; text-align: left;
+    font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+  }
+  .kelompok-table td { padding: 9px 12px; border-bottom: 1px solid var(--rule); }
+  .kelompok-table tr:nth-child(even) td { background: var(--tag-bg); }
+  .kelompok-table td:first-child { font-family: 'DM Mono', monospace; font-weight: 500; text-align: center; font-size: 15px; }
+  .badge { display: inline-block; font-size: 11px; font-family: 'DM Mono', monospace; padding: 2px 8px; border-radius: 2px; font-weight: 500; }
+  .badge-blue { background: var(--tag-bg); border: 1px solid var(--tag-border); color: var(--accent2); }
+  .badge-red { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--accent); }
+
+  .flow {
+    display: flex; align-items: center; flex-wrap: wrap;
+    gap: 4px; margin: 24px 0; padding: 20px;
+    background: var(--ink); border-radius: 4px;
+  }
+  .flow-node {
+    background: white; color: var(--ink);
+    padding: 8px 14px; border-radius: 3px;
+    font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .flow-node.accent { background: var(--accent); color: white; }
+  .flow-node.blue { background: var(--accent2); color: white; }
+  .flow-arrow { color: rgba(255,255,255,.4); font-size: 18px; padding: 0 2px; }
+
+  /* ── HINT SYSTEM ── */
+  .hint-system { display: grid; gap: 12px; margin-top: 24px; }
+
+  .hint-group {
+    border: 1px solid #c5ddc5;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .hint-group-title {
+    background: var(--hint-header-bg);
+    padding: 14px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+    transition: background .15s;
+    border-bottom: 1px solid #c5ddc5;
+  }
+  .hint-group-title:hover { background: #dceedd; }
+  .hint-group-title .hint-icon { font-size: 18px; flex-shrink: 0; }
+  .hint-group-title > span:nth-child(2) {
+    font-weight: 700; font-size: 14px; flex: 1;
+    color: #1e5c2a;
+  }
+  .hint-chevron {
+    font-size: 12px; color: #4a9e5c;
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+  .hint-chevron.open { transform: rotate(180deg); }
+
+  .hint-group-body {
+    display: none;
+    padding: 16px;
+    background: var(--hint-bg);
+    display: none;
+  }
+  .hint-group-body.open { display: block; }
+
+  .hint-card {
+    border: 1px solid #d0e8d0;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    background: white;
+  }
+  .hint-card:last-child { margin-bottom: 0; }
+
+  .hint-q {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    background: #f9fdf9;
+    border-bottom: 1px solid #d0e8d0;
+    user-select: none;
+    transition: background .15s;
+  }
+  .hint-q:hover { background: #eef7ee; }
+  .hint-q.open { background: #e5f4e5; border-bottom-color: #a3d4a3; }
+
+  .hint-badge {
+    background: var(--hint-border);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 3px;
+    letter-spacing: .05em;
+    flex-shrink: 0;
+  }
+
+  .hint-toggle-icon {
+    margin-left: auto;
+    font-size: 18px;
+    color: #4a9e5c;
+    font-weight: 400;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: transform .2s;
+  }
+  .hint-toggle-icon.open { transform: rotate(45deg); }
+
+  .hint-a {
+    display: none;
+    padding: 16px 20px;
+    font-size: 13.5px;
+    border-top: none;
+    background: white;
+  }
+  .hint-a.open { display: block; }
+  .hint-a p { margin-bottom: 10px; }
+  .hint-a ul, .hint-a ol { margin-bottom: 10px; }
+  .hint-a li { margin-bottom: 5px; }
+
+  /* OS tab system */
+  .os-tabs { display: flex; gap: 0; margin-bottom: 0; border-bottom: 2px solid var(--rule); }
+  .os-tab {
+    padding: 7px 16px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .04em;
+    border: 1px solid var(--rule);
+    border-bottom: none;
+    background: #f5f2ec;
+    color: var(--muted);
+    transition: background .15s, color .15s;
+    margin-right: 2px;
+    border-radius: 4px 4px 0 0;
+  }
+  .os-tab.active { background: var(--code-bg); color: var(--code-green); border-color: #444; }
+  .os-panel { display: none; }
+  .os-panel.active { display: block; }
+
+  footer {
+    background: var(--ink); color: white;
+    padding: 32px 40px; text-align: center;
+    font-size: 13px;
+  }
+  footer p { color: rgba(255,255,255,.5); margin: 0; }
+  footer strong { color: white; }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar no-print">
+  <span>Soal Praktikum Cloud Computing — Project 1</span>
+  <button class="btn-print" onclick="window.print()">⎙ Print / Save PDF</button>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="wrapper" style="padding-top:0;padding-bottom:0;">
+    <div class="cover-stripe">Mata Kuliah Cloud Computing · Project 1</div>
+    <h1>Deploy, <em>Tunnel</em>,<br>Verify.</h1>
+    <div class="header-sub">
+      <span>Docker + Ngrok Deployment</span>
+      <span>Public Repo · No Coding</span>
+      <span>Kelompok Mandiri</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrapper">
+
+  <!-- INFO STRIP -->
+  <div class="info-grid">
+    <div class="info-cell">
+      <div class="label">Waktu Pengerjaan</div>
+      <div class="value red">120 menit</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Metode</div>
+      <div class="value">Kelompok Mandiri</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Output Utama</div>
+      <div class="value">URL Ngrok Publik</div>
+    </div>
+    <div class="info-cell">
+      <div class="label">Deadline Laporan</div>
+      <div class="value">7 Hari Pasca Ujian</div>
+    </div>
+  </div>
+
+  <!-- A. GAMBARAN UMUM -->
+  <section>
+    <div class="section-label">A</div>
+    <h2>Gambaran Umum</h2>
+    <p>Pada project ini, setiap kelompok diminta untuk menjalankan aplikasi web menggunakan <strong>Docker Compose</strong> dari repository publik yang telah ditentukan, lalu mengeksposnya ke internet menggunakan <strong>Ngrok</strong> agar dapat diakses oleh siapa saja — termasuk dosen — tanpa perlu server cloud berbayar.</p>
+    <p>Tidak ada coding dari nol. Fokus sepenuhnya pada <strong>deployment, konfigurasi container, networking, dan tunneling</strong>.</p>
+
+    <div class="flow">
+      <div class="flow-node">git clone</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">docker compose up</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">verify localhost</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node accent">ngrok http [port]</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node blue">URL Publik</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Kirim ke Dosen</div>
+    </div>
+
+    <div class="warn-box">
+      <strong>Penting:</strong> Setiap kelompok mendapat repo yang berbeda. URL Ngrok setiap kelompok bersifat unik dan real-time. Tidak ada cara untuk "copy-paste" hasil kelompok lain.
+    </div>
+  </section>
+
+  <!-- B. REPO PUBLIK -->
+  <section>
+    <div class="section-label">B</div>
+    <h2>Repository per Kelompok</h2>
+    <p>Dosen akan menentukan kelompok mana menggunakan repo mana. Setiap repo sudah memiliki <code>docker-compose.yml</code> dan bisa langsung dijalankan.</p>
+
+    <div class="repo-grid">
+      <div class="repo-card">
+        <div class="repo-num">1</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/docker/getting-started-todo-app" target="_blank">docker/getting-started-todo-app</a></div>
+          <div class="repo-desc">Aplikasi To-Do List resmi dari Docker. React frontend + Node.js backend + MySQL + phpMyAdmin. Satu perintah langsung jalan, dokumentasi lengkap.</div>
+          <div class="tag-row">
+            <span class="tag">React</span><span class="tag">Node.js</span><span class="tag">MySQL</span><span class="tag">phpMyAdmin</span><span class="tag red">Port: 80</span>
+          </div>
+        </div>
+      </div>
+      <div class="repo-card">
+        <div class="repo-num">2</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/dockersamples/example-voting-app" target="_blank">dockersamples/example-voting-app</a></div>
+          <div class="repo-desc">Aplikasi voting klasik dari Docker Samples. 5 container: Python app, Node.js worker, Redis, PostgreSQL, dan result dashboard. Ideal untuk memahami multi-service architecture.</div>
+          <div class="tag-row">
+            <span class="tag">Python</span><span class="tag">Node.js</span><span class="tag">Redis</span><span class="tag">PostgreSQL</span><span class="tag red">Port: 8080 & 8081</span>
+          </div>
+        </div>
+      </div>
+      <div class="repo-card">
+        <div class="repo-num">3</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/louislam/uptime-kuma" target="_blank">louislam/uptime-kuma</a></div>
+          <div class="repo-desc">Dashboard monitoring uptime yang profesional dan populer (50k+ stars). UI modern, login system, dapat memantau URL manapun. Sangat mudah dijalankan via Docker.</div>
+          <div class="tag-row">
+            <span class="tag">Node.js</span><span class="tag">SQLite</span><span class="tag">Dashboard UI</span><span class="tag red">Port: 3001</span>
+          </div>
+        </div>
+      </div>
+      <div class="repo-card">
+        <div class="repo-num">4</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/nicholasjackson/fake-service" target="_blank">nicholasjackson/fake-service + custom compose</a></div>
+          <div class="repo-desc">Fake microservice yang ringan dan fleksibel. Kelompok membuat <code>docker-compose.yml</code> sendiri dari template yang diberikan dosen untuk menjalankan beberapa instance yang saling berkomunikasi.</div>
+          <div class="tag-row">
+            <span class="tag">Go</span><span class="tag">Microservice</span><span class="tag">Service Mesh</span><span class="tag red">Port: 9090</span>
+          </div>
+        </div>
+      </div>
+      <div class="repo-card">
+        <div class="repo-num">5</div>
+        <div class="repo-body">
+          <div class="repo-name"><a href="https://github.com/HardevKhandhar/dockerized-fullstack-application" target="_blank">HardevKhandhar/dockerized-fullstack-application</a></div>
+          <div class="repo-desc">Full-stack aplikasi manajemen item dengan Node.js + Express + MongoDB. UI berbasis EJS template, ada CRUD lengkap. Docker Compose siap pakai dengan dua service (app + db).</div>
+          <div class="tag-row">
+            <span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">MongoDB</span><span class="tag red">Port: 3000</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:32px;">Pembagian Kelompok</h3>
+    <table class="kelompok-table">
+      <thead>
+        <tr>
+          <th>No</th><th>Repo yang Digunakan</th><th>Stack Utama</th><th>Port Target Ngrok</th><th>Tantangan Tambahan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>docker/getting-started-todo-app</td><td><span class="badge badge-blue">React + Node + MySQL</span></td><td><code>80</code></td><td>Ubah nama database via <code>.env</code>, tambahkan data dummy</td></tr>
+        <tr><td>2</td><td>dockersamples/example-voting-app</td><td><span class="badge badge-blue">Python + Redis + PgSQL</span></td><td><code>8080</code></td><td>Jalankan kedua port (vote & result), tunnel keduanya</td></tr>
+        <tr><td>3</td><td>louislam/uptime-kuma</td><td><span class="badge badge-blue">Node.js + SQLite</span></td><td><code>3001</code></td><td>Setup monitoring untuk URL Ngrok kelompok lain</td></tr>
+        <tr><td>4</td><td>nicholasjackson/fake-service</td><td><span class="badge badge-red">Go Microservice</span></td><td><code>9090</code></td><td>Buat <code>docker-compose.yml</code> dari template, jalankan 3 service</td></tr>
+        <tr><td>5</td><td>HardevKhandhar/dockerized-fullstack</td><td><span class="badge badge-blue">Node + Express + MongoDB</span></td><td><code>3000</code></td><td>Modifikasi environment variable koneksi DB, tambah volume</td></tr>
+        <tr><td>6</td><td>docker/getting-started-todo-app</td><td><span class="badge badge-blue">React + Node + MySQL</span></td><td><code>80</code></td><td>Tambahkan Nginx reverse proxy di depan aplikasi</td></tr>
+        <tr><td>7</td><td>dockersamples/example-voting-app</td><td><span class="badge badge-blue">Python + Redis + PgSQL</span></td><td><code>8080</code></td><td>Scale vote container menjadi 2 replica via <code>--scale</code></td></tr>
+        <tr><td>8</td><td>louislam/uptime-kuma</td><td><span class="badge badge-blue">Node.js + SQLite</span></td><td><code>3001</code></td><td>Persist data dengan Docker volume, restart container, verifikasi data tidak hilang</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- C. LANGKAH PENGERJAAN -->
+  <section>
+    <div class="section-label">C</div>
+    <h2>Alur Pengerjaan</h2>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Clone Repository & Periksa Struktur</div>
+          <p>Clone repo yang telah ditentukan. Baca <code>README.md</code> dan pahami struktur file sebelum menjalankan apapun.</p>
+          <div class="code-block">
+            <span class="c-label">bash</span>
+            <span class="g">git</span> clone https://github.com/<span class="o">[repo-kelompok]</span><br>
+            <span class="g">cd</span> [nama-folder]<br>
+            <span class="d"># Lihat isi docker-compose.yml</span><br>
+            <span class="g">cat</span> docker-compose.yml<br>
+            <span class="g">ls</span> -la
+          </div>
+          <div class="note-box" style="margin-top:8px;">
+            <strong>Catat:</strong> berapa service yang ada, port mana yang di-expose, environment variable apa yang bisa dikustomisasi.
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Terapkan Kustomisasi Wajib</div>
+          <p>Setiap kelompok wajib melakukan minimal <strong>1 modifikasi</strong> pada <code>docker-compose.yml</code> atau file <code>.env</code> sebelum menjalankan container. Modifikasi ini harus didokumentasikan.</p>
+          <p>Contoh modifikasi yang valid:</p>
+          <ul>
+            <li>Mengubah nama database atau kredensial default</li>
+            <li>Mengganti port expose ke host</li>
+            <li>Menambahkan volume untuk persistensi data</li>
+            <li>Menambahkan environment variable baru</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Jalankan dengan Docker Compose</div>
+          <div class="code-block">
+            <span class="c-label">bash</span>
+            <span class="d"># Jalankan semua service di background</span><br>
+            <span class="g">docker</span> compose up -d<br><br>
+            <span class="d"># Verifikasi semua container berjalan</span><br>
+            <span class="g">docker</span> ps<br><br>
+            <span class="d"># Cek log jika ada masalah</span><br>
+            <span class="g">docker</span> compose logs -f
+          </div>
+          <p>Verifikasi aplikasi bisa diakses di <code>http://localhost:[port]</code> dari browser host sebelum lanjut ke langkah berikutnya.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Install & Konfigurasi Ngrok</div>
+          <div class="code-block">
+            <span class="c-label">bash — Linux/Ubuntu</span>
+            <span class="d"># Download dan install Ngrok</span><br>
+            <span class="g">curl</span> -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \<br>
+            &nbsp;&nbsp;| sudo tee /etc/apt/trusted.gpg.d/ngrok.asc &gt; /dev/null<br>
+            <span class="g">echo</span> <span class="o">"deb https://ngrok-agent.s3.amazonaws.com buster main"</span> \<br>
+            &nbsp;&nbsp;| sudo tee /etc/apt/sources.list.d/ngrok.list<br>
+            <span class="g">sudo</span> apt update &amp;&amp; sudo apt install ngrok<br><br>
+            <span class="d"># Daftarkan authtoken (dari akun ngrok.com)</span><br>
+            <span class="g">ngrok</span> config add-authtoken <span class="o">[YOUR_TOKEN]</span><br><br>
+            <span class="d"># Tunnel ke port aplikasi</span><br>
+            <span class="g">ngrok</span> http <span class="b">[PORT]</span>
+          </div>
+          <div class="warn-box" style="margin-top:8px;">
+            <strong>Daftar akun gratis</strong> di <a href="https://ngrok.com" target="_blank">ngrok.com</a> untuk mendapatkan authtoken. Akun gratis sudah cukup untuk keperluan ujian ini.
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <div class="step-title">Verifikasi & Kirim URL ke Dosen</div>
+          <p>Setelah Ngrok berjalan, akan muncul URL publik seperti:</p>
+          <div class="code-block">
+            <span class="c-label">output ngrok</span>
+            Forwarding &nbsp;&nbsp;<span class="g">https://a1b2c3d4.ngrok-free.app</span> → http://localhost:<span class="b">3000</span><br>
+            Web Interface &nbsp;http://127.0.0.1:4040
+          </div>
+          <ul>
+            <li>Akses URL tersebut dari browser yang berbeda / HP untuk verifikasi</li>
+            <li>Kirim URL ke dosen melalui LMS atau group yang ditentukan</li>
+            <li>Screenshot Ngrok terminal + halaman web yang terbuka dari URL publik</li>
+            <li>Buka <code>http://localhost:4040</code> untuk melihat Ngrok dashboard (request log) — screenshot ini wajib masuk laporan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. TANTANGAN TAMBAHAN -->
+  <section>
+    <div class="section-label">D</div>
+    <h2>Tantangan Tambahan per Kelompok</h2>
+    <p>Selain alur utama, setiap kelompok memiliki tantangan teknis spesifik (lihat kolom "Tantangan Tambahan" di tabel pembagian). Tantangan ini dinilai terpisah dan mencerminkan kemampuan eksplorasi kelompok.</p>
+    <div class="note-box">
+      <strong>Tips:</strong> Semua tantangan bisa diselesaikan hanya dengan memodifikasi <code>docker-compose.yml</code>, file <code>.env</code>, atau menambahkan perintah Docker CLI — tidak perlu mengubah source code aplikasi.
+    </div>
+    <h3 style="margin-top:24px;">Referensi Perintah Berguna</h3>
+    <div class="code-block">
+      <span class="c-label">docker cheatsheet</span>
+      <span class="d"># Inspeksi network</span><br>
+      <span class="g">docker</span> network ls<br>
+      <span class="g">docker</span> network inspect <span class="o">[network-name]</span><br><br>
+      <span class="d"># Volume management</span><br>
+      <span class="g">docker</span> volume ls<br>
+      <span class="g">docker</span> volume inspect <span class="o">[volume-name]</span><br><br>
+      <span class="d"># Scale service</span><br>
+      <span class="g">docker</span> compose up -d --scale <span class="o">vote=2</span><br><br>
+      <span class="d"># Masuk ke dalam container</span><br>
+      <span class="g">docker</span> exec -it <span class="o">[container-name]</span> bash<br><br>
+      <span class="d"># Lihat environment variable aktif di container</span><br>
+      <span class="g">docker</span> inspect <span class="o">[container-name]</span> | grep -A 20 <span class="b">"Env"</span><br><br>
+      <span class="d"># Stop semua dan bersihkan</span><br>
+      <span class="g">docker</span> compose down -v
+    </div>
+  </section>
+
+  <div class="page-break"></div>
+
+  <!-- E. OUTPUT WAJIB -->
+  <section>
+    <div class="section-label">E</div>
+    <h2>Output yang Harus Dikumpulkan</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin:20px 0;">
+      <div style="border:1px solid var(--rule); padding:20px;">
+        <h3>📄 Laporan Tertulis</h3>
+        <ul>
+          <li>Identitas anggota kelompok</li>
+          <li>Repo yang digunakan & alasan teknis</li>
+          <li>Isi <code>docker-compose.yml</code> + penjelasan tiap service</li>
+          <li>Modifikasi yang dilakukan + alasan</li>
+          <li>Screenshot: <code>docker ps</code>, browser localhost, Ngrok terminal, Ngrok dashboard (4040), URL publik dari HP/browser lain</li>
+          <li>Tantangan tambahan: langkah & bukti</li>
+          <li>Kendala dan solusi</li>
+          <li>Analisis: apa yang dipelajari tentang Docker networking & tunneling</li>
+        </ul>
+      </div>
+      <div style="border:1px solid var(--rule); padding:20px;">
+        <h3>🎬 Video Rekaman</h3>
+        <ul>
+          <li>Durasi minimal <strong>5 menit</strong></li>
+          <li>Tampilkan: proses <code>docker compose up</code></li>
+          <li>Tampilkan: output <code>docker ps</code> semua container running</li>
+          <li>Tampilkan: akses aplikasi dari <code>localhost</code></li>
+          <li>Tampilkan: proses Ngrok berjalan dan URL publik muncul</li>
+          <li>Tampilkan: akses URL publik dari browser yang berbeda atau HP</li>
+          <li>Tampilkan: tantangan tambahan dikerjakan</li>
+        </ul>
+      </div>
+    </div>
+    <div style="border:1px solid var(--rule); padding:20px; margin-top:0;">
+      <h3>🖥️ Demo Langsung (Presentasi)</h3>
+      <ul style="column-count:2; column-gap:24px;">
+        <li>Durasi minimal <strong>7 menit</strong> per kelompok</li>
+        <li>Semua container harus running saat presentasi</li>
+        <li>Tunjukkan <code>docker ps</code> live di terminal</li>
+        <li>Buka URL Ngrok dari HP dosen atau laptop lain</li>
+        <li>Jelaskan isi <code>docker-compose.yml</code> line by line</li>
+        <li>Jelaskan bagaimana Ngrok bekerja (tunneling)</li>
+        <li>Demonstrasikan tantangan tambahan</li>
+        <li>Jawab minimal 2 pertanyaan dari dosen</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- F. RUBRIK -->
+  <section>
+    <div class="section-label">F</div>
+    <h2>Rubrik Penilaian</h2>
+    <p>Total nilai = <strong>100 poin</strong>.</p>
+    <table class="rubrik-table">
+      <thead>
+        <tr><th style="width:32px;">#</th><th>Komponen</th><th>Indikator Keberhasilan</th><th style="width:70px;">Bobot</th><th style="width:60px;">Poin</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td><strong>Docker Compose Berjalan</strong></td><td>Semua service dalam <code>docker-compose.yml</code> berstatus <code>Up</code> saat <code>docker ps</code> dijalankan</td><td class="bobot">20%</td><td class="poin">20</td></tr>
+        <tr><td>2</td><td><strong>Aplikasi Dapat Diakses via Ngrok</strong></td><td>URL publik Ngrok dapat dibuka dari browser berbeda / perangkat lain dan menampilkan aplikasi</td><td class="bobot">25%</td><td class="poin">25</td></tr>
+        <tr><td>3</td><td><strong>Kustomisasi docker-compose</strong></td><td>Minimal 1 modifikasi pada <code>docker-compose.yml</code> atau <code>.env</code> yang didokumentasikan dan berfungsi</td><td class="bobot">15%</td><td class="poin">15</td></tr>
+        <tr><td>4</td><td><strong>Tantangan Tambahan</strong></td><td>Tantangan spesifik kelompok berhasil diselesaikan dan dapat diverifikasi</td><td class="bobot">15%</td><td class="poin">15</td></tr>
+        <tr><td>5</td><td><strong>Laporan & Dokumentasi</strong></td><td>Laporan lengkap dengan semua screenshot wajib, penjelasan teknis, dan analisis</td><td class="bobot">10%</td><td class="poin">10</td></tr>
+        <tr><td>6</td><td><strong>Video Rekaman</strong></td><td>Video min. 5 menit menampilkan semua tahap dari clone hingga URL publik aktif</td><td class="bobot">10%</td><td class="poin">10</td></tr>
+        <tr><td>7</td><td><strong>Presentasi & Pemahaman</strong></td><td>Mampu menjelaskan arsitektur, isi compose file, cara kerja Ngrok, dan menjawab pertanyaan dosen</td><td class="bobot">5%</td><td class="poin">5</td></tr>
+        <tr class="total-row"><td colspan="3" style="text-align:right; letter-spacing:.06em;">TOTAL NILAI MAKSIMUM</td><td class="bobot">100%</td><td class="poin">100</td></tr>
+      </tbody>
+    </table>
+    <h3 style="margin-top:24px;">Pengurangan Nilai</h3>
+    <ul>
+      <li>URL Ngrok tidak aktif saat presentasi (bisa diperbaiki on-the-spot): <strong>−10 poin</strong></li>
+      <li>Tidak ada modifikasi sama sekali pada <code>docker-compose.yml</code>: <strong>−10 poin</strong></li>
+      <li>Laporan tidak memiliki screenshot Ngrok dashboard (<code>localhost:4040</code>): <strong>−5 poin</strong></li>
+      <li>Video tidak menampilkan akses dari perangkat lain: <strong>−5 poin</strong></li>
+      <li>Terdeteksi konfigurasi identik dengan kelompok lain: <strong>komponen kustomisasi = 0</strong></li>
+    </ul>
+  </section>
+
+  <!-- G. PERTANYAAN ACUAN -->
+  <section>
+    <div class="section-label">G</div>
+    <h2>Pertanyaan Acuan Saat Demo</h2>
+    <p>Dosen dapat mengajukan pertanyaan dari daftar berikut. Setiap kelompok wajib menjawab minimal 2 pertanyaan.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;">
+      <div style="padding:14px 16px; border:1px solid var(--rule); border-left:3px solid var(--accent2);">
+        <strong style="font-size:12px; color:var(--accent2); letter-spacing:.06em; text-transform:uppercase;">Docker</strong>
+        <ul style="margin-top:8px; font-size:13.5px;">
+          <li>Apa fungsi <code>depends_on</code> di docker-compose?</li>
+          <li>Apa perbedaan <code>volumes</code> dan <code>bind mount</code>?</li>
+          <li>Kenapa container bisa saling berkomunikasi tanpa IP eksplisit?</li>
+          <li>Apa yang terjadi pada data jika <code>docker compose down -v</code> dijalankan?</li>
+        </ul>
+      </div>
+      <div style="padding:14px 16px; border:1px solid var(--rule); border-left:3px solid var(--accent);">
+        <strong style="font-size:12px; color:var(--accent); letter-spacing:.06em; text-transform:uppercase;">Ngrok & Networking</strong>
+        <ul style="margin-top:8px; font-size:13.5px;">
+          <li>Jelaskan cara kerja Ngrok secara konseptual.</li>
+          <li>Apa perbedaan Ngrok dengan port forwarding di VirtualBox?</li>
+          <li>Kenapa URL Ngrok berubah setiap kali dijalankan ulang (versi gratis)?</li>
+          <li>Di industri, alternatif Ngrok yang lebih production-ready apa saja?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- H. HINT PENGERJAAN -->
+  <section>
+    <div class="section-label">H</div>
+    <h2>Hint Pengerjaan</h2>
+    <p>Bagian ini berisi petunjuk teknis untuk membantu ketika mengalami kebuntuan. Klik judul kelompok hint untuk membuka, klik pertanyaan untuk melihat jawabannya.</p>
+    <div class="warn-box" style="margin-bottom:20px;">
+      <strong>Etika Pengerjaan:</strong> Baca hint hanya jika sudah mencoba sendiri minimal 10 menit. Mendokumentasikan proses trial-and-error sebelum menemukan solusi justru memberi nilai lebih pada laporan.
+    </div>
+
+    <div class="hint-system">
+
+      <!-- ══ HINT UMUM ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">💡</span>
+          <span>Hint Umum — Semua Kelompok</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H0</span> Persiapan: pastikan Docker sudah terinstall dengan benar
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Sebelum mulai, verifikasi Docker dan Docker Compose tersedia:</p>
+              <div class="code-block">
+                <span class="c-label">bash</span>
+                <span class="d"># Cek versi Docker</span><br>
+                <span class="g">docker</span> --version<br>
+                <span class="d"># Output yang diharapkan: Docker version 24.x.x atau lebih baru</span><br><br>
+                <span class="d"># Cek Docker Compose (plugin baru, tanpa tanda hubung)</span><br>
+                <span class="g">docker</span> compose version<br>
+                <span class="d"># Output yang diharapkan: Docker Compose version v2.x.x</span><br><br>
+                <span class="d"># Pastikan Docker daemon berjalan</span><br>
+                <span class="g">docker</span> ps<br>
+                <span class="d"># Jika error "Cannot connect to the Docker daemon" → jalankan Docker Desktop atau: sudo systemctl start docker</span>
+              </div>
+              <div class="note-box">
+                <strong>Catatan Windows:</strong> Pastikan Docker Desktop sudah dibuka dan berjalan (icon di system tray). Jika menggunakan WSL2, jalankan semua perintah di dalam terminal WSL, bukan PowerShell.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H1</span> Container langsung exit setelah <code>docker compose up</code> — kenapa?
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Jalankan <code>docker compose logs [nama-service]</code> untuk melihat pesan error. Penyebab umum:</p>
+              <ul>
+                <li><strong>Port sudah dipakai proses lain</strong> → cek dengan <code>sudo lsof -i :[port]</code> (Linux/Mac) atau <code>netstat -ano | findstr :[port]</code> (Windows), matikan prosesnya</li>
+                <li><strong>Environment variable tidak lengkap</strong> → pastikan file <code>.env</code> ada dan diisi dengan benar</li>
+                <li><strong>Image gagal pull</strong> → cek koneksi internet, coba <code>docker pull [nama-image]</code> manual</li>
+                <li><strong>Dependency belum siap</strong> → database kadang butuh 10–30 detik sebelum siap menerima koneksi dari app</li>
+              </ul>
+              <div class="code-block" style="margin-top:10px;">
+                <span class="d"># Lihat log spesifik satu service</span><br>
+                <span class="g">docker</span> compose logs --tail=50 <span class="o">app</span><br><br>
+                <span class="d"># Jalankan tanpa -d untuk lihat output langsung di terminal</span><br>
+                <span class="g">docker</span> compose up<br><br>
+                <span class="d"># Cek status semua container</span><br>
+                <span class="g">docker</span> compose ps
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H2</span> Cara install dan setup Ngrok dari awal (step-by-step lengkap)
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p><strong>Langkah 1:</strong> Daftar akun gratis di <a href="https://ngrok.com" target="_blank">ngrok.com</a> → Login → pergi ke <a href="https://dashboard.ngrok.com/get-started/your-authtoken" target="_blank">Your Authtoken</a> → copy token.</p>
+              <p><strong>Langkah 2:</strong> Install Ngrok sesuai OS:</p>
+
+              <div class="os-tabs" id="os-tabs-install">
+                <div class="os-tab active" onclick="switchTab('install', 'linux', this)">Linux/Ubuntu</div>
+                <div class="os-tab" onclick="switchTab('install', 'windows', this)">Windows</div>
+                <div class="os-tab" onclick="switchTab('install', 'mac', this)">macOS</div>
+              </div>
+              <div id="os-tab-install-linux" class="os-panel active">
+                <div class="code-block" style="margin-top:0; border-radius:0 4px 4px 4px;">
+                  <span class="d"># Cara 1: Via apt (Ubuntu/Debian)</span><br>
+                  <span class="g">curl</span> -sSL https://ngrok-agent.s3.amazonaws.com/ngrok.asc \<br>
+                  &nbsp;&nbsp;| sudo tee /etc/apt/trusted.gpg.d/ngrok.asc &gt; /dev/null<br>
+                  <span class="g">echo</span> <span class="o">"deb https://ngrok-agent.s3.amazonaws.com buster main"</span> \<br>
+                  &nbsp;&nbsp;| sudo tee /etc/apt/sources.list.d/ngrok.list<br>
+                  <span class="g">sudo</span> apt update &amp;&amp; sudo apt install ngrok<br><br>
+                  <span class="d"># Cara 2: Download langsung (lebih cepat)</span><br>
+                  <span class="g">wget</span> https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz<br>
+                  <span class="g">tar</span> xvzf ngrok-v3-stable-linux-amd64.tgz<br>
+                  <span class="g">sudo</span> mv ngrok /usr/local/bin/<br>
+                  <span class="g">ngrok</span> --version
+                </div>
+              </div>
+              <div id="os-tab-install-windows" class="os-panel">
+                <div class="code-block" style="margin-top:0; border-radius:0 4px 4px 4px;">
+                  <span class="d"># Cara 1: Via Chocolatey (jalankan PowerShell sebagai Admin)</span><br>
+                  <span class="g">choco</span> install ngrok<br><br>
+                  <span class="d"># Cara 2: Via Winget</span><br>
+                  <span class="g">winget</span> install ngrok.ngrok<br><br>
+                  <span class="d"># Cara 3: Download .exe dari https://ngrok.com/download</span><br>
+                  <span class="d"># Extract zip → letakkan ngrok.exe di folder yang ada di PATH</span><br>
+                  <span class="d"># Atau jalankan langsung dari folder download: .\ngrok.exe http 3000</span>
+                </div>
+              </div>
+              <div id="os-tab-install-mac" class="os-panel">
+                <div class="code-block" style="margin-top:0; border-radius:0 4px 4px 4px;">
+                  <span class="d"># Via Homebrew (disarankan)</span><br>
+                  <span class="g">brew</span> install ngrok/ngrok/ngrok<br><br>
+                  <span class="d"># Verifikasi</span><br>
+                  <span class="g">ngrok</span> --version
+                </div>
+              </div>
+
+              <p style="margin-top:12px;"><strong>Langkah 3:</strong> Daftarkan authtoken:</p>
+              <div class="code-block">
+                <span class="g">ngrok</span> config add-authtoken <span class="o">TOKEN_YANG_DICOPY_DARI_DASHBOARD</span><br>
+                <span class="d"># Konfirmasi token tersimpan:</span><br>
+                <span class="g">cat</span> ~/.config/ngrok/ngrok.yml &nbsp;<span class="d"># Linux/Mac</span><br>
+                <span class="d"># Windows: %USERPROFILE%\AppData\Local\ngrok\ngrok.yml</span>
+              </div>
+
+              <p><strong>Langkah 4:</strong> Jalankan tunnel:</p>
+              <div class="code-block">
+                <span class="d"># Ganti [PORT] dengan port aplikasi yang sedang berjalan</span><br>
+                <span class="g">ngrok</span> http <span class="b">[PORT]</span>
+              </div>
+              <div class="success-box">
+                <strong>Berhasil!</strong> Jika muncul baris "Forwarding https://xxxx.ngrok-free.app → http://localhost:[PORT]", Ngrok sudah berjalan. Copy URL tersebut dan buka dari HP atau browser lain.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H3</span> Ngrok error <em>"authentication failed"</em> atau <em>"invalid token"</em>
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Authtoken belum didaftarkan atau salah. Langkah perbaikan:</p>
+              <ol>
+                <li>Login ke <a href="https://dashboard.ngrok.com/get-started/your-authtoken" target="_blank">dashboard.ngrok.com/get-started/your-authtoken</a></li>
+                <li>Klik tombol copy di sebelah token</li>
+                <li>Jalankan: <code>ngrok config add-authtoken TOKEN_ANDA</code></li>
+                <li>Verifikasi: <code>cat ~/.config/ngrok/ngrok.yml</code> — pastikan ada baris <code>authtoken: ...</code></li>
+              </ol>
+              <div class="warn-box">
+                <strong>Jangan share authtoken!</strong> Token ini terhubung ke akun pribadi. Setiap anggota kelompok sebaiknya pakai akun masing-masing, tapi satu akun cukup untuk menjalankan tunnel selama ujian.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H4</span> Ngrok berjalan tapi browser menampilkan halaman kosong, error, atau <em>"502 Bad Gateway"</em>
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Ngrok sudah jalan tapi aplikasi di dalam Docker belum merespons. Cek urutan ini:</p>
+              <ol>
+                <li><strong>Test localhost dulu:</strong> buka <code>http://localhost:[port]</code> di browser. Kalau localhost saja gagal, Ngrok tidak akan bisa — selesaikan masalah Docker dulu.</li>
+                <li><strong>Port tidak cocok:</strong> pastikan port yang kamu berikan ke Ngrok sama dengan yang ada di <code>docker ps</code> kolom PORTS.</li>
+                <li><strong>App butuh waktu:</strong> beberapa aplikasi butuh 30–60 detik inisialisasi database. Tunggu dan coba lagi.</li>
+                <li><strong>Ngrok Interstitial Page:</strong> pertama kali buka URL Ngrok di browser akan ada halaman peringatan "This site was tunneled through Ngrok" — klik "Visit Site" untuk lanjut.</li>
+              </ol>
+              <div class="code-block">
+                <span class="d"># Cek port yang benar-benar di-expose</span><br>
+                <span class="g">docker</span> ps --format <span class="o">"table {{.Names}}\t{{.Ports}}"</span><br><br>
+                <span class="d"># Contoh output:</span><br>
+                <span class="d"># app_1    0.0.0.0:3000->3000/tcp</span><br>
+                <span class="d"># → berarti jalankan: ngrok http 3000</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H5</span> Cara aman mengubah <code>docker-compose.yml</code> tanpa menghapus data
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Perbedaan penting antara <code>down</code> dan <code>down -v</code>:</p>
+              <div class="code-block">
+                <span class="d"># AMAN: Stop container, volume data TETAP ada</span><br>
+                <span class="g">docker</span> compose down<br><br>
+                <span class="d"># Edit file</span><br>
+                <span class="g">nano</span> docker-compose.yml<br><br>
+                <span class="d"># Jalankan ulang</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d">─────────────────────────────────────────</span><br>
+                <span class="d"># RESET TOTAL: Stop + hapus volume (data hilang!)</span><br>
+                <span class="g">docker</span> compose down -v<br>
+                <span class="d"># Gunakan hanya jika ingin mulai dari awal bersih</span>
+              </div>
+              <div class="warn-box">
+                <strong>Hati-hati <code>down -v</code>!</strong> Flag <code>-v</code> menghapus semua volume Docker yang terdefinisi di compose file. Data database akan hilang permanen. Gunakan hanya kalau memang ingin reset total.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H6</span> Ngrok berjalan tapi URL berubah terus — bagaimana cara menyimpan URL tetap selama sesi?
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Ini perilaku normal Ngrok versi gratis — setiap kali <code>ngrok http [port]</code> dijalankan ulang, URL berubah. Solusinya:</p>
+              <ul>
+                <li><strong>Jangan tutup terminal Ngrok</strong> selama sesi berlangsung. Buka terminal baru untuk perintah lain.</li>
+                <li>Jalankan Docker terlebih dahulu, pastikan stabil, <em>baru</em> jalankan Ngrok.</li>
+                <li>Jika Ngrok terpaksa di-restart, segera kirim ulang URL baru ke dosen sebelum presentasi.</li>
+              </ul>
+              <div class="note-box">
+                <strong>Tip presentasi:</strong> Buka Ngrok di terminal tersendiri (jangan di tab yang sama dengan Docker logs). Gunakan <code>tmux</code> atau buka beberapa jendela terminal untuk manajemen yang lebih mudah.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H7</span> Cara membuka dan membaca Ngrok Web Dashboard (<code>localhost:4040</code>)
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Selama Ngrok berjalan, ada web interface lokal yang menampilkan semua request yang masuk melalui tunnel:</p>
+              <ol>
+                <li>Buka browser → ketik <code>http://localhost:4040</code></li>
+                <li>Klik tab <strong>"Requests"</strong> untuk melihat HTTP request yang masuk</li>
+                <li>Setiap kali seseorang mengakses URL Ngrok kamu, request akan muncul di sini real-time</li>
+                <li>Klik satu request untuk melihat detail: headers, body, response code</li>
+              </ol>
+              <div class="success-box">
+                <strong>Screenshot wajib!</strong> Tampilan dashboard 4040 yang menampilkan minimal 1 request masuk harus ada di laporan. Minta rekan kelompok mengakses URL Ngrok dari HP mereka agar ada request yang muncul.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 1 & 6 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">🗂️</span>
+          <span>Hint Kelompok 1 & 6 — docker/getting-started-todo-app</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H8</span> Langkah awal: cara clone dan menjalankan repo ini
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <div class="code-block">
+                <span class="d"># Clone repo</span><br>
+                <span class="g">git</span> clone https://github.com/docker/getting-started-todo-app<br>
+                <span class="g">cd</span> getting-started-todo-app<br><br>
+                <span class="d"># Lihat struktur file</span><br>
+                <span class="g">ls</span> -la<br>
+                <span class="g">cat</span> compose.yaml &nbsp;<span class="d"># file compose-nya bernama compose.yaml, bukan docker-compose.yml</span><br><br>
+                <span class="d"># Jalankan (proses build pertama bisa makan 5-10 menit)</span><br>
+                <span class="g">docker</span> compose up<br>
+                <span class="d"># Tunggu muncul: "webpack compiled successfully"</span><br>
+                <span class="d"># Lalu buka: http://localhost:3000 atau http://localhost:80</span>
+              </div>
+              <div class="note-box">
+                <strong>Perhatikan:</strong> File compose-nya mungkin bernama <code>compose.yaml</code> bukan <code>docker-compose.yml</code> — keduanya dibaca otomatis oleh Docker Compose.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H9</span> Aplikasi tidak muncul — hanya halaman default Nginx atau blank
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Repo ini menggunakan multi-stage build. Proses build frontend React membutuhkan waktu ekstra. Solusi:</p>
+              <div class="code-block">
+                <span class="d"># Jalankan TANPA flag -d agar bisa lihat progress</span><br>
+                <span class="g">docker</span> compose up<br><br>
+                <span class="d"># Tunggu hingga muncul pesan seperti:</span><br>
+                <span class="d"># "webpack compiled successfully" atau "ready on port"</span><br>
+                <span class="d"># Proses ini bisa memakan 3-8 menit pertama kali</span><br><br>
+                <span class="d"># Baru setelah itu buka browser ke localhost</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H10</span> <em>(Kelompok 1)</em> Cara mengubah nama database via environment variable
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Buat file <code>.env</code> di folder yang sama dengan <code>compose.yaml</code>:</p>
+              <div class="code-block">
+                <span class="d"># Buat file .env</span><br>
+                <span class="g">nano</span> .env<br><br>
+                <span class="d"># Isi dengan (sesuaikan dengan nama kelompok):</span><br>
+                <span class="b">MYSQL_DATABASE</span>=todo_kelompok1<br>
+                <span class="b">MYSQL_USER</span>=user_kel1<br>
+                <span class="b">MYSQL_PASSWORD</span>=password_kel1<br>
+                <span class="b">MYSQL_ROOT_PASSWORD</span>=rootpass_kel1
+              </div>
+              <p style="margin-top:8px;">Lalu pastikan di <code>compose.yaml</code> bagian service MySQL sudah mereferensikan variabel ini dengan sintaks <code>${MYSQL_DATABASE}</code>. Setelah edit, jalankan <code>docker compose down</code> lalu <code>docker compose up -d</code>.</p>
+              <div class="note-box">
+                <strong>Verifikasi:</strong> Setelah container jalan, masuk ke container MySQL dan cek nama database: <code>docker exec -it [nama-container-mysql] mysql -u root -p -e "SHOW DATABASES;"</code>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H11</span> <em>(Kelompok 6)</em> Cara menambahkan Nginx reverse proxy di depan aplikasi
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Buat file <code>nginx.conf</code> baru, lalu tambahkan service Nginx di <code>compose.yaml</code>:</p>
+              <div class="code-block">
+                <span class="d"># File: nginx.conf</span><br>
+                server {<br>
+                &nbsp;&nbsp;listen 80;<br>
+                &nbsp;&nbsp;location / {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;proxy_pass http://<span class="b">app:3000</span>;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header Host $host;<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;proxy_set_header X-Real-IP $remote_addr;<br>
+                &nbsp;&nbsp;}<br>
+                }
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Tambahkan di bagian services di compose.yaml:</span><br>
+                <span class="b">nginx-proxy:</span><br>
+                &nbsp;&nbsp;<span class="g">image:</span> nginx:alpine<br>
+                &nbsp;&nbsp;<span class="g">ports:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">"8080:80"</span><br>
+                &nbsp;&nbsp;<span class="g">volumes:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">./nginx.conf:/etc/nginx/conf.d/default.conf:ro</span><br>
+                &nbsp;&nbsp;<span class="g">depends_on:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">app</span>
+              </div>
+              <p style="margin-top:8px;">Tunnel Ngrok ke port <code>8080</code> (port Nginx), bukan port app langsung. Verifikasi dengan <code>docker ps</code> bahwa ada container nginx-proxy dengan port 8080.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 2 & 7 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">🗳️</span>
+          <span>Hint Kelompok 2 & 7 — dockersamples/example-voting-app</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H12</span> Langkah awal: clone dan jalankan voting app
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <div class="code-block">
+                <span class="g">git</span> clone https://github.com/dockersamples/example-voting-app<br>
+                <span class="g">cd</span> example-voting-app<br>
+                <span class="g">cat</span> docker-compose.yml<br><br>
+                <span class="d"># Jalankan semua 5 service</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Cek semua container berjalan (butuh ~1 menit)</span><br>
+                <span class="g">docker</span> compose ps<br><br>
+                <span class="d"># Akses halaman voting</span><br>
+                <span class="d"># http://localhost:8080  ← halaman vote (pilih kucing/anjing)</span><br>
+                <span class="d"># http://localhost:8081  ← halaman result (grafik real-time)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H13</span> Ada 2 port (8080 dan 8081) — bagaimana cara tunnel keduanya sekaligus?
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Ngrok versi gratis hanya bisa 1 tunnel aktif per sesi. Gunakan 2 terminal secara paralel:</p>
+              <div class="code-block">
+                <span class="d"># Terminal 1 — tunnel halaman voting (vote)</span><br>
+                <span class="g">ngrok</span> http <span class="b">8080</span><br><br>
+                <span class="d"># Terminal 2 (buka terminal baru) — tunnel halaman result</span><br>
+                <span class="g">ngrok</span> http <span class="b">8081</span>
+              </div>
+              <p style="margin-top:8px;">Catat kedua URL Ngrok yang muncul. Dalam laporan, sertakan screenshot kedua URL aktif. Untuk membuktikan fungsi: buka URL vote dari HP → pilih opsi → buka URL result dari browser lain → lihat grafik berubah real-time.</p>
+              <div class="note-box">
+                <strong>Jika error "limit reached":</strong> Akun gratis Ngrok membatasi 1 tunnel simultan. Tunjukkan satu per satu: screenshot port 8080 aktif, lalu ganti ke port 8081 untuk screenshot berikutnya. Atau daftar akun Ngrok kedua untuk anggota lain.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H14</span> Worker container terus restart — status <em>Restarting</em> di <code>docker ps</code>
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Worker bergantung pada Redis dan PostgreSQL yang butuh waktu startup. Ini normal di 1–2 menit pertama. Langkah yang benar:</p>
+              <ol>
+                <li>Tunggu dulu 2 menit setelah <code>docker compose up -d</code></li>
+                <li>Jalankan <code>docker compose ps</code> ulang — status Worker harus berubah jadi <strong>Up</strong></li>
+                <li>Jika masih Restarting setelah 5 menit, cek log: <code>docker compose logs worker --tail=30</code></li>
+              </ol>
+              <div class="code-block">
+                <span class="d"># Monitor status secara live</span><br>
+                <span class="g">watch</span> -n 2 docker compose ps<br>
+                <span class="d"># Ctrl+C untuk keluar dari watch</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H15</span> <em>(Kelompok 7)</em> Cara scale container vote menjadi 2 replica
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Container yang di-scale tidak boleh punya port host yang fixed (akan konflik). Edit <code>docker-compose.yml</code> terlebih dahulu:</p>
+              <div class="code-block">
+                <span class="d"># Di docker-compose.yml, cari bagian service 'vote'</span><br>
+                <span class="d"># Ubah dari:</span><br>
+                ports:<br>
+                &nbsp;&nbsp;- <span class="o">"8080:80"</span><br><br>
+                <span class="d"># Menjadi (expose port tanpa binding host tetap):</span><br>
+                ports:<br>
+                &nbsp;&nbsp;- <span class="o">"80"</span> &nbsp;<span class="d"># Docker akan assign port host secara otomatis</span>
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Jalankan dengan scale 2 replica</span><br>
+                <span class="g">docker</span> compose up -d --scale <span class="b">vote=2</span><br><br>
+                <span class="d"># Verifikasi ada 2 container vote</span><br>
+                <span class="g">docker</span> ps | grep vote<br>
+                <span class="d"># Harus ada 2 baris dengan nama seperti:</span><br>
+                <span class="d"># example-voting-app-vote-1</span><br>
+                <span class="d"># example-voting-app-vote-2</span>
+              </div>
+              <div class="note-box">
+                <strong>Screenshot yang dibutuhkan:</strong> Output <code>docker ps</code> yang menampilkan 2 container vote berjalan bersamaan + penjelasan di laporan tentang kegunaan scaling.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 3 & 8 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">📊</span>
+          <span>Hint Kelompok 3 & 8 — louislam/uptime-kuma</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H16</span> Cara membuat dan menjalankan Uptime Kuma via Docker Compose
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Repo Uptime Kuma tidak punya <code>docker-compose.yml</code> bawaan — buat sendiri di folder baru:</p>
+              <div class="code-block">
+                <span class="d"># Buat folder baru</span><br>
+                <span class="g">mkdir</span> uptime-kuma-deploy &amp;&amp; cd uptime-kuma-deploy<br><br>
+                <span class="d"># Buat file docker-compose.yml</span><br>
+                <span class="g">nano</span> docker-compose.yml
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Isi dengan:</span><br>
+                <span class="b">version:</span> <span class="o">'3.8'</span><br>
+                <span class="b">services:</span><br>
+                &nbsp;&nbsp;<span class="g">uptime-kuma:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> louislam/uptime-kuma:1<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">container_name:</span> uptime-kuma<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">volumes:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- uptime-kuma-data:/app/data<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">ports:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">"3001:3001"</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">restart:</span> unless-stopped<br><br>
+                <span class="b">volumes:</span><br>
+                &nbsp;&nbsp;<span class="g">uptime-kuma-data:</span>
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Jalankan</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Buka http://localhost:3001</span><br>
+                <span class="d"># Pertama kali: buat akun admin (username & password)</span><br>
+                <span class="d"># Simpan credentials — dibutuhkan untuk login ulang</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H17</span> <em>(Kelompok 3)</em> Cara menambahkan monitor untuk URL Ngrok kelompok lain
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Setelah login ke Uptime Kuma di <code>localhost:3001</code>:</p>
+              <ol>
+                <li>Klik tombol <strong>"Add New Monitor"</strong> (atau + di pojok kanan)</li>
+                <li><strong>Monitor Type:</strong> pilih <code>HTTP(s)</code></li>
+                <li><strong>Friendly Name:</strong> isi nama kelompok yang dipantau (misal: "Kelompok 1 - Todo App")</li>
+                <li><strong>URL:</strong> masukkan URL Ngrok kelompok lain, misal <code>https://abc123.ngrok-free.app</code></li>
+                <li><strong>Heartbeat Interval:</strong> set ke <strong>60 detik</strong></li>
+                <li>Klik <strong>Save</strong> — status akan muncul: <span style="color:green">●</span> Up atau <span style="color:red">●</span> Down</li>
+                <li>Ulangi untuk minimal 2 kelompok lain</li>
+              </ol>
+              <div class="success-box">
+                <strong>Screenshot yang dibutuhkan:</strong> Dashboard Uptime Kuma yang menampilkan minimal 2 monitor URL kelompok lain dengan status Up (hijau). Koordinasi dengan kelompok lain agar URL Ngrok mereka aktif saat kamu screenshot.
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H18</span> <em>(Kelompok 8)</em> Cara membuktikan data tidak hilang setelah container di-restart
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Langkah step-by-step untuk demonstrasi persistensi:</p>
+              <div class="code-block">
+                <span class="d"># 1. Pastikan volume sudah ada di compose.yml (lihat hint H16)</span><br><br>
+                <span class="d"># 2. Jalankan container</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># 3. Buka localhost:3001, buat akun, tambah beberapa monitor</span><br>
+                <span class="d"># 4. Screenshot dashboard (ini "before")</span><br><br>
+                <span class="d"># 5. Stop container (TANPA -v agar volume tetap ada)</span><br>
+                <span class="g">docker</span> compose down<br><br>
+                <span class="d"># 6. Verifikasi volume masih ada</span><br>
+                <span class="g">docker</span> volume ls<br>
+                <span class="d"># Harus ada: [nama-folder]_uptime-kuma-data</span><br><br>
+                <span class="d"># 7. Jalankan lagi</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># 8. Buka localhost:3001 → login dengan akun yang sama</span><br>
+                <span class="d"># 9. Monitor yang dibuat sebelumnya harus masih ada</span><br>
+                <span class="d"># 10. Screenshot dashboard (ini "after") — bandingkan dengan "before"</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 4 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">⚙️</span>
+          <span>Hint Kelompok 4 — nicholasjackson/fake-service</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H19</span> Memahami fake-service dan apa yang akan dibangun
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p><code>fake-service</code> adalah aplikasi Go yang mensimulasikan microservice — ia menerima HTTP request dan meneruskannya ke service lain (upstream). Ini memudahkan demo arsitektur tanpa perlu kode nyata.</p>
+              <p>Yang akan dibangun: rantai <strong>frontend → api → backend</strong> di mana setiap panggilan ke frontend secara otomatis memanggil api, yang memanggil backend. Responsnya berupa JSON yang menunjukkan jalur lengkap panggilan.</p>
+              <div class="code-block">
+                <span class="d"># Buat folder kerja</span><br>
+                <span class="g">mkdir</span> fake-service-demo &amp;&amp; cd fake-service-demo<br>
+                <span class="g">nano</span> docker-compose.yml
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H20</span> Template <code>docker-compose.yml</code> untuk menjalankan 3 fake-service
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <div class="code-block">
+                <span class="b">version:</span> <span class="o">'3'</span><br>
+                <span class="b">services:</span><br><br>
+                &nbsp;&nbsp;<span class="g">frontend:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> nicholasjackson/fake-service:v0.26.2<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">ports:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">"9090:9090"</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">environment:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">LISTEN_ADDR:</span> 0.0.0.0:9090<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">NAME:</span> frontend<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">MESSAGE:</span> "Hello from Frontend!"<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">UPSTREAM_URIS:</span> http://api:9091<br><br>
+                &nbsp;&nbsp;<span class="g">api:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> nicholasjackson/fake-service:v0.26.2<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">environment:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">LISTEN_ADDR:</span> 0.0.0.0:9091<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">NAME:</span> api<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">MESSAGE:</span> "Hello from API!"<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">UPSTREAM_URIS:</span> http://backend:9092<br><br>
+                &nbsp;&nbsp;<span class="g">backend:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> nicholasjackson/fake-service:v0.26.2<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">environment:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">LISTEN_ADDR:</span> 0.0.0.0:9092<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">NAME:</span> backend<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">MESSAGE:</span> "Hello from Backend!"
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Jalankan</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Test: akses frontend dan lihat JSON response</span><br>
+                <span class="g">curl</span> http://localhost:9090<br>
+                <span class="d"># atau buka http://localhost:9090 di browser</span><br>
+                <span class="d"># Response JSON akan menampilkan chain pemanggilan frontend→api→backend</span>
+              </div>
+              <p style="margin-top:8px;">Tunnel Ngrok ke port <code>9090</code> (frontend). Akses URL Ngrok dari browser → akan tampil JSON yang membuktikan 3 service saling berkomunikasi.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ HINT KELOMPOK 5 ══ -->
+      <div class="hint-group">
+        <div class="hint-group-title" onclick="toggleGroup(this)">
+          <span class="hint-icon">🗃️</span>
+          <span>Hint Kelompok 5 — HardevKhandhar/dockerized-fullstack-application</span>
+          <span class="hint-chevron">▼</span>
+        </div>
+        <div class="hint-group-body">
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H21</span> Langkah awal: clone dan jalankan fullstack app ini
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <div class="code-block">
+                <span class="g">git</span> clone https://github.com/HardevKhandhar/dockerized-fullstack-application<br>
+                <span class="g">cd</span> dockerized-fullstack-application<br><br>
+                <span class="d"># Lihat struktur dan compose file</span><br>
+                <span class="g">ls</span> -la<br>
+                <span class="g">cat</span> docker-compose.yml<br><br>
+                <span class="d"># Jalankan</span><br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Tunggu ~30 detik untuk MongoDB siap</span><br>
+                <span class="g">docker</span> compose ps<br><br>
+                <span class="d"># Akses di</span><br>
+                <span class="d"># http://localhost:3000</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H22</span> MongoDB tidak terkoneksi — app error <em>"MongoNetworkError"</em>
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Penyebab paling umum: nama host MongoDB di connection string tidak sesuai dengan nama service Docker.</p>
+              <div class="code-block">
+                <span class="d"># Cek nama service MongoDB di docker-compose.yml</span><br>
+                <span class="g">grep</span> -A 3 <span class="o">"mongo\|db:"</span> docker-compose.yml<br><br>
+                <span class="d"># Nama service di sini dipakai sebagai hostname!</span><br>
+                <span class="d"># Jika nama servicenya "mongo", maka connection string harus:</span><br>
+                <span class="b">MONGO_URI</span>=mongodb://<span class="o">mongo</span>:27017/appdb<br><br>
+                <span class="d"># BUKAN: mongodb://localhost:27017/appdb (ini tidak akan bisa)</span><br>
+                <span class="d"># BUKAN: mongodb://127.0.0.1:27017/appdb</span>
+              </div>
+              <p style="margin-top:8px;">Edit environment variable di <code>docker-compose.yml</code> bagian service app, sesuaikan MONGO_URI-nya, lalu restart.</p>
+            </div>
+          </div>
+
+          <div class="hint-card">
+            <div class="hint-q" onclick="toggleHint(this)">
+              <span class="hint-badge">H23</span> Cara modifikasi environment variable dan menambahkan volume untuk MongoDB
+              <span class="hint-toggle-icon">+</span>
+            </div>
+            <div class="hint-a">
+              <p>Edit bagian service <code>mongo</code> di <code>docker-compose.yml</code> untuk menambahkan volume:</p>
+              <div class="code-block">
+                <span class="b">services:</span><br>
+                &nbsp;&nbsp;<span class="g">app:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">environment:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="d"># Ubah connection string jika perlu</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">MONGO_URI:</span> mongodb://mongo:27017/myapp_kelompok5<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="b">PORT:</span> <span class="o">3000</span><br><br>
+                &nbsp;&nbsp;<span class="g">mongo:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">image:</span> mongo:6<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="b">volumes:</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="o">mongo-data:/data/db</span> &nbsp;<span class="d"># tambahkan baris ini</span><br><br>
+                <span class="d"># Di bagian paling bawah file, tambahkan:</span><br>
+                <span class="b">volumes:</span><br>
+                &nbsp;&nbsp;<span class="g">mongo-data:</span>
+              </div>
+              <div class="code-block" style="margin-top:8px;">
+                <span class="d"># Terapkan perubahan</span><br>
+                <span class="g">docker</span> compose down<br>
+                <span class="g">docker</span> compose up -d<br><br>
+                <span class="d"># Verifikasi volume terbuat</span><br>
+                <span class="g">docker</span> volume ls<br>
+                <span class="d"># Harus ada: dockerized-fullstack-application_mongo-data</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /hint-system -->
+  </section>
+
+</div><!-- /wrapper -->
+
+<footer>
+  <p><strong>Mata Kuliah Cloud Computing</strong> &nbsp;·&nbsp; Project 1: Docker + Ngrok Deployment &nbsp;·&nbsp; Dibuat untuk evaluasi praktikum kelompok</p>
+</footer>
+
+<script>
+  function toggleGroup(titleEl) {
+    const body = titleEl.nextElementSibling;
+    const chevron = titleEl.querySelector('.hint-chevron');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    chevron.classList.toggle('open', !isOpen);
+  }
+
+  function toggleHint(qEl) {
+    const answerEl = qEl.nextElementSibling;
+    const toggleIcon = qEl.querySelector('.hint-toggle-icon');
+    const isOpen = answerEl.classList.contains('open');
+    answerEl.classList.toggle('open', !isOpen);
+    qEl.classList.toggle('open', !isOpen);
+    toggleIcon.classList.toggle('open', !isOpen);
+  }
+
+  function switchTab(groupId, tabId, tabEl) {
+    // Hide all panels in group
+    const panels = document.querySelectorAll(`[id^="os-tab-${groupId}-"]`);
+    panels.forEach(p => p.classList.remove('active'));
+    // Remove active from sibling tabs
+    const allTabs = tabEl.parentElement.querySelectorAll('.os-tab');
+    allTabs.forEach(t => t.classList.remove('active'));
+    // Show selected
+    document.getElementById(`os-tab-${groupId}-${tabId}`).classList.add('active');
+    tabEl.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
