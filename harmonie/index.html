@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Level Agreement — Harmonie</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --deep: #0f3460;
+    --accent: #e94560;
+    --gold: #c9a84c;
+    --mist: #f4f6fb;
+    --border: #d8dde8;
+    --text: #3a3a4a;
+    --light: #7a8099;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--mist);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 15px;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--deep);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -80px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.08);
+    pointer-events: none;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30%;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: rgba(233,69,96,0.06);
+    pointer-events: none;
+  }
+
+  .header-inner {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 64px 40px 52px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid rgba(201,168,76,0.4);
+    padding: 5px 14px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: white;
+    margin-bottom: 10px;
+  }
+
+  header h1 span {
+    color: var(--gold);
+  }
+
+  .header-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    font-weight: 300;
+    margin-top: 14px;
+  }
+
+  .meta-strip {
+    display: flex;
+    gap: 36px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .meta-label {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .meta-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.9);
+  }
+
+  /* DIVIDER */
+  .gold-rule {
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold) 0%, rgba(201,168,76,0.1) 100%);
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 60px 40px 100px;
+  }
+
+  /* SECTION */
+  section {
+    margin-bottom: 56px;
+    opacity: 0;
+    transform: translateY(18px);
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  section:nth-child(1)  { animation-delay: 0.05s; }
+  section:nth-child(2)  { animation-delay: 0.10s; }
+  section:nth-child(3)  { animation-delay: 0.15s; }
+  section:nth-child(4)  { animation-delay: 0.20s; }
+  section:nth-child(5)  { animation-delay: 0.25s; }
+  section:nth-child(6)  { animation-delay: 0.30s; }
+  section:nth-child(7)  { animation-delay: 0.35s; }
+  section:nth-child(8)  { animation-delay: 0.40s; }
+  section:nth-child(9)  { animation-delay: 0.45s; }
+  section:nth-child(10) { animation-delay: 0.50s; }
+  section:nth-child(11) { animation-delay: 0.55s; }
+  section:nth-child(12) { animation-delay: 0.60s; }
+  section:nth-child(13) { animation-delay: 0.65s; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-num {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--deep);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 24px 0 10px;
+  }
+
+  p { margin-bottom: 14px; color: var(--text); }
+
+  /* UPTIME CARD */
+  .uptime-card {
+    background: var(--deep);
+    border-radius: 8px;
+    padding: 36px 40px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin: 24px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .uptime-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(201,168,76,0.08);
+  }
+
+  .uptime-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--gold);
+    white-space: nowrap;
+    line-height: 1;
+  }
+
+  .uptime-desc {
+    color: rgba(255,255,255,0.85);
+    font-size: 14px;
+  }
+
+  .uptime-desc strong {
+    display: block;
+    font-size: 16px;
+    color: white;
+    margin-bottom: 6px;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  thead tr {
+    background: var(--ink);
+    color: white;
+  }
+
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: white; }
+
+  tbody td {
+    padding: 13px 16px;
+    vertical-align: top;
+  }
+
+  .priority-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .p1 { background: #fde8ec; color: #c0182d; }
+  .p2 { background: #fff3e0; color: #b35a00; }
+  .p3 { background: #e8f4fd; color: #1a5f8a; }
+  .p4 { background: #f0f0f0; color: #555; }
+
+  /* CREDIT CARDS */
+  .credit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+
+  .credit-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .credit-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+
+  .credit-pct {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+
+  .credit-label {
+    font-size: 12px;
+    color: var(--light);
+    margin-top: 4px;
+  }
+
+  /* INFO BOX */
+  .info-box {
+    background: white;
+    border-left: 3px solid var(--gold);
+    padding: 18px 22px;
+    border-radius: 0 6px 6px 0;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+
+  .info-box.note {
+    border-left-color: var(--deep);
+    background: #eef2fa;
+  }
+
+  /* LIST */
+  ul, ol {
+    padding-left: 22px;
+    margin-bottom: 14px;
+  }
+
+  li { margin-bottom: 7px; font-size: 15px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 32px 40px;
+    font-size: 13px;
+    line-height: 2;
+  }
+
+  footer strong { color: white; }
+
+  .signature-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 40px;
+  }
+
+  .sig-box {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    background: white;
+  }
+
+  .sig-title {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--light);
+    margin-bottom: 60px;
+  }
+
+  .sig-line {
+    border-top: 1px solid var(--ink);
+    padding-top: 8px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  @media (max-width: 600px) {
+    .header-inner { padding: 40px 24px 36px; }
+    header h1 { font-size: 28px; }
+    .container { padding: 40px 24px 70px; }
+    .uptime-card { flex-direction: column; gap: 16px; padding: 28px 24px; }
+    .credit-grid { grid-template-columns: 1fr 1fr; }
+    .signature-block { grid-template-columns: 1fr; }
+    .meta-strip { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="badge">Dokumen Resmi · Versi 1.0</div>
+    <h1>Service Level <span>Agreement</span></h1>
+    <p class="header-sub">Perjanjian Tingkat Layanan — Platform Harmonie IMS</p>
+    <div class="meta-strip">
+      <div class="meta-item">
+        <span class="meta-label">Berlaku Sejak</span>
+        <span class="meta-value">1 Januari 2025</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Versi Dokumen</span>
+        <span class="meta-value">v1.0</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Segmen</span>
+        <span class="meta-value">Pelanggan Korporat (B2B)</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Bahasa</span>
+        <span class="meta-value">Bahasa Indonesia</span>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="gold-rule"></div>
+
+<div class="container">
+
+  <!-- 1. PENDAHULUAN -->
+  <section>
+    <div class="section-num">Pasal 01</div>
+    <h2>Pendahuluan dan Definisi</h2>
+    <p>
+      Perjanjian Tingkat Layanan (<em>Service Level Agreement</em>, selanjutnya disebut "<strong>SLA</strong>") ini merupakan dokumen yang mengikat secara hukum antara <strong>PT Proxsis Solusi Bisnis</strong> selaku pengembang dan penyedia platform Harmonie ("<strong>Penyedia</strong>") dan entitas korporat yang telah menandatangani perjanjian berlangganan ("<strong>Pelanggan</strong>").
+    </p>
+    <p>
+      SLA ini mengatur standar ketersediaan layanan, prosedur penanganan insiden, mekanisme kompensasi, dan tanggung jawab masing-masing pihak dalam penggunaan platform <strong>Harmonie Integrated Management System (IMS)</strong>.
+    </p>
+    <h3>Definisi Istilah</h3>
+    <ul>
+      <li><strong>Layanan</strong> — Platform Harmonie IMS yang dapat diakses melalui browser dan/atau API resmi, mencakup modul Risk Management, DMS, KPI Monitoring, dan Audit Management.</li>
+      <li><strong>Downtime</strong> — Kondisi di mana Layanan tidak dapat diakses atau tidak berfungsi sebagaimana mestinya, di luar jadwal pemeliharaan yang telah diumumkan.</li>
+      <li><strong>Uptime</strong> — Persentase waktu Layanan beroperasi normal dalam satu bulan kalender, dihitung sebagai: <code>((Total Menit − Downtime) / Total Menit) × 100%</code></li>
+      <li><strong>Incident</strong> — Kejadian tidak terduga yang memengaruhi ketersediaan atau performa Layanan.</li>
+      <li><strong>Scheduled Maintenance</strong> — Jendela pemeliharaan yang telah diumumkan minimal 48 jam sebelumnya dan tidak dihitung sebagai Downtime.</li>
+    </ul>
+  </section>
+
+  <!-- 2. KOMITMEN UPTIME -->
+  <section>
+    <div class="section-num">Pasal 02</div>
+    <h2>Komitmen Ketersediaan Layanan</h2>
+    <p>Penyedia berkomitmen untuk menjaga ketersediaan Layanan pada tingkat berikut:</p>
+
+    <div class="uptime-card">
+      <div class="uptime-number">99%</div>
+      <div class="uptime-desc">
+        <strong>Uptime Bulanan Dijamin</strong>
+        Setara dengan maksimum <strong>~7,2 jam downtime per bulan</strong> atau ~87,6 jam per tahun.<br>
+        Diukur berdasarkan monitoring otomatis terhadap endpoint utama platform setiap 1 menit.
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Pengecualian dari Perhitungan Downtime:</strong> Scheduled maintenance, gangguan akibat force majeure, kegagalan koneksi internet di sisi Pelanggan, atau tindakan Pelanggan yang melanggar ketentuan penggunaan tidak dihitung sebagai Downtime.
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Periode</th>
+          <th>Uptime Dijamin</th>
+          <th>Maks. Downtime</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Per Bulan</td>
+          <td>≥ 99%</td>
+          <td>~7,2 jam</td>
+        </tr>
+        <tr>
+          <td>Per Kuartal</td>
+          <td>≥ 99%</td>
+          <td>~21,6 jam</td>
+        </tr>
+        <tr>
+          <td>Per Tahun</td>
+          <td>≥ 99%</td>
+          <td>~87,6 jam</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 3. KLASIFIKASI INSIDEN -->
+  <section>
+    <div class="section-num">Pasal 03</div>
+    <h2>Klasifikasi Insiden & Kriteria Prioritas</h2>
+    <p>
+      Setiap insiden yang dilaporkan atau terdeteksi oleh sistem monitoring Harmonie akan diklasifikasikan ke dalam empat tingkat prioritas berdasarkan <strong>dampak terhadap operasional Pelanggan</strong> dan <strong>cakupan pengguna yang terdampak</strong>. Klasifikasi awal dilakukan oleh tim Support dalam 15 menit pertama sejak insiden diterima, dan dapat direvisi seiring perkembangan investigasi.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Prioritas</th>
+          <th>Kriteria & Contoh Kejadian</th>
+          <th>Respons Pertama</th>
+          <th>Target Resolusi</th>
+          <th>Ketersediaan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="priority-tag p1">P1 — Kritis</span></td>
+          <td>
+            Platform tidak dapat diakses (HTTP 5xx total), database corrupt/tidak responsif, seluruh modul inti (Risk, Audit, KPI, DMS) tidak dapat digunakan, atau kehilangan data aktif yang terdeteksi. Berdampak pada semua atau mayoritas pengguna Pelanggan.
+          </td>
+          <td><strong>≤ 1 jam</strong></td>
+          <td><strong>≤ 4 jam</strong></td>
+          <td>24/7 termasuk hari libur</td>
+        </tr>
+        <tr>
+          <td><span class="priority-tag p2">P2 — Tinggi</span></td>
+          <td>
+            Satu modul inti tidak berfungsi sementara modul lain masih aktif, performa sistem sangat lambat (&gt;10 detik response time secara konsisten), fitur simpan/ekspor data gagal, login intermittent. Berdampak pada sebagian besar pengguna atau fungsi bisnis kritis.
+          </td>
+          <td><strong>≤ 4 jam</strong></td>
+          <td><strong>≤ 1 hari kerja</strong></td>
+          <td>24/7; resolusi jam kerja</td>
+        </tr>
+        <tr>
+          <td><span class="priority-tag p3">P3 — Sedang</span></td>
+          <td>
+            Fitur non-kritis terganggu (laporan, notifikasi, filter), tampilan dashboard tidak akurat namun data tetap tersimpan, error sporadis yang tidak menghalangi pekerjaan, workaround tersedia. Berdampak pada sebagian kecil pengguna.
+          </td>
+          <td><strong>≤ 8 jam kerja</strong></td>
+          <td><strong>≤ 3 hari kerja</strong></td>
+          <td>Jam kerja</td>
+        </tr>
+        <tr>
+          <td><span class="priority-tag p4">P4 — Rendah</span></td>
+          <td>
+            Masalah kosmetik/tampilan minor, pertanyaan teknis cara penggunaan, permintaan konfigurasi atau kustomisasi, saran peningkatan fitur. Tidak memengaruhi fungsionalitas inti.
+          </td>
+          <td><strong>≤ 2 hari kerja</strong></td>
+          <td><strong>≤ 7 hari kerja</strong></td>
+          <td>Jam kerja</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box note">
+      <strong>Jam Kerja Support:</strong> Senin–Jumat, pukul 08.00–17.00 WIB (tidak termasuk hari libur nasional Republik Indonesia). Insiden P1 dan P2 yang masuk di luar jam kerja tetap dicatat otomatis dan ditangani oleh tim on-call. Pelanggan akan menerima konfirmasi penerimaan tiket secara otomatis dalam 15 menit.
+    </div>
+
+    <h3>Upgrade & Downgrade Prioritas</h3>
+    <p>
+      Prioritas insiden dapat dinaikkan (<em>upgrade</em>) apabila: durasi gangguan melebihi setengah dari target resolusi tanpa kemajuan signifikan, cakupan dampak meluas, atau Pelanggan memberikan informasi baru yang mengubah asesmen. Sebaliknya, prioritas dapat diturunkan (<em>downgrade</em>) apabila workaround berhasil diterapkan dan dampak operasional berkurang. Setiap perubahan prioritas dikomunikasikan kepada PIC Pelanggan dalam waktu 30 menit.
+    </p>
+  </section>
+
+  <!-- 4. SOP PENANGANAN INSIDEN -->
+  <section>
+    <div class="section-num">Pasal 04</div>
+    <h2>SOP Penanganan Insiden</h2>
+    <p>
+      Seluruh insiden ditangani mengikuti alur standar berikut, yang berlaku untuk semua tingkat prioritas dengan penyesuaian kecepatan sesuai SLA masing-masing.
+    </p>
+
+    <h3>Tahap 1 — Pelaporan & Pencatatan</h3>
+    <p>Insiden dapat dilaporkan melalui saluran berikut:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Saluran</th>
+          <th>Alamat / Kontak</th>
+          <th>Ketersediaan</th>
+          <th>Prioritas yang Dilayani</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Helpdesk Tiket (in-app)</td>
+          <td>Menu <em>Bantuan &gt; Laporkan Masalah</em></td>
+          <td>24/7</td>
+          <td>P1, P2, P3, P4</td>
+        </tr>
+        <tr>
+          <td>Email Support</td>
+          <td>support@harmonie.id</td>
+          <td>24/7 (respons jam kerja)</td>
+          <td>P2, P3, P4</td>
+        </tr>
+        <tr>
+          <td>Hotline Darurat</td>
+          <td>Tercantum dalam kontrak berlangganan</td>
+          <td>24/7</td>
+          <td>P1 saja</td>
+        </tr>
+        <tr>
+          <td>Dedicated Account Manager</td>
+          <td>Kontak langsung via WhatsApp/telepon</td>
+          <td>Jam kerja</td>
+          <td>Eskalasi P1 &amp; P2</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Saat melaporkan insiden, Pelanggan wajib menyertakan informasi berikut untuk mempercepat penanganan:</p>
+    <ul>
+      <li>Nama perusahaan dan nama PIC yang melapor</li>
+      <li>Deskripsi singkat masalah dan langkah yang sudah dilakukan</li>
+      <li>Waktu pertama kali masalah terdeteksi</li>
+      <li>Jumlah dan peran pengguna yang terdampak</li>
+      <li>Screenshot, pesan error, atau log yang relevan (jika ada)</li>
+      <li>Tingkat urgensi yang dirasakan Pelanggan</li>
+    </ul>
+
+    <div class="info-box">
+      Setiap laporan yang masuk melalui helpdesk atau email akan mendapatkan <strong>Nomor Tiket unik</strong> secara otomatis dalam 15 menit. Simpan nomor tiket ini untuk keperluan pelacakan dan referensi klaim SLA.
+    </div>
+
+    <h3>Tahap 2 — Triase & Klasifikasi Awal</h3>
+    <p>
+      Tim Support Level-1 akan melakukan triase dalam waktu <strong>15–30 menit</strong> sejak tiket dibuat untuk:
+    </p>
+    <ol>
+      <li>Mengonfirmasi penerimaan insiden kepada Pelanggan</li>
+      <li>Menetapkan klasifikasi prioritas awal (P1–P4)</li>
+      <li>Mencoba reproduksi insiden di lingkungan staging</li>
+      <li>Mengecek status infrastruktur melalui dashboard monitoring internal</li>
+      <li>Menentukan apakah insiden bersifat terisolasi atau massal (<em>widespread</em>)</li>
+    </ol>
+    <p>Hasil triase dikomunikasikan kepada Pelanggan beserta perkiraan waktu update berikutnya.</p>
+
+    <h3>Tahap 3 — Investigasi & Diagnosis</h3>
+    <p>
+      Berdasarkan hasil triase, tim teknis yang sesuai ditugaskan untuk melakukan investigasi mendalam. Setiap tim memiliki batas waktu investigasi awal sebelum eskalasi wajib dilakukan:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Prioritas</th>
+          <th>Batas Investigasi Awal</th>
+          <th>Update Berkala ke Pelanggan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="priority-tag p1">P1</span></td>
+          <td>30 menit</td>
+          <td>Setiap 30 menit</td>
+        </tr>
+        <tr>
+          <td><span class="priority-tag p2">P2</span></td>
+          <td>2 jam</td>
+          <td>Setiap 2 jam</td>
+        </tr>
+        <tr>
+          <td><span class="priority-tag p3">P3</span></td>
+          <td>4 jam kerja</td>
+          <td>Setiap hari kerja</td>
+        </tr>
+        <tr>
+          <td><span class="priority-tag p4">P4</span></td>
+          <td>1 hari kerja</td>
+          <td>Di awal dan saat resolusi</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Tahap 4 — Penerapan Solusi / Workaround</h3>
+    <p>
+      Apabila solusi permanen (<em>fix</em>) belum tersedia namun workaround dapat diterapkan, tim Support akan segera mengimplementasikan workaround dan menginformasikan langkah-langkahnya kepada Pelanggan. Penerapan workaround <strong>tidak menghentikan perhitungan waktu resolusi</strong> — insiden tetap dianggap terbuka hingga akar masalah diselesaikan secara permanen, kecuali Pelanggan menyetujui penutupan sementara.
+    </p>
+
+    <h3>Tahap 5 — Verifikasi & Penutupan Tiket</h3>
+    <p>
+      Setelah solusi diterapkan, Penyedia akan:
+    </p>
+    <ol>
+      <li>Memberitahukan Pelanggan bahwa perbaikan telah dilakukan beserta ringkasan tindakan</li>
+      <li>Meminta konfirmasi dari PIC Pelanggan bahwa layanan telah berfungsi normal</li>
+      <li>Menutup tiket setelah konfirmasi diterima, atau secara otomatis setelah <strong>48 jam</strong> tanpa respons dari Pelanggan</li>
+      <li>Mengirimkan ringkasan resolusi tertulis untuk insiden P1 dan P2</li>
+    </ol>
+    <p>Pelanggan dapat me-<em>reopen</em> tiket dalam <strong>7 hari kalender</strong> apabila masalah yang sama muncul kembali tanpa perlu membuat laporan baru.</p>
+  </section>
+
+  <!-- 5. ESKALASI -->
+  <section>
+    <div class="section-num">Pasal 05</div>
+    <h2>Matriks Eskalasi</h2>
+    <p>
+      Apabila target waktu respons atau resolusi tidak terpenuhi, atau Pelanggan merasa penanganan tidak memadai, insiden akan dieskalasi secara bertingkat mengikuti matriks berikut. Eskalasi dapat dipicu secara otomatis oleh sistem atau diminta langsung oleh Pelanggan.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Tingkat</th>
+          <th>Penanggung Jawab</th>
+          <th>Trigger Eskalasi</th>
+          <th>Tindakan</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>L1<br>Support Agent</strong></td>
+          <td>Tim Support Harmonie (frontline)</td>
+          <td>Tiket masuk pertama kali</td>
+          <td>Triase, klasifikasi, respons pertama, penerapan solusi standar</td>
+        </tr>
+        <tr>
+          <td><strong>L2<br>Senior Engineer</strong></td>
+          <td>Senior Technical Support / DevOps</td>
+          <td>P1: jika tidak ada kemajuan dalam 1 jam<br>P2: jika tidak ada kemajuan dalam 4 jam kerja</td>
+          <td>Investigasi mendalam, akses langsung ke infrastruktur, koordinasi dengan tim backend</td>
+        </tr>
+        <tr>
+          <td><strong>L3<br>Tech Lead</strong></td>
+          <td>Lead Engineer / CTO</td>
+          <td>P1: jika tidak terselesaikan dalam 2 jam<br>P2: jika tidak terselesaikan dalam 1 hari kerja</td>
+          <td>Pengambilan keputusan teknis strategis, rollback versi, eskalasi vendor infrastruktur</td>
+        </tr>
+        <tr>
+          <td><strong>L4<br>Manajemen</strong></td>
+          <td>Account Manager + Manajemen Senior</td>
+          <td>P1: jika tidak terselesaikan dalam 3 jam atau berdampak data loss<br>Permintaan eksplisit Pelanggan</td>
+          <td>Komunikasi langsung dengan manajemen Pelanggan, komitmen kompensasi, koordinasi krisis</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <strong>Eskalasi yang Diminta Pelanggan:</strong> Pelanggan dapat meminta eskalasi ke tingkat yang lebih tinggi kapan saja dengan menyebutkan nomor tiket dan alasan eskalasi kepada Account Manager. Permintaan eskalasi akan direspons dalam <strong>30 menit</strong> untuk P1 dan <strong>2 jam kerja</strong> untuk P2.
+    </div>
+
+    <h3>Alur Eskalasi P1 — Insiden Kritis (Ringkasan)</h3>
+    <ol>
+      <li><strong>T+0:</strong> Tiket masuk / monitoring mendeteksi anomali → L1 menerima dan konfirmasi ke Pelanggan</li>
+      <li><strong>T+15 menit:</strong> Klasifikasi P1 ditetapkan → notifikasi otomatis ke tim on-call L2</li>
+      <li><strong>T+30 menit:</strong> War room dibuka (internal Slack/bridge call) → update pertama dikirim ke Pelanggan</li>
+      <li><strong>T+1 jam:</strong> Jika belum ada resolusi → eskalasi otomatis ke L3 (Tech Lead)</li>
+      <li><strong>T+2 jam:</strong> Jika belum ada resolusi → eskalasi ke L4 (Manajemen) + update ke Pelanggan</li>
+      <li><strong>T+4 jam (target):</strong> Resolusi atau workaround diterapkan → konfirmasi ke Pelanggan</li>
+      <li><strong>T+72 jam:</strong> Post-Incident Report dikirimkan kepada Pelanggan</li>
+    </ol>
+  </section>
+
+  <!-- 6. KOMUNIKASI STATUS -->
+  <section>
+    <div class="section-num">Pasal 06</div>
+    <h2>Komunikasi Status Selama Insiden</h2>
+    <p>
+      Transparansi adalah komitmen kami. Selama insiden berlangsung, Penyedia berkewajiban menjaga Pelanggan tetap terinformasi melalui saluran dan frekuensi berikut:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Fase</th>
+          <th>P1</th>
+          <th>P2</th>
+          <th>P3 / P4</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Konfirmasi penerimaan</td>
+          <td>≤ 15 menit</td>
+          <td>≤ 30 menit</td>
+          <td>≤ 2 jam kerja</td>
+        </tr>
+        <tr>
+          <td>Update kemajuan</td>
+          <td>Setiap 30 menit</td>
+          <td>Setiap 2 jam</td>
+          <td>Setiap hari kerja</td>
+        </tr>
+        <tr>
+          <td>Notifikasi workaround</td>
+          <td>Segera tersedia</td>
+          <td>Dalam 4 jam</td>
+          <td>Dalam 1–2 hari kerja</td>
+        </tr>
+        <tr>
+          <td>Konfirmasi resolusi</td>
+          <td>Segera setelah fix</td>
+          <td>Segera setelah fix</td>
+          <td>Via tiket helpdesk</td>
+        </tr>
+        <tr>
+          <td>Post-Incident Report</td>
+          <td>Dalam 72 jam</td>
+          <td>Dalam 5 hari kerja</td>
+          <td>Tidak wajib (opsional)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Konten Update Status</h3>
+    <p>Setiap update status yang dikirimkan kepada Pelanggan wajib mencakup:</p>
+    <ul>
+      <li>Nomor tiket dan timestamp update</li>
+      <li>Status terkini: <em>Investigating / Identified / Monitoring / Resolved</em></li>
+      <li>Ringkasan temuan investigasi terkini</li>
+      <li>Dampak yang sedang/masih terjadi</li>
+      <li>Tindakan yang sedang dilakukan dan oleh siapa</li>
+      <li>Perkiraan waktu update berikutnya atau estimasi resolusi</li>
+    </ul>
+
+    <h3>Status Page Publik</h3>
+    <p>
+      Harmonie menyediakan <strong>halaman status real-time</strong> di <strong>status.harmonie.id</strong> yang menampilkan kondisi operasional setiap modul platform secara transparan. Pelanggan dapat berlangganan notifikasi otomatis (email/webhook) melalui halaman tersebut untuk mendapatkan pembaruan tanpa perlu menghubungi tim support.
+    </p>
+  </section>
+
+  <!-- 7. POST-INCIDENT REVIEW -->
+  <section>
+    <div class="section-num">Pasal 07</div>
+    <h2>Post-Incident Review (PIR)</h2>
+    <p>
+      Untuk setiap insiden dengan prioritas <strong>P1</strong>, dan atas permintaan Pelanggan untuk insiden <strong>P2</strong>, Penyedia wajib menyusun dan menyampaikan <strong>Laporan Post-Incident Review</strong> dalam waktu <strong>72 jam</strong> setelah insiden dinyatakan resolved.
+    </p>
+
+    <h3>Isi Laporan PIR</h3>
+    <p>Laporan PIR wajib mencakup seluruh komponen berikut:</p>
+    <ol>
+      <li><strong>Ringkasan Eksekutif</strong> — gambaran singkat insiden, durasi, dan dampak pada Pelanggan</li>
+      <li><strong>Timeline Kejadian</strong> — kronologi lengkap dari deteksi pertama hingga resolusi, dengan timestamp setiap tindakan</li>
+      <li><strong>Root Cause Analysis (RCA)</strong> — analisis mendalam akar penyebab menggunakan metode <em>5 Whys</em> atau <em>fishbone</em></li>
+      <li><strong>Dampak Terukur</strong> — durasi downtime aktual, persentase pengguna terdampak, estimasi data yang terpengaruh (jika ada)</li>
+      <li><strong>Tindakan Mitigasi yang Dilakukan</strong> — langkah-langkah yang diambil selama insiden untuk mengurangi dampak</li>
+      <li><strong>Solusi Permanen</strong> — perbaikan teknis yang diterapkan untuk menyelesaikan akar masalah</li>
+      <li><strong>Rencana Pencegahan</strong> — minimal 3 tindakan preventif konkret dengan penanggung jawab dan tenggat waktu implementasi</li>
+      <li><strong>Status Klaim SLA</strong> — konfirmasi apakah insiden ini memenuhi syarat Service Credit dan perhitungan nilai kredit</li>
+    </ol>
+
+    <h3>Review Meeting</h3>
+    <p>
+      Untuk insiden P1 yang berdampak signifikan (downtime &gt; 2 jam atau kehilangan data), Penyedia akan menawarkan <strong>sesi review virtual</strong> antara tim teknis Harmonie dan PIC Pelanggan untuk membahas laporan PIR, menjawab pertanyaan, dan menyepakati rencana pencegahan. Sesi ini dijadwalkan dalam <strong>5 hari kerja</strong> setelah laporan PIR dikirimkan.
+    </p>
+
+    <div class="info-box">
+      <strong>Transparansi Pola Insiden:</strong> Penyedia berkomitmen menyampaikan <strong>laporan kuartalan</strong> kepada Pelanggan korporat yang merangkum statistik insiden (jumlah tiket per prioritas, rata-rata waktu resolusi, tren uptime, dan status rencana pencegahan dari PIR sebelumnya). Laporan ini dikirim paling lambat 10 hari kerja setelah akhir setiap kuartal.
+    </div>
+  </section>
+
+  <!-- 8. KOMPENSASI -->
+  <section>
+    <div class="section-num">Pasal 08</div>
+    <h2>Mekanisme Kompensasi (Service Credit)</h2>
+    <p>
+      Apabila Penyedia gagal memenuhi komitmen uptime 99% dalam satu bulan kalender, Pelanggan berhak mengajukan <strong>Service Credit</strong> berupa perpanjangan masa berlangganan tanpa biaya tambahan, dengan ketentuan:
+    </p>
+
+    <div class="credit-grid">
+      <div class="credit-card">
+        <span class="credit-pct">3%</span>
+        <div class="credit-label">Kredit bulanan<br>Uptime 98% – &lt;99%</div>
+      </div>
+      <div class="credit-card">
+        <span class="credit-pct">7%</span>
+        <div class="credit-label">Kredit bulanan<br>Uptime 95% – &lt;98%</div>
+      </div>
+      <div class="credit-card">
+        <span class="credit-pct">15%</span>
+        <div class="credit-label">Kredit bulanan<br>Uptime &lt;95%</div>
+      </div>
+    </div>
+
+    <h3>Prosedur Klaim</h3>
+    <ol>
+      <li>Pelanggan mengajukan klaim melalui email <strong>support@harmonie.id</strong> paling lambat <strong>14 hari kalender</strong> setelah akhir bulan yang bersangkutan.</li>
+      <li>Penyedia memverifikasi data monitoring dalam <strong>5 hari kerja</strong>.</li>
+      <li>Service Credit yang disetujui diterapkan pada siklus tagihan berikutnya.</li>
+    </ol>
+
+    <div class="info-box">
+      <strong>Catatan:</strong> Service Credit tidak dapat dikonversi menjadi uang tunai dan tidak berlaku kumulatif melebihi nilai satu bulan berlangganan. Service Credit merupakan satu-satunya remedy atas kegagalan SLA ini, kecuali diatur lain dalam kontrak induk.
+    </div>
+  </section>
+
+  <!-- 9. PEMELIHARAAN -->
+  <section>
+    <div class="section-num">Pasal 09</div>
+    <h2>Jadwal Pemeliharaan (Scheduled Maintenance)</h2>
+    <ul>
+      <li>Pemeliharaan rutin dijadwalkan pada <strong>Minggu dini hari, pukul 00.00–04.00 WIB</strong>.</li>
+      <li>Penyedia akan memberikan notifikasi minimal <strong>48 jam sebelumnya</strong> melalui email terdaftar dan banner in-app.</li>
+      <li>Pemeliharaan darurat (<em>emergency maintenance</em>) yang tidak terencana akan diinformasikan sesegera mungkin dan tidak melebihi <strong>4 jam</strong>.</li>
+      <li>Durasi total scheduled maintenance tidak melebihi <strong>8 jam per bulan</strong>.</li>
+    </ul>
+  </section>
+
+  <!-- 10. KEAMANAN DATA -->
+  <section>
+    <div class="section-num">Pasal 10</div>
+    <h2>Keamanan dan Backup Data</h2>
+    <ul>
+      <li>Data Pelanggan dienkripsi <strong>in-transit</strong> (TLS 1.2+) dan <strong>at-rest</strong> (AES-256).</li>
+      <li>Backup otomatis dilakukan setiap <strong>24 jam</strong> dengan retensi minimal <strong>30 hari</strong>.</li>
+      <li>Penyedia berkomitmen pada <strong>Recovery Point Objective (RPO) ≤ 24 jam</strong> dan <strong>Recovery Time Objective (RTO) ≤ 4 jam</strong> untuk insiden P1.</li>
+      <li>Penyedia tidak akan mengakses data Pelanggan tanpa izin, kecuali diperlukan untuk pemeliharaan atau atas perintah hukum yang sah.</li>
+      <li>Insiden keamanan data akan dilaporkan kepada Pelanggan dalam <strong>72 jam</strong> sejak terdeteksi.</li>
+    </ul>
+  </section>
+
+  <!-- 11. KEWAJIBAN PELANGGAN -->
+  <section>
+    <div class="section-num">Pasal 11</div>
+    <h2>Kewajiban Pelanggan</h2>
+    <p>Agar SLA ini berlaku secara penuh, Pelanggan wajib:</p>
+    <ul>
+      <li>Menjaga keamanan kredensial akun dan segera melaporkan jika terdapat dugaan kompromi.</li>
+      <li>Menggunakan Layanan sesuai ketentuan penggunaan yang berlaku dan tidak melebihi batas kapasitas yang disepakati.</li>
+      <li>Memberikan informasi teknis yang relevan saat melaporkan insiden untuk mempercepat resolusi.</li>
+      <li>Memastikan koneksi internet dan perangkat di sisi Pelanggan memenuhi spesifikasi minimum yang disyaratkan.</li>
+      <li>Menunjuk minimal satu <strong>PIC Teknis</strong> yang dapat dihubungi oleh tim support Harmonie.</li>
+    </ul>
+  </section>
+
+  <!-- 12. PENGECUALIAN -->
+  <section>
+    <div class="section-num">Pasal 12</div>
+    <h2>Batasan Tanggung Jawab & Pengecualian</h2>
+    <p>SLA ini tidak berlaku dan Penyedia tidak bertanggung jawab atas gangguan yang disebabkan oleh:</p>
+    <ul>
+      <li>Force majeure: bencana alam, perang, kebijakan pemerintah, atau peristiwa di luar kendali yang wajar.</li>
+      <li>Gangguan infrastruktur pihak ketiga (ISP, cloud provider) yang di luar kontrol Penyedia.</li>
+      <li>Kesalahan konfigurasi, modifikasi tidak sah, atau penyalahgunaan oleh Pelanggan.</li>
+      <li>Serangan siber yang berskala nasional/global di luar kemampuan mitigasi normal.</li>
+      <li>Pemeliharaan terjadwal yang telah diumumkan.</li>
+    </ul>
+    <p>Tanggung jawab agregat Penyedia dalam satu kontrak tahunan tidak melebihi nilai pembayaran berlangganan Pelanggan selama satu bulan.</p>
+  </section>
+
+  <!-- 13. KETENTUAN UMUM -->
+  <section>
+    <div class="section-num">Pasal 13</div>
+    <h2>Ketentuan Umum</h2>
+    <ul>
+      <li><strong>Hukum yang Berlaku:</strong> SLA ini tunduk pada hukum Republik Indonesia.</li>
+      <li><strong>Penyelesaian Sengketa:</strong> Sengketa diselesaikan melalui musyawarah mufakat dalam 30 hari, jika tidak tercapai maka melalui Pengadilan Negeri Jakarta Selatan.</li>
+      <li><strong>Perubahan SLA:</strong> Penyedia berhak memperbarui SLA ini dengan pemberitahuan minimal 30 hari kepada Pelanggan melalui email. Versi terbaru selalu tersedia di <strong>harmonie.id/sla</strong>.</li>
+      <li><strong>Keterpisahan:</strong> Jika satu ketentuan tidak sah, ketentuan lainnya tetap berlaku.</li>
+      <li><strong>Bahasa:</strong> Dokumen ini dibuat dalam Bahasa Indonesia sebagai bahasa resmi yang mengikat.</li>
+    </ul>
+
+    <div class="signature-block">
+      <div class="sig-box">
+        <div class="sig-title">Penyedia Layanan</div>
+        <div class="sig-line">
+          <strong>PT Proxsis Solusi Bisnis</strong><br>
+          Harmonie IMS<br>
+          harmonie.id
+        </div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-title">Pelanggan Korporat</div>
+        <div class="sig-line">
+          Nama Perusahaan: _______________<br>
+          Tanggal: _______________<br>
+          Jabatan: _______________
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <strong>Harmonie IMS</strong> — Service Level Agreement v1.0<br>
+  Berlaku mulai 1 Januari 2025 · harmonie.id/sla<br>
+  &copy; 2025 PT Proxsis Solusi Bisnis. Hak cipta dilindungi undang-undang.
+</footer>
+
+</body>
+</html>
