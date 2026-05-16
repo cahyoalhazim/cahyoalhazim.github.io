@@ -280,10 +280,7 @@
     </div>
 
     <div class="content">
-      <!-- Alert -->
       <div id="alertBox" class="alert"></div>
-
-      <!-- Loading -->
       <div id="loading" class="loading">
         <div class="loading-spinner"></div>
         <p>Memuat data...</p>
@@ -294,27 +291,21 @@
         <div class="info-box">
           💡 <strong>Tips:</strong> Master data amalan dan peserta dapat ditambahkan langsung di Google Spreadsheet pada sheet "Master Amalan" dan "Master Peserta".
         </div>
-
         <div class="form-group">
           <label>Pilih Peserta</label>
           <select id="pesertaAmalan" class="form-control">
             <option value="">-- Pilih Peserta --</option>
           </select>
         </div>
-
         <div class="form-group">
           <label>Tanggal</label>
           <input type="date" id="tanggalAmalan" class="form-control">
         </div>
-
         <div class="form-group">
           <label>Amalan Harian</label>
           <div id="amalanContainer" class="amalan-grid"></div>
         </div>
-
-        <button class="btn btn-primary" onclick="simpanAmalan()">
-          💾 Simpan Amalan Harian
-        </button>
+        <button class="btn btn-primary" onclick="simpanAmalan()">💾 Simpan Amalan Harian</button>
       </div>
 
       <!-- Tab Hafalan Quran -->
@@ -325,17 +316,14 @@
             <option value="">-- Pilih Peserta --</option>
           </select>
         </div>
-
         <div class="form-group">
           <label>Pekan Ke-</label>
           <input type="number" id="pekanHafalan" class="form-control" min="1" placeholder="Contoh: 1">
         </div>
-
         <div class="form-group">
           <label>Surah</label>
           <input type="text" id="surahHafalan" class="form-control" placeholder="Contoh: Al-Baqarah">
         </div>
-
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
           <div class="form-group">
             <label>Ayat Mulai</label>
@@ -346,23 +334,18 @@
             <input type="number" id="ayatSelesai" class="form-control" min="1">
           </div>
         </div>
-
         <div class="form-group">
           <label>Jumlah Halaman</label>
           <input type="number" id="jumlahHalaman" class="form-control" min="1" step="0.5">
         </div>
-
         <div class="form-group">
           <label>Keterangan (Opsional)</label>
           <textarea id="keteranganHafalan" class="form-control" rows="3" placeholder="Catatan tambahan..."></textarea>
         </div>
-
-        <button class="btn btn-success" onclick="simpanHafalan()">
-          📖 Simpan Hafalan Quran
-        </button>
+        <button class="btn btn-success" onclick="simpanHafalan()">📖 Simpan Hafalan Quran</button>
       </div>
 
-      <!-- Tab Rekap dengan CHARTS -->
+      <!-- Tab Rekap -->
       <div id="tab-rekap" class="tab-content">
         <div class="form-group">
           <label>Pilih Peserta</label>
@@ -370,23 +353,14 @@
             <option value="">-- Pilih Peserta --</option>
           </select>
         </div>
-
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
           <div class="form-group">
             <label>Bulan</label>
             <select id="bulanRekap" class="form-control" onchange="loadRekap()">
-              <option value="1">Januari</option>
-              <option value="2">Februari</option>
-              <option value="3">Maret</option>
-              <option value="4">April</option>
-              <option value="5">Mei</option>
-              <option value="6">Juni</option>
-              <option value="7">Juli</option>
-              <option value="8">Agustus</option>
-              <option value="9">September</option>
-              <option value="10">Oktober</option>
-              <option value="11">November</option>
-              <option value="12">Desember</option>
+              <option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option>
+              <option value="4">April</option><option value="5">Mei</option><option value="6">Juni</option>
+              <option value="7">Juli</option><option value="8">Agustus</option><option value="9">September</option>
+              <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
             </select>
           </div>
           <div class="form-group">
@@ -449,11 +423,7 @@
     // ============================================
     // HARDCODED GAS URL - GANTI DI SINI!
     // ============================================
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwHK_51nLDbc7bPgolcFHz8j0XQt1qT5P-lWSVAZjf9QOCBngExNeFACBM5EXmXyPDesw/exec';
-
-    // ============================================
-    // STATE
-    // ============================================
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyJdgKXoF6OwtLY4_YzpUuLZt7ouwxtTg3k636qm1emcDtCRD8QQe_OMmVF6BqO_Fqw_w/exec';
     let masterData = { amalan: [], peserta: [] };
     let chartInstances = {};
 
@@ -478,52 +448,42 @@
     });
 
     // ============================================
-    // API CALL
+    // API CALL - SEMUA PAKAI GET + QUERY PARAMS
     // ============================================
-    async function callGAS(action, data, retries = 2) {
-      const url = GAS_URL + '?action=' + encodeURIComponent(action);
+    async function callGAS(action, params) {
+      // Build query string
+      const queryParams = new URLSearchParams({ action: action, ...params });
+      const url = GAS_URL + '?' + queryParams.toString();
 
-      for (let attempt = 0; attempt <= retries; attempt++) {
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(data || {})
-          });
+      const response = await fetch(url, {
+        method: 'GET',
+        mode: 'cors'
+      });
 
-          if (!response.ok) {
-            throw new Error('HTTP ' + response.status + ': ' + response.statusText);
-          }
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
 
-          const text = await response.text();
-          let result;
+      const text = await response.text();
 
-          try {
-            result = JSON.parse(text);
-          } catch (parseErr) {
-            const match = text.match(/^[^{]*(\{.*\})[^}]*$/);
-            if (match) {
-              result = JSON.parse(match[1]);
-            } else {
-              throw new Error('Invalid JSON response');
-            }
-          }
-
-          if (result.error) {
-            throw new Error(result.error);
-          }
-
-          return result;
-
-        } catch (error) {
-          if (attempt === retries) {
-            throw error;
-          }
-          await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+      // Parse JSON (handle GAS wrapper)
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch (e) {
+        const match = text.match(/\{[\s\S]*\}/);
+        if (match) {
+          result = JSON.parse(match[0]);
+        } else {
+          throw new Error('Invalid response: ' + text.substring(0, 100));
         }
       }
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      return result;
     }
 
     // ============================================
@@ -558,6 +518,7 @@
         generateAmalanInputs();
       } catch (error) {
         showAlert('Gagal memuat data: ' + error.message, 'error');
+        console.error('Full error:', error);
       }
       showLoading(false);
     }
@@ -626,7 +587,7 @@
           tanggal: tanggal,
           pesertaId: pesertaId,
           pesertaNama: peserta.nama,
-          amalan: amalanData
+          amalan: JSON.stringify(amalanData)
         });
 
         if (result.error) throw new Error(result.error);
@@ -658,14 +619,14 @@
       showLoading(true);
       try {
         const result = await callGAS('simpanHafalanQuran', {
-          pekan: parseInt(pekan),
+          pekan: pekan,
           pesertaId: pesertaId,
           pesertaNama: peserta.nama,
           surah: surah,
-          ayatMulai: parseInt(ayatMulai),
-          ayatSelesai: parseInt(ayatSelesai),
-          jumlahHalaman: parseFloat(document.getElementById('jumlahHalaman').value) || 0,
-          keterangan: document.getElementById('keteranganHafalan').value
+          ayatMulai: ayatMulai,
+          ayatSelesai: ayatSelesai,
+          jumlahHalaman: document.getElementById('jumlahHalaman').value || 0,
+          keterangan: document.getElementById('keteranganHafalan').value || ''
         });
 
         if (result.error) throw new Error(result.error);
@@ -1003,8 +964,8 @@
 
       try {
         const [rekapData, riwayatAmalanData, riwayatHafalanData] = await Promise.all([
-          callGAS('getRekapBulanan', { pesertaId: pesertaId, bulan: parseInt(bulan), tahun: parseInt(tahun) }),
-          callGAS('getRiwayatAmalan', { pesertaId: pesertaId, bulan: parseInt(bulan), tahun: parseInt(tahun) }),
+          callGAS('getRekapBulanan', { pesertaId: pesertaId, bulan: bulan, tahun: tahun }),
+          callGAS('getRiwayatAmalan', { pesertaId: pesertaId, bulan: bulan, tahun: tahun }),
           callGAS('getRiwayatHafalan', { pesertaId: pesertaId })
         ]);
 
