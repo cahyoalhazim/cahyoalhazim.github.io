@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amalan Yaumiyah & Hafalan Quran</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 5px; }
+    .header p { opacity: 0.9; font-size: 14px; }
+    .nav-tabs {
+      display: flex;
+      background: #f8f9fa;
+      border-bottom: 2px solid #e9ecef;
+    }
+    .nav-tab {
+      flex: 1;
+      padding: 15px;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6c757d;
+      transition: all 0.3s;
+    }
+    .nav-tab:hover { background: #e9ecef; color: #495057; }
+    .nav-tab.active {
+      background: white;
+      color: #2a5298;
+      border-bottom: 3px solid #2a5298;
+    }
+    .content { padding: 25px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #2a5298;
+    }
+    .amalan-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .amalan-card {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 15px;
+      border: 2px solid #e9ecef;
+      transition: all 0.3s;
+    }
+    .amalan-card:hover { border-color: #2a5298; transform: translateY(-2px); }
+    .amalan-card label {
+      display: block;
+      font-weight: 600;
+      color: #2a5298;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .amalan-card input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 14px;
+      text-align: center;
+    }
+    .amalan-card .satuan {
+      font-size: 12px;
+      color: #6c757d;
+      margin-top: 5px;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(42,82,152,0.4); }
+    .btn-success {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+      color: white;
+    }
+    .btn-success:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(17,153,142,0.4); }
+
+    .alert {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    /* CHART STYLES */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .chart-card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      border: 1px solid #e9ecef;
+    }
+    .chart-card h3 {
+      font-size: 16px;
+      color: #2a5298;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chart-wrapper {
+      position: relative;
+      height: 280px;
+    }
+    .chart-wrapper.small { height: 220px; }
+
+    .stats-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+    .stat-card h3 { font-size: 28px; margin-bottom: 5px; }
+    .stat-card p { font-size: 13px; opacity: 0.9; }
+
+    .progress-ring {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+    .ring-item {
+      text-align: center;
+    }
+    .ring-item canvas { margin: 0 auto; }
+    .ring-item p {
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+      border: 1px solid #e9ecef;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+    th {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      font-weight: 600;
+      color: #495057;
+    }
+    tr:hover { background: #f8f9fa; }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e9ecef;
+      border-top-color: #2a5298;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .info-box {
+      background: #e7f3ff;
+      border-left: 4px solid #2a5298;
+      padding: 15px;
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #1e3c72;
+    }
+
+    .section-title {
+      font-size: 18px;
+      color: #2a5298;
+      margin: 30px 0 15px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e9ecef;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .amalan-grid { grid-template-columns: 1fr; }
+      .stats-overview { grid-template-columns: 1fr 1fr; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .header h1 { font-size: 22px; }
+    }
+  </style>
+<base target="_blank">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📿 Amalan Yaumiyah</h1>
+      <p>Tracking Amalan Harian & Hafalan Quran</p>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('amalan')">📝 Input Amalan</button>
+      <button class="nav-tab" onclick="switchTab('hafalan')">📖 Hafalan Quran</button>
+      <button class="nav-tab" onclick="switchTab('rekap')">📊 Rekap & Riwayat</button>
+    </div>
+
+    <div class="content">
+      <!-- Alert -->
+      <div id="alertBox" class="alert"></div>
+
+      <!-- Loading -->
+      <div id="loading" class="loading">
+        <div class="loading-spinner"></div>
+        <p>Memuat data...</p>
+      </div>
+
+      <!-- Tab Input Amalan -->
+      <div id="tab-amalan" class="tab-content active">
+        <div class="info-box">
+          💡 <strong>Tips:</strong> Master data amalan dan peserta dapat ditambahkan langsung di Google Spreadsheet pada sheet "Master Amalan" dan "Master Peserta".
+        </div>
+
+        <div class="form-group">
+          <label>Pilih Peserta</label>
+          <select id="pesertaAmalan" class="form-control">
+            <option value="">-- Pilih Peserta --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tanggal</label>
+          <input type="date" id="tanggalAmalan" class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label>Amalan Harian</label>
+          <div id="amalanContainer" class="amalan-grid">
+            <!-- Amalan akan di-generate otomatis -->
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="simpanAmalan()">
+          💾 Simpan Amalan Harian
+        </button>
+      </div>
+
+      <!-- Tab Hafalan Quran -->
+      <div id="tab-hafalan" class="tab-content">
+        <div class="form-group">
+          <label>Pilih Peserta</label>
+          <select id="pesertaHafalan" class="form-control">
+            <option value="">-- Pilih Peserta --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Pekan Ke-</label>
+          <input type="number" id="pekanHafalan" class="form-control" min="1" placeholder="Contoh: 1">
+        </div>
+
+        <div class="form-group">
+          <label>Surah</label>
+          <input type="text" id="surahHafalan" class="form-control" placeholder="Contoh: Al-Baqarah">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label>Ayat Mulai</label>
+            <input type="number" id="ayatMulai" class="form-control" min="1">
+          </div>
+          <div class="form-group">
+            <label>Ayat Selesai</label>
+            <input type="number" id="ayatSelesai" class="form-control" min="1">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Jumlah Halaman</label>
+          <input type="number" id="jumlahHalaman" class="form-control" min="1" step="0.5">
+        </div>
+
+        <div class="form-group">
+          <label>Keterangan (Opsional)</label>
+          <textarea id="keteranganHafalan" class="form-control" rows="3" placeholder="Catatan tambahan..."></textarea>
+        </div>
+
+        <button class="btn btn-success" onclick="simpanHafalan()">
+          📖 Simpan Hafalan Quran
+        </button>
+      </div>
+
+      <!-- Tab Rekap dengan CHARTS -->
+      <div id="tab-rekap" class="tab-content">
+        <div class="form-group">
+          <label>Pilih Peserta</label>
+          <select id="pesertaRekap" class="form-control" onchange="loadRekap()">
+            <option value="">-- Pilih Peserta --</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label>Bulan</label>
+            <select id="bulanRekap" class="form-control" onchange="loadRekap()">
+              <option value="1">Januari</option>
+              <option value="2">Februari</option>
+              <option value="3">Maret</option>
+              <option value="4">April</option>
+              <option value="5">Mei</option>
+              <option value="6">Juni</option>
+              <option value="7">Juli</option>
+              <option value="8">Agustus</option>
+              <option value="9">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Desember</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tahun</label>
+            <input type="number" id="tahunRekap" class="form-control" value="2026" onchange="loadRekap()">
+          </div>
+        </div>
+
+        <div id="rekapContainer" style="display:none;">
+
+          <!-- Ringkasan Statistik -->
+          <div class="section-title">📈 Ringkasan Bulanan</div>
+          <div class="stats-overview" id="statsOverview"></div>
+
+          <!-- Progress Ring Charts -->
+          <div class="section-title">🎯 Progress Ibadah</div>
+          <div class="progress-ring" id="progressRing"></div>
+
+          <!-- Charts Grid -->
+          <div class="chart-grid">
+            <!-- Bar Chart: Total Amalan -->
+            <div class="chart-card">
+              <h3>📊 Total Amalan per Jenis</h3>
+              <div class="chart-wrapper">
+                <canvas id="chartTotalAmalan"></canvas>
+              </div>
+            </div>
+
+            <!-- Pie Chart: Distribusi Kategori -->
+            <div class="chart-card">
+              <h3>🥧 Distribusi Kategori Amalan</h3>
+              <div class="chart-wrapper small">
+                <canvas id="chartKategori"></canvas>
+              </div>
+            </div>
+
+            <!-- Line Chart: Trend Harian -->
+            <div class="chart-card" style="grid-column: 1 / -1;">
+              <h3>📈 Trend Amalan Harian</h3>
+              <div class="chart-wrapper">
+                <canvas id="chartTrendHarian"></canvas>
+              </div>
+            </div>
+
+            <!-- Bar Chart: Hafalan per Pekan -->
+            <div class="chart-card">
+              <h3>📖 Hafalan per Pekan</h3>
+              <div class="chart-wrapper">
+                <canvas id="chartHafalanPekan"></canvas>
+              </div>
+            </div>
+
+            <!-- Doughnut: Konsistensi -->
+            <div class="chart-card">
+              <h3>✅ Konsistensi Ibadah</h3>
+              <div class="chart-wrapper small">
+                <canvas id="chartKonsistensi"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabel Riwayat Hafalan -->
+          <div class="section-title">📋 Riwayat Hafalan Quran</div>
+          <div class="table-container">
+            <table id="tableHafalan">
+              <thead>
+                <tr>
+                  <th>Pekan</th>
+                  <th>Surah</th>
+                  <th>Ayat</th>
+                  <th>Halaman</th>
+                  <th>Keterangan</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <!-- Tabel Riwayat Amalan -->
+          <div class="section-title">📋 Riwayat Amalan Harian</div>
+          <div class="table-container">
+            <table id="tableAmalan">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Amalan</th>
+                  <th>Jumlah</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let masterData = { amalan: [], peserta: [] };
+    let chartInstances = {};
+
+    // Warna tema
+    const colors = {
+      primary: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#43e97b', '#fa709a'],
+      gradients: [
+        ['#667eea', '#764ba2'],
+        ['#f093fb', '#f5576c'],
+        ['#4facfe', '#00f2fe'],
+        ['#43e97b', '#38f9d7'],
+        ['#fa709a', '#fee140'],
+        ['#30cfd0', '#330867'],
+        ['#a8edea', '#fed6e3'],
+        ['#ff9a9e', '#fecfef']
+      ]
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('tanggalAmalan').valueAsDate = new Date();
+      const now = new Date();
+      document.getElementById('bulanRekap').value = now.getMonth() + 1;
+      document.getElementById('tahunRekap').value = now.getFullYear();
+      loadMasterData();
+    });
+
+    function showLoading(show) {
+      document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+
+    function showAlert(message, type) {
+      const alert = document.getElementById('alertBox');
+      alert.textContent = message;
+      alert.className = 'alert alert-' + type;
+      alert.style.display = 'block';
+      setTimeout(() => alert.style.display = 'none', 5000);
+    }
+
+    function loadMasterData() {
+      showLoading(true);
+      google.script.run
+        .withSuccessHandler(function(data) {
+          masterData = data;
+          populatePesertaDropdowns();
+          generateAmalanInputs();
+          showLoading(false);
+        })
+        .withFailureHandler(function(error) {
+          showAlert('Gagal memuat data: ' + error.message, 'error');
+          showLoading(false);
+        })
+        .getMasterData();
+    }
+
+    function populatePesertaDropdowns() {
+      const dropdowns = ['pesertaAmalan', 'pesertaHafalan', 'pesertaRekap'];
+      dropdowns.forEach(id => {
+        const select = document.getElementById(id);
+        select.innerHTML = '<option value="">-- Pilih Peserta --</option>';
+        masterData.peserta.forEach(p => {
+          select.innerHTML += `<option value="${p.id}">${p.nama} (${p.kelas})</option>`;
+        });
+      });
+    }
+
+    function generateAmalanInputs() {
+      const container = document.getElementById('amalanContainer');
+      container.innerHTML = '';
+      masterData.amalan.forEach(a => {
+        container.innerHTML += `
+          <div class="amalan-card">
+            <label>${a.nama}</label>
+            <input type="number" id="amalan-${a.id}" min="0" step="0.5" placeholder="0">
+            <div class="satuan">Target: ${a.target} ${a.satuan} | Kategori: ${a.kategori}</div>
+          </div>
+        `;
+      });
+    }
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+      event.target.classList.add('active');
+      if (tabName === 'rekap') loadRekap();
+    }
+
+    function simpanAmalan() {
+      const pesertaId = document.getElementById('pesertaAmalan').value;
+      const tanggal = document.getElementById('tanggalAmalan').value;
+      if (!pesertaId || !tanggal) {
+        showAlert('Pilih peserta dan tanggal terlebih dahulu!', 'error');
+        return;
+      }
+      const peserta = masterData.peserta.find(p => p.id == pesertaId);
+      const amalanData = {};
+      masterData.amalan.forEach(a => {
+        const val = document.getElementById('amalan-' + a.id).value;
+        if (val) amalanData[a.id] = parseFloat(val);
+      });
+      if (Object.keys(amalanData).length === 0) {
+        showAlert('Isi minimal satu amalan!', 'error');
+        return;
+      }
+      showLoading(true);
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert(result.message, 'success');
+          masterData.amalan.forEach(a => {
+            document.getElementById('amalan-' + a.id).value = '';
+          });
+          showLoading(false);
+        })
+        .withFailureHandler(function(error) {
+          showAlert('Gagal menyimpan: ' + error.message, 'error');
+          showLoading(false);
+        })
+        .simpanAmalanHarian({
+          tanggal: tanggal,
+          pesertaId: pesertaId,
+          pesertaNama: peserta.nama,
+          amalan: amalanData
+        });
+    }
+
+    function simpanHafalan() {
+      const pesertaId = document.getElementById('pesertaHafalan').value;
+      const pekan = document.getElementById('pekanHafalan').value;
+      const surah = document.getElementById('surahHafalan').value;
+      const ayatMulai = document.getElementById('ayatMulai').value;
+      const ayatSelesai = document.getElementById('ayatSelesai').value;
+      if (!pesertaId || !pekan || !surah || !ayatMulai || !ayatSelesai) {
+        showAlert('Lengkapi semua field wajib!', 'error');
+        return;
+      }
+      const peserta = masterData.peserta.find(p => p.id == pesertaId);
+      showLoading(true);
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showAlert(result.message, 'success');
+          document.getElementById('pekanHafalan').value = '';
+          document.getElementById('surahHafalan').value = '';
+          document.getElementById('ayatMulai').value = '';
+          document.getElementById('ayatSelesai').value = '';
+          document.getElementById('jumlahHalaman').value = '';
+          document.getElementById('keteranganHafalan').value = '';
+          showLoading(false);
+        })
+        .withFailureHandler(function(error) {
+          showAlert('Gagal menyimpan: ' + error.message, 'error');
+          showLoading(false);
+        })
+        .simpanHafalanQuran({
+          pekan: parseInt(pekan),
+          pesertaId: pesertaId,
+          pesertaNama: peserta.nama,
+          surah: surah,
+          ayatMulai: parseInt(ayatMulai),
+          ayatSelesai: parseInt(ayatSelesai),
+          jumlahHalaman: parseFloat(document.getElementById('jumlahHalaman').value) || 0,
+          keterangan: document.getElementById('keteranganHafalan').value
+        });
+    }
+
+    // ==================== CHART FUNCTIONS ====================
+
+    function destroyCharts() {
+      Object.values(chartInstances).forEach(chart => {
+        if (chart) chart.destroy();
+      });
+      chartInstances = {};
+    }
+
+    function createGradient(ctx, color1, color2) {
+      const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+      gradient.addColorStop(0, color1);
+      gradient.addColorStop(1, color2);
+      return gradient;
+    }
+
+    function drawProgressRing(canvasId, percentage, label, color) {
+      const canvas = document.getElementById(canvasId);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const size = 120;
+      canvas.width = size;
+      canvas.height = size;
+      const center = size / 2;
+      const radius = 45;
+      const lineWidth = 10;
+
+      // Background circle
+      ctx.beginPath();
+      ctx.arc(center, center, radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#e9ecef';
+      ctx.lineWidth = lineWidth;
+      ctx.stroke();
+
+      // Progress arc
+      const startAngle = -Math.PI / 2;
+      const endAngle = startAngle + (2 * Math.PI * percentage / 100);
+      ctx.beginPath();
+      ctx.arc(center, center, radius, startAngle, endAngle);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Text
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 20px Segoe UI';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(Math.round(percentage) + '%', center, center);
+    }
+
+    function renderCharts(rekap, riwayatAmalan, riwayatHafalan) {
+      destroyCharts();
+
+      const amalanIds = Object.keys(rekap);
+      const amalanLabels = amalanIds.map(id => rekap[id].nama);
+      const amalanTotals = amalanIds.map(id => rekap[id].total);
+      const amalanTargets = amalanIds.map(id => rekap[id].target * 30);
+
+      // 1. BAR CHART: Total Amalan
+      const ctxBar = document.getElementById('chartTotalAmalan').getContext('2d');
+      chartInstances.bar = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: amalanLabels,
+          datasets: [{
+            label: 'Total Tercapai',
+            data: amalanTotals,
+            backgroundColor: colors.gradients.map((g, i) => 
+              createGradient(ctxBar, g[0], g[1])
+            ),
+            borderRadius: 8,
+            borderSkipped: false
+          }, {
+            label: 'Target Bulanan',
+            data: amalanTargets,
+            backgroundColor: 'rgba(200,200,200,0.3)',
+            borderRadius: 8,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const id = amalanIds[context.dataIndex];
+                  const satuan = rekap[id].satuan;
+                  return context.dataset.label + ': ' + context.parsed.y + ' ' + satuan;
+                }
+              }
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // 2. PIE CHART: Distribusi Kategori
+      const kategoriMap = {};
+      masterData.amalan.forEach(a => {
+        const total = rekap[a.id] ? rekap[a.id].total : 0;
+        kategoriMap[a.kategori] = (kategoriMap[a.kategori] || 0) + total;
+      });
+
+      const ctxPie = document.getElementById('chartKategori').getContext('2d');
+      chartInstances.pie = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(kategoriMap),
+          datasets: [{
+            data: Object.values(kategoriMap),
+            backgroundColor: colors.primary.slice(0, Object.keys(kategoriMap).length),
+            borderWidth: 2,
+            borderColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
+          }
+        }
+      });
+
+      // 3. LINE CHART: Trend Harian
+      const dates = [...new Set(riwayatAmalan.map(r => r.tanggal))].sort();
+      const trendDatasets = masterData.amalan.map((a, idx) => {
+        const data = dates.map(d => {
+          const dayData = riwayatAmalan.find(r => r.tanggal === d);
+          return dayData && dayData.amalan[a.id] ? dayData.amalan[a.id] : 0;
+        });
+        return {
+          label: a.nama,
+          data: data,
+          borderColor: colors.primary[idx % colors.primary.length],
+          backgroundColor: colors.primary[idx % colors.primary.length] + '20',
+          tension: 0.4,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        };
+      });
+
+      const ctxLine = document.getElementById('chartTrendHarian').getContext('2d');
+      chartInstances.line = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+          labels: dates.map(d => d.slice(8)), // show only day
+          datasets: trendDatasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+            x: { grid: { display: false } }
+          },
+          interaction: { mode: 'nearest', axis: 'x', intersect: false }
+        }
+      });
+
+      // 4. BAR CHART: Hafalan per Pekan
+      const pekanLabels = riwayatHafalan.map(r => 'Pekan ' + r.pekan);
+      const pekanData = riwayatHafalan.map(r => r.jumlahHalaman);
+
+      const ctxHafalan = document.getElementById('chartHafalanPekan').getContext('2d');
+      chartInstances.hafalan = new Chart(ctxHafalan, {
+        type: 'bar',
+        data: {
+          labels: pekanLabels,
+          datasets: [{
+            label: 'Jumlah Halaman',
+            data: pekanData,
+            backgroundColor: createGradient(ctxHafalan, '#11998e', '#38ef7d'),
+            borderRadius: 8,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: { beginAtZero: true, grid: { color: '#f0f0f0' }, title: { display: true, text: 'Halaman' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      // 5. DOUGHNUT: Konsistensi (hari melakukan vs hari tidak)
+      const totalDays = dates.length || 1;
+      const konsistensiData = amalanIds.map(id => {
+        const hari = rekap[id].hari;
+        return { label: rekap[id].nama, value: (hari / totalDays) * 100, hari: hari };
+      });
+
+      const ctxKonsistensi = document.getElementById('chartKonsistensi').getContext('2d');
+      chartInstances.konsistensi = new Chart(ctxKonsistensi, {
+        type: 'polarArea',
+        data: {
+          labels: konsistensiData.map(k => k.label),
+          datasets: [{
+            data: konsistensiData.map(k => k.value),
+            backgroundColor: colors.primary.slice(0, konsistensiData.length).map(c => c + '80'),
+            borderColor: colors.primary.slice(0, konsistensiData.length),
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const k = konsistensiData[context.dataIndex];
+                  return k.label + ': ' + k.hari + ' hari (' + Math.round(k.value) + '%)';
+                }
+              }
+            }
+          },
+          scales: {
+            r: { beginAtZero: true, max: 100, ticks: { display: false } }
+          }
+        }
+      });
+
+      // 6. PROGRESS RINGS
+      const ringContainer = document.getElementById('progressRing');
+      ringContainer.innerHTML = '';
+      amalanIds.slice(0, 6).forEach((id, idx) => {
+        const r = rekap[id];
+        const persen = Math.min((r.total / (r.target * 30)) * 100, 100);
+        const canvasId = 'ring-' + id;
+        ringContainer.innerHTML += `
+          <div class="ring-item">
+            <canvas id="${canvasId}" width="120" height="120"></canvas>
+            <p>${r.nama}</p>
+          </div>
+        `;
+        setTimeout(() => {
+          drawProgressRing(canvasId, persen, r.nama, colors.primary[idx % colors.primary.length]);
+        }, 100);
+      });
+    }
+
+    function renderStatsOverview(rekap, riwayatHafalan) {
+      const container = document.getElementById('statsOverview');
+      const totalAmalan = Object.values(rekap).reduce((sum, r) => sum + r.total, 0);
+      const totalHari = Object.values(rekap).reduce((max, r) => Math.max(max, r.hari), 0);
+      const totalHalaman = riwayatHafalan.reduce((sum, r) => sum + r.jumlahHalaman, 0);
+      const totalSurah = new Set(riwayatHafalan.map(r => r.surah)).size;
+
+      container.innerHTML = `
+        <div class="stat-card">
+          <h3>${totalAmalan}</h3>
+          <p>Total Amalan Bulan Ini</p>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+          <h3>${totalHari}</h3>
+          <p>Hari Aktif Ibadah</p>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+          <h3>${totalHalaman}</h3>
+          <p>Total Halaman Hafalan</p>
+        </div>
+        <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+          <h3>${totalSurah}</h3>
+          <p>Surah Dihafal</p>
+        </div>
+      `;
+    }
+
+    function renderTableAmalan(riwayat) {
+      const tbody = document.querySelector('#tableAmalan tbody');
+      tbody.innerHTML = '';
+
+      if (riwayat.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#6c757d;">Belum ada data</td></tr>';
+        return;
+      }
+
+      riwayat.forEach(r => {
+        for (let key in r.amalan) {
+          const amalan = masterData.amalan.find(a => a.id == key);
+          if (amalan) {
+            tbody.innerHTML += `
+              <tr>
+                <td>${r.tanggal}</td>
+                <td>${amalan.nama}</td>
+                <td><strong>${r.amalan[key]}</strong> ${amalan.satuan}</td>
+              </tr>
+            `;
+          }
+        }
+      });
+    }
+
+    function loadRekap() {
+      const pesertaId = document.getElementById('pesertaRekap').value;
+      const bulan = document.getElementById('bulanRekap').value;
+      const tahun = document.getElementById('tahunRekap').value;
+
+      if (!pesertaId) {
+        document.getElementById('rekapContainer').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('rekapContainer').style.display = 'block';
+      showLoading(true);
+
+      // Load semua data secara paralel
+      let rekapData, riwayatAmalanData, riwayatHafalanData;
+      let loadedCount = 0;
+
+      function checkAllLoaded() {
+        loadedCount++;
+        if (loadedCount === 3) {
+          renderStatsOverview(rekapData, riwayatHafalanData);
+          renderCharts(rekapData, riwayatAmalanData, riwayatHafalanData);
+          renderTableAmalan(riwayatAmalanData);
+          showLoading(false);
+        }
+      }
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          rekapData = data;
+          checkAllLoaded();
+        })
+        .withFailureHandler(function() {
+          rekapData = {};
+          checkAllLoaded();
+        })
+        .getRekapBulanan(pesertaId, parseInt(bulan), parseInt(tahun));
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          riwayatAmalanData = data;
+          checkAllLoaded();
+        })
+        .withFailureHandler(function() {
+          riwayatAmalanData = [];
+          checkAllLoaded();
+        })
+        .getRiwayatAmalan(pesertaId, parseInt(bulan), parseInt(tahun));
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          riwayatHafalanData = data;
+          const tbody = document.querySelector('#tableHafalan tbody');
+          tbody.innerHTML = '';
+          if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#6c757d;">Belum ada data hafalan</td></tr>';
+          } else {
+            data.forEach(r => {
+              tbody.innerHTML += `
+                <tr>
+                  <td>Pekan ${r.pekan}</td>
+                  <td>${r.surah}</td>
+                  <td>${r.ayatMulai}-${r.ayatSelesai}</td>
+                  <td>${r.jumlahHalaman} hal</td>
+                  <td>${r.keterangan || '-'}</td>
+                </tr>
+              `;
+            });
+          }
+          checkAllLoaded();
+        })
+        .withFailureHandler(function() {
+          riwayatHafalanData = [];
+          checkAllLoaded();
+        })
+        .getRiwayatHafalan(pesertaId);
+    }
+  </script>
+</body>
+</html>
