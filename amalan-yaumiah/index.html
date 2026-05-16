@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Amalan Yaumiyah & Hafalan Quran</title>
@@ -56,7 +55,6 @@
     .content { padding: 25px; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-
     .form-group { margin-bottom: 20px; }
     .form-group label {
       display: block;
@@ -73,10 +71,7 @@
       font-size: 14px;
       transition: border-color 0.3s;
     }
-    .form-control:focus {
-      outline: none;
-      border-color: #2a5298;
-    }
+    .form-control:focus { outline: none; border-color: #2a5298; }
     .amalan-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -111,7 +106,6 @@
       color: #6c757d;
       margin-top: 5px;
     }
-
     .btn {
       padding: 12px 30px;
       border: none;
@@ -134,7 +128,6 @@
       color: white;
     }
     .btn-success:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(17,153,142,0.4); }
-
     .alert {
       padding: 15px;
       border-radius: 10px;
@@ -143,8 +136,6 @@
     }
     .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
     .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
-    /* CHART STYLES */
     .chart-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -166,12 +157,8 @@
       align-items: center;
       gap: 8px;
     }
-    .chart-wrapper {
-      position: relative;
-      height: 280px;
-    }
+    .chart-wrapper { position: relative; height: 280px; }
     .chart-wrapper.small { height: 220px; }
-
     .stats-overview {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -199,7 +186,6 @@
     }
     .stat-card h3 { font-size: 28px; margin-bottom: 5px; }
     .stat-card p { font-size: 13px; opacity: 0.9; }
-
     .progress-ring {
       display: flex;
       justify-content: center;
@@ -207,9 +193,7 @@
       flex-wrap: wrap;
       margin: 20px 0;
     }
-    .ring-item {
-      text-align: center;
-    }
+    .ring-item { text-align: center; }
     .ring-item canvas { margin: 0 auto; }
     .ring-item p {
       margin-top: 8px;
@@ -217,7 +201,6 @@
       font-weight: 600;
       color: #495057;
     }
-
     .table-container {
       overflow-x: auto;
       margin-top: 20px;
@@ -240,7 +223,6 @@
       color: #495057;
     }
     tr:hover { background: #f8f9fa; }
-
     .loading {
       display: none;
       text-align: center;
@@ -256,7 +238,6 @@
       margin: 0 auto 15px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
     .info-box {
       background: #e7f3ff;
       border-left: 4px solid #2a5298;
@@ -266,7 +247,6 @@
       font-size: 13px;
       color: #1e3c72;
     }
-
     .section-title {
       font-size: 18px;
       color: #2a5298;
@@ -277,7 +257,30 @@
       align-items: center;
       gap: 10px;
     }
-
+    .gas-url-input {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .gas-url-input label {
+      font-weight: 700;
+      color: #856404;
+      display: block;
+      margin-bottom: 8px;
+    }
+    .gas-url-input input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ffc107;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .gas-url-input small {
+      color: #856404;
+      font-size: 12px;
+    }
     @media (max-width: 600px) {
       .amalan-grid { grid-template-columns: 1fr; }
       .stats-overview { grid-template-columns: 1fr 1fr; }
@@ -310,6 +313,14 @@
         <p>Memuat data...</p>
       </div>
 
+      <!-- GAS URL Input -->
+      <div class="gas-url-input">
+        <label>🔗 URL Google Apps Script Web App</label>
+        <input type="url" id="gasUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec" 
+               onchange="saveGasUrl()">
+        <small>Masukkan URL Web App dari Google Apps Script. URL akan tersimpan di browser.</small>
+      </div>
+
       <!-- Tab Input Amalan -->
       <div id="tab-amalan" class="tab-content active">
         <div class="info-box">
@@ -330,9 +341,7 @@
 
         <div class="form-group">
           <label>Amalan Harian</label>
-          <div id="amalanContainer" class="amalan-grid">
-            <!-- Amalan akan di-generate otomatis -->
-          </div>
+          <div id="amalanContainer" class="amalan-grid"></div>
         </div>
 
         <button class="btn btn-primary" onclick="simpanAmalan()">
@@ -419,86 +428,47 @@
         </div>
 
         <div id="rekapContainer" style="display:none;">
-
-          <!-- Ringkasan Statistik -->
           <div class="section-title">📈 Ringkasan Bulanan</div>
           <div class="stats-overview" id="statsOverview"></div>
 
-          <!-- Progress Ring Charts -->
           <div class="section-title">🎯 Progress Ibadah</div>
           <div class="progress-ring" id="progressRing"></div>
 
-          <!-- Charts Grid -->
           <div class="chart-grid">
-            <!-- Bar Chart: Total Amalan -->
             <div class="chart-card">
               <h3>📊 Total Amalan per Jenis</h3>
-              <div class="chart-wrapper">
-                <canvas id="chartTotalAmalan"></canvas>
-              </div>
+              <div class="chart-wrapper"><canvas id="chartTotalAmalan"></canvas></div>
             </div>
-
-            <!-- Pie Chart: Distribusi Kategori -->
             <div class="chart-card">
               <h3>🥧 Distribusi Kategori Amalan</h3>
-              <div class="chart-wrapper small">
-                <canvas id="chartKategori"></canvas>
-              </div>
+              <div class="chart-wrapper small"><canvas id="chartKategori"></canvas></div>
             </div>
-
-            <!-- Line Chart: Trend Harian -->
             <div class="chart-card" style="grid-column: 1 / -1;">
               <h3>📈 Trend Amalan Harian</h3>
-              <div class="chart-wrapper">
-                <canvas id="chartTrendHarian"></canvas>
-              </div>
+              <div class="chart-wrapper"><canvas id="chartTrendHarian"></canvas></div>
             </div>
-
-            <!-- Bar Chart: Hafalan per Pekan -->
             <div class="chart-card">
               <h3>📖 Hafalan per Pekan</h3>
-              <div class="chart-wrapper">
-                <canvas id="chartHafalanPekan"></canvas>
-              </div>
+              <div class="chart-wrapper"><canvas id="chartHafalanPekan"></canvas></div>
             </div>
-
-            <!-- Doughnut: Konsistensi -->
             <div class="chart-card">
               <h3>✅ Konsistensi Ibadah</h3>
-              <div class="chart-wrapper small">
-                <canvas id="chartKonsistensi"></canvas>
-              </div>
+              <div class="chart-wrapper small"><canvas id="chartKonsistensi"></canvas></div>
             </div>
           </div>
 
-          <!-- Tabel Riwayat Hafalan -->
           <div class="section-title">📋 Riwayat Hafalan Quran</div>
           <div class="table-container">
             <table id="tableHafalan">
-              <thead>
-                <tr>
-                  <th>Pekan</th>
-                  <th>Surah</th>
-                  <th>Ayat</th>
-                  <th>Halaman</th>
-                  <th>Keterangan</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Pekan</th><th>Surah</th><th>Ayat</th><th>Halaman</th><th>Keterangan</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
 
-          <!-- Tabel Riwayat Amalan -->
           <div class="section-title">📋 Riwayat Amalan Harian</div>
           <div class="table-container">
             <table id="tableAmalan">
-              <thead>
-                <tr>
-                  <th>Tanggal</th>
-                  <th>Amalan</th>
-                  <th>Jumlah</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Tanggal</th><th>Amalan</th><th>Jumlah</th></tr></thead>
               <tbody></tbody>
             </table>
           </div>
@@ -508,31 +478,87 @@
   </div>
 
   <script>
-    let masterData = { amalan: [], peserta: [] };
-    let chartInstances = {};
+    // ============================================
+    // KONFIGURASI URL GOOGLE APPS SCRIPT
+    // ============================================
+    // URL disimpan di localStorage, user input sekali
+    // Format: https://script.google.com/macros/s/AKfycb.../exec
 
-    // Warna tema
-    const colors = {
-      primary: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#43e97b', '#fa709a'],
-      gradients: [
-        ['#667eea', '#764ba2'],
-        ['#f093fb', '#f5576c'],
-        ['#4facfe', '#00f2fe'],
-        ['#43e97b', '#38f9d7'],
-        ['#fa709a', '#fee140'],
-        ['#30cfd0', '#330867'],
-        ['#a8edea', '#fed6e3'],
-        ['#ff9a9e', '#fecfef']
-      ]
-    };
+    let GAS_URL = 'https://script.google.com/macros/s/AKfycby3kyDi3l6MkWc4g_c6BD7HWyLZNSaYahrV_-LZZtBVSLCyensW7PaoKtRPSI0z84h0PQ/exec';
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Isi URL yang tersimpan
+      if (GAS_URL) {
+        document.getElementById('gasUrl').value = GAS_URL;
+      }
+
       document.getElementById('tanggalAmalan').valueAsDate = new Date();
       const now = new Date();
       document.getElementById('bulanRekap').value = now.getMonth() + 1;
       document.getElementById('tahunRekap').value = now.getFullYear();
-      loadMasterData();
+
+      if (GAS_URL) {
+        loadMasterData();
+      } else {
+        showAlert('Silakan masukkan URL Google Apps Script terlebih dahulu!', 'error');
+      }
     });
+
+    function saveGasUrl() {
+      const url = document.getElementById('gasUrl').value.trim();
+      if (url && url.includes('script.google.com')) {
+        GAS_URL = url;
+        localStorage.setItem('gasUrl', url);
+        showAlert('URL berhasil disimpan! Memuat data...', 'success');
+        loadMasterData();
+      } else {
+        showAlert('URL tidak valid! Pastikan URL dari Google Apps Script Web App.', 'error');
+      }
+    }
+
+    // ============================================
+    // API HELPER (Fetch ke Google Apps Script)
+    // ============================================
+
+    async function callGAS(action, data) {
+      if (!GAS_URL) {
+        throw new Error('URL Google Apps Script belum diatur!');
+      }
+
+      const url = GAS_URL + '?action=' + action;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      return await response.json();
+    }
+
+    // ============================================
+    // DATA & STATE
+    // ============================================
+
+    let masterData = { amalan: [], peserta: [] };
+    let chartInstances = {};
+
+    const colors = {
+      primary: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe', '#43e97b', '#fa709a'],
+      gradients: [
+        ['#667eea', '#764ba2'], ['#f093fb', '#f5576c'], ['#4facfe', '#00f2fe'],
+        ['#43e97b', '#38f9d7'], ['#fa709a', '#fee140'], ['#30cfd0', '#330867'],
+        ['#a8edea', '#fed6e3'], ['#ff9a9e', '#fecfef']
+      ]
+    };
+
+    // ============================================
+    // UI HELPERS
+    // ============================================
 
     function showLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
@@ -546,20 +572,21 @@
       setTimeout(() => alert.style.display = 'none', 5000);
     }
 
-    function loadMasterData() {
+    // ============================================
+    // MASTER DATA
+    // ============================================
+
+    async function loadMasterData() {
       showLoading(true);
-      google.script.run
-        .withSuccessHandler(function(data) {
-          masterData = data;
-          populatePesertaDropdowns();
-          generateAmalanInputs();
-          showLoading(false);
-        })
-        .withFailureHandler(function(error) {
-          showAlert('Gagal memuat data: ' + error.message, 'error');
-          showLoading(false);
-        })
-        .getMasterData();
+      try {
+        const data = await callGAS('getMasterData', {});
+        masterData = data;
+        populatePesertaDropdowns();
+        generateAmalanInputs();
+      } catch (error) {
+        showAlert('Gagal memuat data: ' + error.message, 'error');
+      }
+      showLoading(false);
     }
 
     function populatePesertaDropdowns() {
@@ -595,72 +622,67 @@
       if (tabName === 'rekap') loadRekap();
     }
 
-    function simpanAmalan() {
+    // ============================================
+    // SIMPAN DATA
+    // ============================================
+
+    async function simpanAmalan() {
       const pesertaId = document.getElementById('pesertaAmalan').value;
       const tanggal = document.getElementById('tanggalAmalan').value;
+
       if (!pesertaId || !tanggal) {
         showAlert('Pilih peserta dan tanggal terlebih dahulu!', 'error');
         return;
       }
+
       const peserta = masterData.peserta.find(p => p.id == pesertaId);
       const amalanData = {};
+
       masterData.amalan.forEach(a => {
         const val = document.getElementById('amalan-' + a.id).value;
         if (val) amalanData[a.id] = parseFloat(val);
       });
+
       if (Object.keys(amalanData).length === 0) {
         showAlert('Isi minimal satu amalan!', 'error');
         return;
       }
+
       showLoading(true);
-      google.script.run
-        .withSuccessHandler(function(result) {
-          showAlert(result.message, 'success');
-          masterData.amalan.forEach(a => {
-            document.getElementById('amalan-' + a.id).value = '';
-          });
-          showLoading(false);
-        })
-        .withFailureHandler(function(error) {
-          showAlert('Gagal menyimpan: ' + error.message, 'error');
-          showLoading(false);
-        })
-        .simpanAmalanHarian({
+      try {
+        const result = await callGAS('simpanAmalanHarian', {
           tanggal: tanggal,
           pesertaId: pesertaId,
           pesertaNama: peserta.nama,
           amalan: amalanData
         });
+        showAlert(result.message, 'success');
+        masterData.amalan.forEach(a => {
+          document.getElementById('amalan-' + a.id).value = '';
+        });
+      } catch (error) {
+        showAlert('Gagal menyimpan: ' + error.message, 'error');
+      }
+      showLoading(false);
     }
 
-    function simpanHafalan() {
+    async function simpanHafalan() {
       const pesertaId = document.getElementById('pesertaHafalan').value;
       const pekan = document.getElementById('pekanHafalan').value;
       const surah = document.getElementById('surahHafalan').value;
       const ayatMulai = document.getElementById('ayatMulai').value;
       const ayatSelesai = document.getElementById('ayatSelesai').value;
+
       if (!pesertaId || !pekan || !surah || !ayatMulai || !ayatSelesai) {
         showAlert('Lengkapi semua field wajib!', 'error');
         return;
       }
+
       const peserta = masterData.peserta.find(p => p.id == pesertaId);
+
       showLoading(true);
-      google.script.run
-        .withSuccessHandler(function(result) {
-          showAlert(result.message, 'success');
-          document.getElementById('pekanHafalan').value = '';
-          document.getElementById('surahHafalan').value = '';
-          document.getElementById('ayatMulai').value = '';
-          document.getElementById('ayatSelesai').value = '';
-          document.getElementById('jumlahHalaman').value = '';
-          document.getElementById('keteranganHafalan').value = '';
-          showLoading(false);
-        })
-        .withFailureHandler(function(error) {
-          showAlert('Gagal menyimpan: ' + error.message, 'error');
-          showLoading(false);
-        })
-        .simpanHafalanQuran({
+      try {
+        const result = await callGAS('simpanHafalanQuran', {
           pekan: parseInt(pekan),
           pesertaId: pesertaId,
           pesertaNama: peserta.nama,
@@ -670,9 +692,22 @@
           jumlahHalaman: parseFloat(document.getElementById('jumlahHalaman').value) || 0,
           keterangan: document.getElementById('keteranganHafalan').value
         });
+        showAlert(result.message, 'success');
+        document.getElementById('pekanHafalan').value = '';
+        document.getElementById('surahHafalan').value = '';
+        document.getElementById('ayatMulai').value = '';
+        document.getElementById('ayatSelesai').value = '';
+        document.getElementById('jumlahHalaman').value = '';
+        document.getElementById('keteranganHafalan').value = '';
+      } catch (error) {
+        showAlert('Gagal menyimpan: ' + error.message, 'error');
+      }
+      showLoading(false);
     }
 
-    // ==================== CHART FUNCTIONS ====================
+    // ============================================
+    // REKAP & CHARTS
+    // ============================================
 
     function destroyCharts() {
       Object.values(chartInstances).forEach(chart => {
@@ -699,14 +734,12 @@
       const radius = 45;
       const lineWidth = 10;
 
-      // Background circle
       ctx.beginPath();
       ctx.arc(center, center, radius, 0, 2 * Math.PI);
       ctx.strokeStyle = '#e9ecef';
       ctx.lineWidth = lineWidth;
       ctx.stroke();
 
-      // Progress arc
       const startAngle = -Math.PI / 2;
       const endAngle = startAngle + (2 * Math.PI * percentage / 100);
       ctx.beginPath();
@@ -716,7 +749,6 @@
       ctx.lineCap = 'round';
       ctx.stroke();
 
-      // Text
       ctx.fillStyle = '#333';
       ctx.font = 'bold 20px Segoe UI';
       ctx.textAlign = 'center';
@@ -732,7 +764,7 @@
       const amalanTotals = amalanIds.map(id => rekap[id].total);
       const amalanTargets = amalanIds.map(id => rekap[id].target * 30);
 
-      // 1. BAR CHART: Total Amalan
+      // 1. BAR CHART
       const ctxBar = document.getElementById('chartTotalAmalan').getContext('2d');
       chartInstances.bar = new Chart(ctxBar, {
         type: 'bar',
@@ -741,9 +773,7 @@
           datasets: [{
             label: 'Total Tercapai',
             data: amalanTotals,
-            backgroundColor: colors.gradients.map((g, i) => 
-              createGradient(ctxBar, g[0], g[1])
-            ),
+            backgroundColor: colors.gradients.map((g, i) => createGradient(ctxBar, g[0], g[1])),
             borderRadius: 8,
             borderSkipped: false
           }, {
@@ -776,7 +806,7 @@
         }
       });
 
-      // 2. PIE CHART: Distribusi Kategori
+      // 2. PIE CHART
       const kategoriMap = {};
       masterData.amalan.forEach(a => {
         const total = rekap[a.id] ? rekap[a.id].total : 0;
@@ -804,7 +834,7 @@
         }
       });
 
-      // 3. LINE CHART: Trend Harian
+      // 3. LINE CHART
       const dates = [...new Set(riwayatAmalan.map(r => r.tanggal))].sort();
       const trendDatasets = masterData.amalan.map((a, idx) => {
         const data = dates.map(d => {
@@ -827,7 +857,7 @@
       chartInstances.line = new Chart(ctxLine, {
         type: 'line',
         data: {
-          labels: dates.map(d => d.slice(8)), // show only day
+          labels: dates.map(d => d.slice(8)),
           datasets: trendDatasets
         },
         options: {
@@ -845,7 +875,7 @@
         }
       });
 
-      // 4. BAR CHART: Hafalan per Pekan
+      // 4. HAFALAN BAR CHART
       const pekanLabels = riwayatHafalan.map(r => 'Pekan ' + r.pekan);
       const pekanData = riwayatHafalan.map(r => r.jumlahHalaman);
 
@@ -865,9 +895,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
+          plugins: { legend: { display: false } },
           scales: {
             y: { beginAtZero: true, grid: { color: '#f0f0f0' }, title: { display: true, text: 'Halaman' } },
             x: { grid: { display: false } }
@@ -875,7 +903,7 @@
         }
       });
 
-      // 5. DOUGHNUT: Konsistensi (hari melakukan vs hari tidak)
+      // 5. POLAR AREA
       const totalDays = dates.length || 1;
       const konsistensiData = amalanIds.map(id => {
         const hari = rekap[id].hari;
@@ -908,9 +936,7 @@
               }
             }
           },
-          scales: {
-            r: { beginAtZero: true, max: 100, ticks: { display: false } }
-          }
+          scales: { r: { beginAtZero: true, max: 100, ticks: { display: false } } }
         }
       });
 
@@ -985,7 +1011,7 @@
       });
     }
 
-    function loadRekap() {
+    async function loadRekap() {
       const pesertaId = document.getElementById('pesertaRekap').value;
       const bulan = document.getElementById('bulanRekap').value;
       const tahun = document.getElementById('tahunRekap').value;
@@ -998,69 +1024,39 @@
       document.getElementById('rekapContainer').style.display = 'block';
       showLoading(true);
 
-      // Load semua data secara paralel
-      let rekapData, riwayatAmalanData, riwayatHafalanData;
-      let loadedCount = 0;
+      try {
+        const [rekapData, riwayatAmalanData, riwayatHafalanData] = await Promise.all([
+          callGAS('getRekapBulanan', { pesertaId: pesertaId, bulan: parseInt(bulan), tahun: parseInt(tahun) }),
+          callGAS('getRiwayatAmalan', { pesertaId: pesertaId, bulan: parseInt(bulan), tahun: parseInt(tahun) }),
+          callGAS('getRiwayatHafalan', { pesertaId: pesertaId })
+        ]);
 
-      function checkAllLoaded() {
-        loadedCount++;
-        if (loadedCount === 3) {
-          renderStatsOverview(rekapData, riwayatHafalanData);
-          renderCharts(rekapData, riwayatAmalanData, riwayatHafalanData);
-          renderTableAmalan(riwayatAmalanData);
-          showLoading(false);
+        renderStatsOverview(rekapData, riwayatHafalanData);
+        renderCharts(rekapData, riwayatAmalanData, riwayatHafalanData);
+        renderTableAmalan(riwayatAmalanData);
+
+        // Tabel Hafalan
+        const tbody = document.querySelector('#tableHafalan tbody');
+        tbody.innerHTML = '';
+        if (riwayatHafalanData.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#6c757d;">Belum ada data hafalan</td></tr>';
+        } else {
+          riwayatHafalanData.forEach(r => {
+            tbody.innerHTML += `
+              <tr>
+                <td>Pekan ${r.pekan}</td>
+                <td>${r.surah}</td>
+                <td>${r.ayatMulai}-${r.ayatSelesai}</td>
+                <td>${r.jumlahHalaman} hal</td>
+                <td>${r.keterangan || '-'}</td>
+              </tr>
+            `;
+          });
         }
+      } catch (error) {
+        showAlert('Gagal memuat rekap: ' + error.message, 'error');
       }
-
-      google.script.run
-        .withSuccessHandler(function(data) {
-          rekapData = data;
-          checkAllLoaded();
-        })
-        .withFailureHandler(function() {
-          rekapData = {};
-          checkAllLoaded();
-        })
-        .getRekapBulanan(pesertaId, parseInt(bulan), parseInt(tahun));
-
-      google.script.run
-        .withSuccessHandler(function(data) {
-          riwayatAmalanData = data;
-          checkAllLoaded();
-        })
-        .withFailureHandler(function() {
-          riwayatAmalanData = [];
-          checkAllLoaded();
-        })
-        .getRiwayatAmalan(pesertaId, parseInt(bulan), parseInt(tahun));
-
-      google.script.run
-        .withSuccessHandler(function(data) {
-          riwayatHafalanData = data;
-          const tbody = document.querySelector('#tableHafalan tbody');
-          tbody.innerHTML = '';
-          if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#6c757d;">Belum ada data hafalan</td></tr>';
-          } else {
-            data.forEach(r => {
-              tbody.innerHTML += `
-                <tr>
-                  <td>Pekan ${r.pekan}</td>
-                  <td>${r.surah}</td>
-                  <td>${r.ayatMulai}-${r.ayatSelesai}</td>
-                  <td>${r.jumlahHalaman} hal</td>
-                  <td>${r.keterangan || '-'}</td>
-                </tr>
-              `;
-            });
-          }
-          checkAllLoaded();
-        })
-        .withFailureHandler(function() {
-          riwayatHafalanData = [];
-          checkAllLoaded();
-        })
-        .getRiwayatHafalan(pesertaId);
+      showLoading(false);
     }
   </script>
 </body>
