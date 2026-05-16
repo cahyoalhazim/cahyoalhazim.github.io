@@ -257,30 +257,6 @@
       align-items: center;
       gap: 10px;
     }
-    .gas-url-input {
-      background: #fff3cd;
-      border: 2px solid #ffc107;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .gas-url-input label {
-      font-weight: 700;
-      color: #856404;
-      display: block;
-      margin-bottom: 8px;
-    }
-    .gas-url-input input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #ffc107;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-    .gas-url-input small {
-      color: #856404;
-      font-size: 12px;
-    }
     @media (max-width: 600px) {
       .amalan-grid { grid-template-columns: 1fr; }
       .stats-overview { grid-template-columns: 1fr 1fr; }
@@ -311,14 +287,6 @@
       <div id="loading" class="loading">
         <div class="loading-spinner"></div>
         <p>Memuat data...</p>
-      </div>
-
-      <!-- GAS URL Input -->
-      <div class="gas-url-input">
-        <label>🔗 URL Google Apps Script Web App</label>
-        <input type="url" id="gasUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec" 
-               onchange="saveGasUrl()">
-        <small>Masukkan URL Web App dari Google Apps Script. URL akan tersimpan di browser.</small>
       </div>
 
       <!-- Tab Input Amalan -->
@@ -479,71 +447,13 @@
 
   <script>
     // ============================================
-    // KONFIGURASI URL GOOGLE APPS SCRIPT
+    // HARDCODED GAS URL - GANTI DI SINI!
     // ============================================
-    // URL disimpan di localStorage, user input sekali
-    // Format: https://script.google.com/macros/s/AKfycb.../exec
-
-    let GAS_URL = 'https://script.google.com/macros/s/AKfycbwX9c_Hn8Z1HE4YcbFVeH3DXv04c6E_1N1p4BidUubW7r_lv45nV4k1O5vttYLSmIZzPQ/exec';
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // Isi URL yang tersimpan
-      if (GAS_URL) {
-        document.getElementById('gasUrl').value = GAS_URL;
-      }
-
-      document.getElementById('tanggalAmalan').valueAsDate = new Date();
-      const now = new Date();
-      document.getElementById('bulanRekap').value = now.getMonth() + 1;
-      document.getElementById('tahunRekap').value = now.getFullYear();
-
-      if (GAS_URL) {
-        loadMasterData();
-      } else {
-        showAlert('Silakan masukkan URL Google Apps Script terlebih dahulu!', 'error');
-      }
-    });
-
-    function saveGasUrl() {
-      const url = document.getElementById('gasUrl').value.trim();
-      if (url && url.includes('script.google.com')) {
-        GAS_URL = url;
-        localStorage.setItem('gasUrl', url);
-        showAlert('URL berhasil disimpan! Memuat data...', 'success');
-        loadMasterData();
-      } else {
-        showAlert('URL tidak valid! Pastikan URL dari Google Apps Script Web App.', 'error');
-      }
-    }
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwX9c_Hn8Z1HE4YcbFVeH3DXv04c6E_1N1p4BidUubW7r_lv45nV4k1O5vttYLSmIZzPQ/exec';
 
     // ============================================
-    // API HELPER (Fetch ke Google Apps Script)
+    // STATE
     // ============================================
-
-    async function callGAS(action, data) {
-      if (!GAS_URL) {
-        throw new Error('URL Google Apps Script belum diatur!');
-      }
-
-      const url = GAS_URL + '?action=' + action;
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      return await response.json();
-    }
-
-    // ============================================
-    // DATA & STATE
-    // ============================================
-
     let masterData = { amalan: [], peserta: [] };
     let chartInstances = {};
 
@@ -557,9 +467,68 @@
     };
 
     // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('tanggalAmalan').valueAsDate = new Date();
+      const now = new Date();
+      document.getElementById('bulanRekap').value = now.getMonth() + 1;
+      document.getElementById('tahunRekap').value = now.getFullYear();
+      loadMasterData();
+    });
+
+    // ============================================
+    // API CALL
+    // ============================================
+    async function callGAS(action, data, retries = 2) {
+      const url = GAS_URL + '?action=' + encodeURIComponent(action);
+
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(data || {})
+          });
+
+          if (!response.ok) {
+            throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+          }
+
+          const text = await response.text();
+          let result;
+
+          try {
+            result = JSON.parse(text);
+          } catch (parseErr) {
+            const match = text.match(/^[^{]*(\{.*\})[^}]*$/);
+            if (match) {
+              result = JSON.parse(match[1]);
+            } else {
+              throw new Error('Invalid JSON response');
+            }
+          }
+
+          if (result.error) {
+            throw new Error(result.error);
+          }
+
+          return result;
+
+        } catch (error) {
+          if (attempt === retries) {
+            throw error;
+          }
+          await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+        }
+      }
+    }
+
+    // ============================================
     // UI HELPERS
     // ============================================
-
     function showLoading(show) {
       document.getElementById('loading').style.display = show ? 'block' : 'none';
     }
@@ -569,17 +538,21 @@
       alert.textContent = message;
       alert.className = 'alert alert-' + type;
       alert.style.display = 'block';
-      setTimeout(() => alert.style.display = 'none', 5000);
+      setTimeout(() => alert.style.display = 'none', 8000);
     }
 
     // ============================================
     // MASTER DATA
     // ============================================
-
     async function loadMasterData() {
       showLoading(true);
       try {
         const data = await callGAS('getMasterData', {});
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
         masterData = data;
         populatePesertaDropdowns();
         generateAmalanInputs();
@@ -625,7 +598,6 @@
     // ============================================
     // SIMPAN DATA
     // ============================================
-
     async function simpanAmalan() {
       const pesertaId = document.getElementById('pesertaAmalan').value;
       const tanggal = document.getElementById('tanggalAmalan').value;
@@ -656,6 +628,9 @@
           pesertaNama: peserta.nama,
           amalan: amalanData
         });
+
+        if (result.error) throw new Error(result.error);
+
         showAlert(result.message, 'success');
         masterData.amalan.forEach(a => {
           document.getElementById('amalan-' + a.id).value = '';
@@ -692,6 +667,9 @@
           jumlahHalaman: parseFloat(document.getElementById('jumlahHalaman').value) || 0,
           keterangan: document.getElementById('keteranganHafalan').value
         });
+
+        if (result.error) throw new Error(result.error);
+
         showAlert(result.message, 'success');
         document.getElementById('pekanHafalan').value = '';
         document.getElementById('surahHafalan').value = '';
@@ -708,7 +686,6 @@
     // ============================================
     // REKAP & CHARTS
     // ============================================
-
     function destroyCharts() {
       Object.values(chartInstances).forEach(chart => {
         if (chart) chart.destroy();
@@ -1035,7 +1012,6 @@
         renderCharts(rekapData, riwayatAmalanData, riwayatHafalanData);
         renderTableAmalan(riwayatAmalanData);
 
-        // Tabel Hafalan
         const tbody = document.querySelector('#tableHafalan tbody');
         tbody.innerHTML = '';
         if (riwayatHafalanData.length === 0) {
