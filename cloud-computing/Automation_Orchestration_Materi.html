@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automation & Orchestration - Cloud Computing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0,212,255,0.5);
+            margin-bottom: 10px;
+        }
+
+        header .subtitle {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin: 5px;
+            font-weight: bold;
+        }
+
+        .badge.green {
+            background: linear-gradient(45deg, #00b894, #00a085);
+        }
+
+        .badge.blue {
+            background: linear-gradient(45deg, #0984e3, #6c5ce7);
+        }
+
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0,212,255,0.3);
+        }
+
+        .section h2 {
+            color: #00d4ff;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h3 {
+            color: #74b9ff;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+
+        .icon {
+            font-size: 1.2em;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+        }
+
+        .card h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #b0b0b0;
+            font-size: 0.95em;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(108,92,231,0.1));
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .highlight-box strong {
+            color: #00d4ff;
+        }
+
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: "TERMINAL";
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #238636;
+            color: white;
+            padding: 3px 10px;
+            font-size: 0.75em;
+            border-bottom-left-radius: 8px;
+        }
+
+        .code-block.code-yaml::before {
+            content: "YAML";
+            background: #cb2431;
+        }
+
+        .code-block pre {
+            color: #c9d1d9;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .code-block .comment {
+            color: #8b949e;
+        }
+
+        .code-block .command {
+            color: #7ee787;
+        }
+
+        .code-block .string {
+            color: #a5d6ff;
+        }
+
+        .code-block .keyword {
+            color: #ff7b72;
+        }
+
+        .code-block .number {
+            color: #79c0ff;
+        }
+
+        .warning-box {
+            background: rgba(255,193,7,0.1);
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .warning-box::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: rgba(13,110,253,0.1);
+            border-left: 4px solid #0d6efd;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .info-box::before {
+            content: "ℹ️ ";
+            font-weight: bold;
+        }
+
+        .success-box {
+            background: rgba(25,135,84,0.1);
+            border-left: 4px solid #198754;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .success-box::before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #00d4ff, #0066cc);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        tr:hover {
+            background: rgba(0,212,255,0.05);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #00d4ff, #0066cc);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .lab-section {
+            background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(108,92,231,0.05));
+            border: 2px solid rgba(0,212,255,0.2);
+        }
+
+        .lab-section h2 {
+            color: #00ff88;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            color: #00d4ff;
+            font-size: 1.2em;
+        }
+
+        .checklist li.checked::before {
+            content: "☑";
+            color: #00ff88;
+        }
+
+        .diagram {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-family: monospace;
+            color: #00d4ff;
+            border: 1px dashed rgba(0,212,255,0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 40px;
+        }
+
+        .nav-menu {
+            position: sticky;
+            top: 0;
+            background: rgba(22,33,62,0.95);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-menu a {
+            color: #00d4ff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0,212,255,0.5);
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>☁️ Automation & Orchestration</h1>
+            <p class="subtitle">Cloud Computing - Bachelor of Telecommunication Engineering</p>
+            <div style="margin-top: 15px;">
+                <span class="badge">Telkom University</span>
+                <span class="badge green">Ubuntu Hands-On</span>
+                <span class="badge blue">Ansible + Kubernetes</span>
+            </div>
+        </header>
+
+        <nav class="nav-menu">
+            <a href="#intro">Pengantar</a>
+            <a href="#automation">Automation</a>
+            <a href="#orchestration">Orchestration</a>
+            <a href="#kubernetes">Kubernetes</a>
+            <a href="#lab-ansible">Lab Ansible</a>
+            <a href="#lab-k8s">Lab Kubernetes</a>
+        </nav>
+
+        <!-- SECTION 1: INTRODUCTION -->
+        <section id="intro" class="section">
+            <h2><span class="icon">📚</span> Pengantar Automation & Orchestration</h2>
+
+            <div class="highlight-box">
+                <strong>Automation</strong> fokus pada membuat tugas lebih mudah dan cepat untuk dilakukan manusia.<br>
+                <strong>Orchestration</strong> adalah automation dengan scope yang lebih besar - mengkoordinasikan banyak tugas otomatis menjadi satu sistem yang utuh.
+            </div>
+
+            <h3>3 Kategori User Cloud Automation</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>👤 Individual Customers</h4>
+                    <p>Pengguna individu yang menggunakan SaaS apps (Google Docs, Office 365). Provider menyediakan akses via web browser atau dedicated app dengan interface yang menyederhanakan detail teknis.</p>
+                </div>
+                <div class="card">
+                    <h4>🏢 Large Cloud Customers</h4>
+                    <p>Enterprise/organisasi yang membutuhkan tools untuk mengontrol dan mengelola computing resources di public cloud. Memerlukan automated tools untuk deploy dan manage infrastruktur.</p>
+                </div>
+                <div class="card">
+                    <h4>🏗️ Cloud Providers</h4>
+                    <p>Provider cloud membuat tools paling sophisticated untuk mengelola cloud data center, termasuk tools untuk configure, monitor, dan manage underlying infrastructure serta handle requests dari customers.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: AUTOMATION -->
+        <section id="automation" class="section">
+            <h2><span class="icon">⚙️</span> Automation dalam Data Center</h2>
+
+            <h3>4 Aspek Data Center yang Kompleks</h3>
+            <table>
+                <tr>
+                    <th>Aspek</th>
+                    <th>Deskripsi</th>
+                </tr>
+                <tr>
+                    <td><strong>Extreme Scale</strong></td>
+                    <td>Ribuan rack, perangkat, dan koneksi yang harus dikelola</td>
+                </tr>
+                <tr>
+                    <td><strong>Diverse Services</strong></td>
+                    <td>Berbagai macam layanan dengan kebutuhan berbeda-beda</td>
+                </tr>
+                <tr>
+                    <td><strong>Constant Change</strong></td>
+                    <td>Perubahan konfigurasi dan deployment yang terus-menerus</td>
+                </tr>
+                <tr>
+                    <td><strong>Human Error</strong></td>
+                    <td>Kesalahan manusia yang perlu diminimalisir dengan otomatisasi</td>
+                </tr>
+            </table>
+
+            <h3>Apa Saja yang Bisa Di-Automate?</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>🖥️ Creation & Deployment</h4>
+                    <p>VMs, containers, virtual storage (SAN/NAS), virtual networks (VLANs, subnets, IP forwarding)</p>
+                </div>
+                <div class="card">
+                    <h4>📊 Workload Monitoring</h4>
+                    <p>Measurement load servers, tracking resource use per tenant, identifikasi hot spots, capacity assessment</p>
+                </div>
+                <div class="card">
+                    <h4>⚡ Optimizations</h4>
+                    <p>Load balancing, latency minimization, VM migration, power usage optimization</p>
+                </div>
+                <div class="card">
+                    <h4>🛡️ Safety & Recovery</h4>
+                    <p>Scheduled backups, server monitoring, fast rerouting, RAID monitoring, automated restart</p>
+                </div>
+                <div class="card">
+                    <h4>🔄 Software Updates</h4>
+                    <p>OS updates, software upgrades, continuous deployment facilities</p>
+                </div>
+                <div class="card">
+                    <h4>🔒 Security Policies</h4>
+                    <p>Firewall deployment, tenant data protection, secrets management, encryption</p>
+                </div>
+            </div>
+
+            <h3>Level of Automation</h3>
+            <div class="diagram">
+                Level 1: Manual → Level 2: Assisted → Level 3: Partial Automation → Level 4: Conditional Automation → Level 5: Full Automation
+            </div>
+            <p style="text-align: center; color: #888; margin-top: 10px;">
+                Semakin tinggi level, semakin sedikit intervensi manusia yang dibutuhkan.
+            </p>
+        </section>
+
+        <!-- SECTION 3: ORCHESTRATION -->
+        <section id="orchestration" class="section">
+            <h2><span class="icon">🎼</span> Dari Automation ke Orchestration</h2>
+
+            <table>
+                <tr>
+                    <th>Feature</th>
+                    <th>Automation</th>
+                    <th>Orchestration</th>
+                </tr>
+                <tr>
+                    <td><strong>Tasks</strong></td>
+                    <td>Single, repetitive</td>
+                    <td>Sequence of tasks</td>
+                </tr>
+                <tr>
+                    <td><strong>Decision Making</strong></td>
+                    <td>Minimal</td>
+                    <td>Complex</td>
+                </tr>
+                <tr>
+                    <td><strong>Scale</strong></td>
+                    <td>Task-level</td>
+                    <td>System/multi-environment</td>
+                </tr>
+                <tr>
+                    <td><strong>Tools</strong></td>
+                    <td>Scripts (Bash, Ansible)</td>
+                    <td>Orchestrators (Kubernetes)</td>
+                </tr>
+                <tr>
+                    <td><strong>Human Oversight</strong></td>
+                    <td>Initial config</td>
+                    <td>Initial setup</td>
+                </tr>
+            </table>
+
+            <div class="highlight-box">
+                <strong>Analogi:</strong> Automation = building blocks (batu bata). Orchestration = the conductor (konduktor) yang menyelaraskan semua automation menjadi harmoni sistem yang utuh.
+            </div>
+
+            <h3>Mengapa Orchestration Diperlukan?</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>🚀 Rapid Creation</h4>
+                    <p>Manual automation tidak scalable. Aplikasi modern terdiri dari ratusan/rbuan container dan microservices.</p>
+                </div>
+                <div class="card">
+                    <h4>⏱️ Short Lifetime</h4>
+                    <p>Container sering start, stop, atau migrate antar nodes. Orchestration menangani dependency, recovery, dan state consistency.</p>
+                </div>
+                <div class="card">
+                    <h4>📈 Replication</h4>
+                    <p>Essential untuk large-scale cloud environments. Memastikan startup order yang benar dan service dependencies (DB sebelum API).</p>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>Key Insight:</strong> Automation = local (fokus pada satu aspek). Orchestration = global (mengkoordinasikan semua subsystem untuk mengoperasikan service).
+            </div>
+        </section>
+
+        <!-- SECTION 4: KUBERNETES -->
+        <section id="kubernetes" class="section">
+            <h2><span class="icon">☸️</span> Kubernetes (K8s) Overview</h2>
+
+            <div class="highlight-box">
+                <strong>Kubernetes</strong> adalah open-source orchestration system untuk containers, originally developed by Google, sekarang maintained by Cloud Native Computing Foundation (CNCF).
+            </div>
+
+            <h3>Apa yang Dikelola Kubernetes?</h3>
+            <ul style="list-style: none; margin: 15px 0;">
+                <li style="padding: 8px 0;">✅ Replication dan load balancing</li>
+                <li style="padding: 8px 0;">✅ Fault recovery dan self-healing</li>
+                <li style="padding: 8px 0;">✅ Scaling (horizontal auto-scaling)</li>
+                <li style="padding: 8px 0;">✅ Deployment rollouts dan rollbacks</li>
+                <li style="padding: 8px 0;">✅ Service discovery dan load balancing</li>
+                <li style="padding: 8px 0;">✅ Storage orchestration</li>
+                <li style="padding: 8px 0;">✅ Secret dan configuration management</li>
+            </ul>
+
+            <h3>Limitations Kubernetes</h3>
+            <div class="warning-box">
+                Kubernetes TIDAK: mengelola source code, build containers, supply event-passing middleware, handle monitoring/event logging, atau focus pada specific application type. Untuk hal tersebut diperlukan tools terpisah.
+            </div>
+
+            <h3>Kubernetes Cluster Model</h3>
+            <div class="diagram">
+┌─────────────────────────────────────────────────────────┐
+│                    KUBERNETES CLUSTER                    │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐    ┌─────────────────────────────┐ │
+│  │  CONTROL PLANE  │    │       WORKER NODES          │ │
+│  │  (Master Node)  │    │                             │ │
+│  │                 │    │  ┌─────┐ ┌─────┐ ┌─────┐   │ │
+│  │  • API Server    │◄──►│  │Pod 1│ │Pod 2│ │Pod N│   │ │
+│  │  • etcd (Store)  │    │  │     │ │     │ │     │   │ │
+│  │  • Scheduler     │    │  │Container│Container│   │ │
+│  │  • Controller    │    │  └─────┘ └─────┘ └─────┘   │ │
+│  │    Manager       │    │                             │ │
+│  │  • Cloud Ctrl    │    │  • Kubelet                  │ │
+│  │    Manager       │    │  • Service Proxy            │ │
+│  │                 │    │  • Container Runtime          │ │
+│  └─────────────────┘    └─────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+            </div>
+
+            <h3>Control Plane Components</h3>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Fungsi</th>
+                </tr>
+                <tr>
+                    <td><strong>API Server</strong></td>
+                    <td>Central switchboard, semua komunikasi internal/external melalui API server</td>
+                </tr>
+                <tr>
+                    <td><strong>etcd</strong></td>
+                    <td>Cluster state store, distributed key-value store untuk menyimpan config dan state</td>
+                </tr>
+                <tr>
+                    <td><strong>Scheduler</strong></td>
+                    <td>Menentukan worker node mana yang akan menjalankan pod baru</td>
+                </tr>
+                <tr>
+                    <td><strong>Controller Manager</strong></td>
+                    <td>Menjalankan controller processes (node controller, replication controller, dll)</td>
+                </tr>
+                <tr>
+                    <td><strong>Cloud Controller Manager</strong></td>
+                    <td>Integrasi dengan cloud provider (AWS, GCP, Azure)</td>
+                </tr>
+            </table>
+
+            <h3>Worker Node Components</h3>
+            <table>
+                <tr>
+                    <th>Component</th>
+                    <th>Fungsi</th>
+                </tr>
+                <tr>
+                    <td><strong>Kubelet</strong></td>
+                    <td>Agent yang berkomunikasi dengan Master Node, menerima instruksi dan mengirim status pod</td>
+                </tr>
+                <tr>
+                    <td><strong>Service Proxy</strong></td>
+                    <td>Mengkonfigurasi iptables untuk intra-node dan inter-node communication</td>
+                </tr>
+                <tr>
+                    <td><strong>cAdvisor</strong></td>
+                    <td>Embedded dalam Kubelet, mengumpulkan container-level metrics</td>
+                </tr>
+                <tr>
+                    <td><strong>Container Runtime</strong></td>
+                    <td>Menjalankan container operations (dockerd, containerd)</td>
+                </tr>
+            </table>
+
+            <h3>Pods: Unit Terkecil</h3>
+            <div class="info-box">
+                <strong>Pod</strong> adalah unit deployable terkecil di Kubernetes. Bisa berisi satu atau lebih container yang tightly coupled, sharing storage, network, dan configuration. Setiap pod mendapat IP address unik.
+            </div>
+
+            <h3>Init Containers</h3>
+            <p>Init containers berjalan SEBELUM main containers start. Digunakan untuk:</p>
+            <ul style="margin: 10px 0 10px 20px;">
+                <li>Verifikasi external storage tersedia</li>
+                <li>Check repositories/services yang diperlukan</li>
+                <li>Setup permissions atau konfigurasi awal</li>
+            </ul>
+            <p>Jika init container gagal, main containers TIDAK akan dijalankan.</p>
+
+            <h3>Kubernetes Key Features</h3>
+            <table>
+                <tr>
+                    <th>Feature</th>
+                    <th>Deskripsi</th>
+                    <th>Benefit</th>
+                </tr>
+                <tr>
+                    <td><strong>Replicas</strong></td>
+                    <td>Kontrol jumlah pod copies</td>
+                    <td>Scalability & load management</td>
+                </tr>
+                <tr>
+                    <td><strong>Deployments</strong></td>
+                    <td>Automated scaling dengan intent-based model</td>
+                    <td>Maintains desired replicas</td>
+                </tr>
+                <tr>
+                    <td><strong>StatefulSets</strong></td>
+                    <td>Manage stateful apps dengan persistent identity</td>
+                    <td>Predictable naming & data persistence</td>
+                </tr>
+                <tr>
+                    <td><strong>DaemonSets</strong></td>
+                    <td>Run pod di setiap node</td>
+                    <td>Node-level services (logging/monitoring)</td>
+                </tr>
+                <tr>
+                    <td><strong>Jobs</strong></td>
+                    <td>Run pods sampai completion</td>
+                    <td>Reliable task completion</td>
+                </tr>
+                <tr>
+                    <td><strong>CronJobs</strong></td>
+                    <td>Schedule jobs periodically</td>
+                    <td>Automated recurring tasks</td>
+                </tr>
+                <tr>
+                    <td><strong>Services</strong></td>
+                    <td>Stable access policy & load balancing</td>
+                    <td>Consistent access, decoupled clients</td>
+                </tr>
+            </table>
+
+            <h3>Benefits Orchestration</h3>
+            <div class="card-grid">
+                <div class="card" style="border-left-color: #00ff88;">
+                    <h4 style="color: #00ff88;">🛡️ Reliability</h4>
+                    <p>Self-healing, fault tolerance, reduced human error</p>
+                </div>
+                <div class="card" style="border-left-color: #ff6b6b;">
+                    <h4 style="color: #ff6b6b;">📈 Scalability</h4>
+                    <p>Auto-scaling, load balancing, simplified large deployments</p>
+                </div>
+                <div class="card" style="border-left-color: #ffd93d;">
+                    <h4 style="color: #ffd93d;">🚀 CI/CD</h4>
+                    <p>Foundation untuk cloud-native applications dan continuous deployment</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: HANDS-ON ANSIBLE -->
+        <section id="lab-ansible" class="section lab-section">
+            <h2><span class="icon">🔧</span> Hands-On Lab 1: Ansible Web Server Deployment</h2>
+
+            <div class="highlight-box">
+                <strong>Tujuan:</strong> Menggunakan Ansible untuk mengotomatisasi deployment Nginx web server di Ubuntu dengan konten dinamis yang menampilkan hostname dan IP address.
+            </div>
+
+            <h3>🎯 Prasyarat & Environment Setup</h3>
+            <table>
+                <tr>
+                    <th>Role</th>
+                    <th>Hostname</th>
+                    <th>IP Address</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td><strong>Control Node</strong></td>
+                    <td>cloud</td>
+                    <td>192.168.56.105</td>
+                    <td>Menjalankan Ansible</td>
+                </tr>
+                <tr>
+                    <td><strong>Managed Node</strong></td>
+                    <td>cloudclone</td>
+                    <td>192.168.56.106</td>
+                    <td>Target server (Nginx)</td>
+                </tr>
+            </table>
+
+            <div class="warning-box">
+                Pastikan kedua VM dapat saling ping: <code>ping 192.168.56.106</code> dari control node.
+            </div>
+
+            <h3><span class="step-number">1</span> Install Ansible di Control Node</h3>
+            <div class="code-block">
+<pre><span class="comment"># Update package list</span>
+<span class="command">sudo apt update</span>
+
+<span class="comment"># Install Ansible dan SSH client/server</span>
+<span class="command">sudo apt install -y ansible openssh-client openssh-server</span>
+
+<span class="comment"># Verifikasi instalasi</span>
+<span class="command">ansible --version</span></pre>
+            </div>
+
+            <h3><span class="step-number">2</span> Konfigurasi SSH Key-Based Authentication</h3>
+            <div class="code-block">
+<pre><span class="comment"># Generate SSH key pair (di control node)</span>
+<span class="command">ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_ansible -N ""</span>
+
+<span class="comment"># Copy public key ke managed node (192.168.56.106)</span>
+<span class="command">ssh-copy-id -i ~/.ssh/id_rsa_ansible.pub cloud@192.168.56.106</span>
+
+<span class="comment"># Jika SSH belum aktif di target, install dulu:</span>
+<span class="command">sudo apt install -y openssh-server</span>
+<span class="command">sudo systemctl enable --now ssh</span>
+
+<span class="comment"># Test SSH access tanpa password</span>
+<span class="command">ssh -i ~/.ssh/id_rsa_ansible cloud@192.168.56.106</span></pre>
+            </div>
+
+            <h3><span class="step-number">3</span> Buat Struktur Project Ansible</h3>
+            <div class="code-block">
+<pre><span class="command">mkdir -p ~/ansible-project</span>
+<span class="command">cd ~/ansible-project</span>
+
+<span class="comment"># Struktur direktori yang akan dibuat:</span>
+<span class="string">~/ansible-project/</span>
+<span class="string">├── inventory</span>
+<span class="string">├── site.yml</span>
+<span class="string">└── index.html.j2</span></pre>
+            </div>
+
+            <h3><span class="step-number">4</span> Buat Inventory File</h3>
+            <div class="code-block code-yaml">
+<pre><span class="comment"># Buat file inventory</span>
+<span class="command">cat > inventory << 'EOF'</span>
+<span class="keyword">[webservers]</span>
+<span class="number">192.168.56.105</span> <span class="string">ansible_user=cloud</span> <span class="string">ansible_ssh_private_key_file=~/.ssh/id_rsa_ansible</span>
+<span class="number">192.168.56.106</span> <span class="string">ansible_user=cloud</span> <span class="string">ansible_ssh_private_key_file=~/.ssh/id_rsa_ansible</span>
+<span class="command">EOF</span>
+
+<span class="comment"># Verifikasi inventory</span>
+<span class="command">ansible-inventory -i ./inventory --list</span></pre>
+            </div>
+
+            <h3><span class="step-number">5</span> Test Konektivitas</h3>
+            <div class="code-block">
+<pre><span class="comment"># Ping test ke semua webservers</span>
+<span class="command">ansible -i ./inventory webservers -m ping</span>
+
+<span class="comment"># Expected output:</span>
+<span class="string">192.168.56.106 | SUCCESS => {"changed": false, "ping": "pong"}</span></pre>
+            </div>
+
+            <h3><span class="step-number">6</span> Buat Main Playbook (site.yml)</h3>
+            <div class="code-block code-yaml">
+<pre><span class="command">cat > site.yml << 'EOF'</span>
+<span class="keyword">---</span>
+<span class="keyword">- name:</span> <span class="string">Deploy nginx and simple web page on webservers</span>
+  <span class="keyword">hosts:</span> <span class="string">webservers</span>
+  <span class="keyword">become:</span> <span class="string">yes</span>
+  <span class="keyword">gather_facts:</span> <span class="string">yes</span>
+
+  <span class="keyword">tasks:</span>
+    <span class="keyword">- name:</span> <span class="string">Update apt cache</span>
+      <span class="string">ansible.builtin.apt:</span>
+        <span class="string">update_cache:</span> <span class="string">yes</span>
+        <span class="string">cache_valid_time:</span> <span class="number">3600</span>
+
+    <span class="keyword">- name:</span> <span class="string">Ensure nginx is installed</span>
+      <span class="string">ansible.builtin.apt:</span>
+        <span class="string">name:</span> <span class="string">nginx</span>
+        <span class="string">state:</span> <span class="string">present</span>
+
+    <span class="keyword">- name:</span> <span class="string">Ensure /var/www/html exists</span>
+      <span class="string">ansible.builtin.file:</span>
+        <span class="string">path:</span> <span class="string">/var/www/html</span>
+        <span class="string">state:</span> <span class="string">directory</span>
+        <span class="string">mode:</span> <span class="string">'0755'</span>
+        <span class="string">owner:</span> <span class="string">www-data</span>
+        <span class="string">group:</span> <span class="string">www-data</span>
+
+    <span class="keyword">- name:</span> <span class="string">Deploy index.html showing hostname and IPs</span>
+      <span class="string">ansible.builtin.template:</span>
+        <span class="string">src:</span> <span class="string">index.html.j2</span>
+        <span class="string">dest:</span> <span class="string">/var/www/html/index.html</span>
+        <span class="string">mode:</span> <span class="string">'0644'</span>
+        <span class="string">owner:</span> <span class="string">www-data</span>
+        <span class="string">group:</span> <span class="string">www-data</span>
+
+    <span class="keyword">- name:</span> <span class="string">Ensure nginx is started and enabled</span>
+      <span class="string">ansible.builtin.service:</span>
+        <span class="string">name:</span> <span class="string">nginx</span>
+        <span class="string">state:</span> <span class="string">started</span>
+        <span class="string">enabled:</span> <span class="string">yes</span>
+<span class="command">EOF</span></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>Penjelasan Playbook:</strong><br>
+                • <code>become: yes</code> → Jalankan dengan sudo privileges<br>
+                • <code>gather_facts: yes</code> → Kumpulkan info sistem (hostname, IP, dll)<br>
+                • <code>ansible.builtin.apt</code> → Module untuk package management<br>
+                • <code>ansible.builtin.template</code> → Deploy file dari template Jinja2<br>
+                • <code>ansible.builtin.service</code> → Manage systemd services
+            </div>
+
+            <h3><span class="step-number">7</span> Buat HTML Template (Jinja2)</h3>
+            <div class="code-block code-yaml">
+<pre><span class="command">cat > index.html.j2 << 'EOF'</span>
+<span class="string">&lt;html&gt;</span>
+<span class="string">&lt;head&gt;&lt;title&gt;Deployed by Ansible&lt;/title&gt;&lt;/head&gt;</span>
+<span class="string">&lt;body&gt;</span>
+<span class="string">  &lt;h1&gt;Hello from {{ ansible_hostname }}!&lt;/h1&gt;</span>
+<span class="string">  &lt;p&gt;IP addresses:&lt;/p&gt;</span>
+<span class="string">  &lt;ul&gt;</span>
+<span class="string">    {%- if ansible_default_ipv4 is defined and ansible_default_ipv4.address is defined %}</span>
+<span class="string">    &lt;li&gt;{{ ansible_default_ipv4.address }}&lt;/li&gt;</span>
+<span class="string">    {%- else %}</span>
+<span class="string">    {%- for iface in ansible_facts.interfaces | sort %}</span>
+<span class="string">    {%- set key = 'ansible_' + iface %}</span>
+<span class="string">    {%- if (key in ansible_facts) and (ansible_facts[key].ipv4 is defined) %}</span>
+<span class="string">    &lt;li&gt;{{ iface }}: {{ ansible_facts[key].ipv4.address }}&lt;/li&gt;</span>
+<span class="string">    {%- endif %}</span>
+<span class="string">    {%- endfor %}</span>
+<span class="string">    {%- endif %}</span>
+<span class="string">  &lt;/ul&gt;</span>
+<span class="string">  &lt;p&gt;Deployed on {{ ansible_date_time.date }} {{ ansible_date_time.time }}&lt;/p&gt;</span>
+<span class="string">&lt;/body&gt;</span>
+<span class="string">&lt;/html&gt;</span>
+<span class="command">EOF</span></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>Variabel Jinja2 yang Digunakan:</strong><br>
+                • <code>{{ ansible_hostname }}</code> → Nama host target<br>
+                • <code>{{ ansible_default_ipv4.address }}</code> → IP address default<br>
+                • <code>{{ ansible_facts.interfaces }}</code> → List network interfaces<br>
+                • <code>{{ ansible_date_time.date }}</code> → Tanggal deployment
+            </div>
+
+            <h3><span class="step-number">8</span> Jalankan Playbook</h3>
+            <div class="code-block">
+<pre><span class="comment"># Jalankan playbook</span>
+<span class="command">ansible-playbook -i ./inventory site.yml</span>
+
+<span class="comment"># Jika diminta sudo password, gunakan flag -K:</span>
+<span class="command">ansible-playbook -i ./inventory site.yml -K</span>
+
+<span class="comment"># Output yang diharapkan:</span>
+<span class="string">PLAY [Deploy nginx and simple web page on webservers]</span>
+<span class="string">TASK [Gathering Facts] ******************************************</span>
+<span class="string">ok: [192.168.56.106]</span>
+<span class="string">TASK [Update apt cache] *****************************************</span>
+<span class="string">changed: [192.168.56.106]</span>
+<span class="string">TASK [Ensure nginx is installed] ********************************</span>
+<span class="string">changed: [192.168.56.106]</span>
+<span class="string">TASK [Ensure /var/www/html exists] ****************************</span>
+<span class="string">ok: [192.168.56.106]</span>
+<span class="string">TASK [Deploy index.html] ****************************************</span>
+<span class="string">changed: [192.168.56.106]</span>
+<span class="string">TASK [Ensure nginx is started] **********************************</span>
+<span class="string">ok: [192.168.56.106]</span>
+<span class="string">PLAY RECAP ******************************************************</span>
+<span class="string">192.168.56.106 : ok=6 changed=3 unreachable=0 failed=0</span></pre>
+            </div>
+
+            <h3><span class="step-number">9</span> Verifikasi Deployment</h3>
+            <div class="code-block">
+<pre><span class="comment"># Cek status nginx</span>
+<span class="command">systemctl status nginx</span>
+
+<span class="comment"># Test dari control node menggunakan curl</span>
+<span class="command">curl http://192.168.56.106</span>
+
+<span class="comment"># Atau buka browser dan akses:</span>
+<span class="string">http://192.168.56.106</span></pre>
+            </div>
+
+            <div class="success-box">
+                <strong>Expected Result:</strong> Browser akan menampilkan halaman dengan judul "Deployed by Ansible", heading "Hello from cloudclone!", list IP addresses, dan timestamp deployment.
+            </div>
+
+            <h3>📋 Checklist Lab Ansible</h3>
+            <ul class="checklist">
+                <li>VM Control Node dan Managed Node saling terhubung</li>
+                <li>Ansible terinstall di Control Node</li>
+                <li>SSH key-based authentication berfungsi tanpa password</li>
+                <li>Inventory file terkonfigurasi dengan benar</li>
+                <li>Playbook berhasil dijalankan tanpa error</li>
+                <li>Nginx berjalan dan enabled di managed node</li>
+                <li>Halaman web menampilkan hostname dan IP dinamis</li>
+                <li>Template Jinja2 berhasil dirender dengan variabel Ansible facts</li>
+            </ul>
+        </section>
+
+        <!-- SECTION 6: HANDS-ON KUBERNETES -->
+        <section id="lab-k8s" class="section lab-section">
+            <h2><span class="icon">☸️</span> Hands-On Lab 2: Kubernetes Basics</h2>
+
+            <div class="highlight-box">
+                <strong>Tujuan:</strong> Memahami konsep dasar Kubernetes dengan membuat Pod, Deployment, dan Service menggunakan minikube atau cluster lokal.
+            </div>
+
+            <h3>🎯 Prasyarat</h3>
+            <ul style="margin: 10px 0 10px 20px;">
+                <li>minikube terinstall (<code>curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64</code>)</li>
+                <li>kubectl terinstall (<code>sudo snap install kubectl --classic</code>)</li>
+                <li>Docker atau container runtime tersedia</li>
+            </ul>
+
+            <h3><span class="step-number">1</span> Start Minikube Cluster</h3>
+            <div class="code-block">
+<pre><span class="comment"># Start minikube dengan driver docker</span>
+<span class="command">minikube start --driver=docker</span>
+
+<span class="comment"># Verifikasi status</span>
+<span class="command">minikube status</span>
+
+<span class="comment"># Cek nodes</span>
+<span class="command">kubectl get nodes</span></pre>
+            </div>
+
+            <h3><span class="step-number">2</span> Buat Pod Manifest</h3>
+            <div class="code-block code-yaml">
+<pre><span class="command">cat > pod-nginx.yml << 'EOF'</span>
+<span class="keyword">apiVersion:</span> <span class="string">v1</span>
+<span class="keyword">kind:</span> <span class="string">Pod</span>
+<span class="keyword">metadata:</span>
+  <span class="keyword">name:</span> <span class="string">nginx-pod</span>
+  <span class="keyword">labels:</span>
+    <span class="keyword">app:</span> <span class="string">web</span>
+    <span class="keyword">tier:</span> <span class="string">frontend</span>
+<span class="keyword">spec:</span>
+  <span class="keyword">containers:</span>
+  <span class="keyword">- name:</span> <span class="string">nginx</span>
+    <span class="keyword">image:</span> <span class="string">nginx:latest</span>
+    <span class="keyword">ports:</span>
+    <span class="keyword">- containerPort:</span> <span class="number">80</span>
+<span class="command">EOF</span></pre>
+            </div>
+
+            <h3><span class="step-number">3</span> Deploy Pod</h3>
+            <div class="code-block">
+<pre><span class="comment"># Apply manifest</span>
+<span class="command">kubectl apply -f pod-nginx.yml</span>
+
+<span class="comment"># Lihat pod yang berjalan</span>
+<span class="command">kubectl get pods -o wide</span>
+
+<span class="comment"># Detail pod</span>
+<span class="command">kubectl describe pod nginx-pod</span>
+
+<span class="comment"># Logs pod</span>
+<span class="command">kubectl logs nginx-pod</span></pre>
+            </div>
+
+            <h3><span class="step-number">4</span> Buat Deployment (Best Practice)</h3>
+            <div class="code-block code-yaml">
+<pre><span class="command">cat > deployment-nginx.yml << 'EOF'</span>
+<span class="keyword">apiVersion:</span> <span class="string">apps/v1</span>
+<span class="keyword">kind:</span> <span class="string">Deployment</span>
+<span class="keyword">metadata:</span>
+  <span class="keyword">name:</span> <span class="string">nginx-deployment</span>
+  <span class="keyword">labels:</span>
+    <span class="keyword">app:</span> <span class="string">nginx</span>
+<span class="keyword">spec:</span>
+  <span class="keyword">replicas:</span> <span class="number">3</span>
+  <span class="keyword">selector:</span>
+    <span class="keyword">matchLabels:</span>
+      <span class="keyword">app:</span> <span class="string">nginx</span>
+  <span class="keyword">template:</span>
+    <span class="keyword">metadata:</span>
+      <span class="keyword">labels:</span>
+        <span class="keyword">app:</span> <span class="string">nginx</span>
+    <span class="keyword">spec:</span>
+      <span class="keyword">containers:</span>
+      <span class="keyword">- name:</span> <span class="string">nginx</span>
+        <span class="keyword">image:</span> <span class="string">nginx:1.25</span>
+        <span class="keyword">ports:</span>
+        <span class="keyword">- containerPort:</span> <span class="number">80</span>
+        <span class="keyword">resources:</span>
+          <span class="keyword">requests:</span>
+            <span class="keyword">memory:</span> <span class="string">"64Mi"</span>
+            <span class="keyword">cpu:</span> <span class="string">"100m"</span>
+          <span class="keyword">limits:</span>
+            <span class="keyword">memory:</span> <span class="string">"128Mi"</span>
+            <span class="keyword">cpu:</span> <span class="string">"200m"</span>
+<span class="command">EOF</span></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>Deployment vs Pod:</strong> Deployment mengelola ReplicaSet yang mengelola Pods. Jika Pod mati, Deployment akan otomatis membuat Pod baru untuk memenuhi <code>replicas: 3</code>.
+            </div>
+
+            <h3><span class="step-number">5</span> Deploy dan Scale</h3>
+            <div class="code-block">
+<pre><span class="comment"># Apply deployment</span>
+<span class="command">kubectl apply -f deployment-nginx.yml</span>
+
+<span class="comment"># Cek deployment dan pods</span>
+<span class="command">kubectl get deployment</span>
+<span class="command">kubectl get pods</span>
+
+<span class="comment"># Scale ke 5 replicas</span>
+<span class="command">kubectl scale deployment nginx-deployment --replicas=5</span>
+
+<span class="comment"># Cek lagi - sekarang ada 5 pods</span>
+<span class="command">kubectl get pods</span></pre>
+            </div>
+
+            <h3><span class="step-number">6</span> Buat Service (Exposing Pods)</h3>
+            <div class="code-block code-yaml">
+<pre><span class="command">cat > service-nginx.yml << 'EOF'</span>
+<span class="keyword">apiVersion:</span> <span class="string">v1</span>
+<span class="keyword">kind:</span> <span class="string">Service</span>
+<span class="keyword">metadata:</span>
+  <span class="keyword">name:</span> <span class="string">nginx-service</span>
+<span class="keyword">spec:</span>
+  <span class="keyword">selector:</span>
+    <span class="keyword">app:</span> <span class="string">nginx</span>
+  <span class="keyword">ports:</span>
+    <span class="keyword">- protocol:</span> <span class="string">TCP</span>
+      <span class="keyword">port:</span> <span class="number">80</span>
+      <span class="keyword">targetPort:</span> <span class="number">80</span>
+  <span class="keyword">type:</span> <span class="string">NodePort</span>
+<span class="command">EOF</span></pre>
+            </div>
+
+            <div class="code-block">
+<pre><span class="comment"># Apply service</span>
+<span class="command">kubectl apply -f service-nginx.yml</span>
+
+<span class="comment"># Cek service</span>
+<span class="command">kubectl get service nginx-service</span>
+
+<span class="comment"># Akses service via minikube</span>
+<span class="command">minikube service nginx-service --url</span>
+
+<span class="comment"># Atau buka browser otomatis</span>
+<span class="command">minikube service nginx-service</span></pre>
+            </div>
+
+            <h3><span class="step-number">7</span> Self-Healing Demo</h3>
+            <div class="code-block">
+<pre><span class="comment"># Lihat pods yang berjalan</span>
+<span class="command">kubectl get pods</span>
+
+<span class="comment"># Hapus salah satu pod (simulasi failure)</span>
+<span class="command">kubectl delete pod nginx-deployment-xxx-yyy</span>
+
+<span class="comment"># Amati - Deployment akan otomatis membuat pod baru!</span>
+<span class="command">kubectl get pods -w</span>
+
+<span class="comment"># Tekan Ctrl+C untuk berhenti watch</span></pre>
+            </div>
+
+            <div class="success-box">
+                <strong>Self-Healing:</strong> Kubernetes mendeteksi bahwa jumlah pod berkurang dari 5 (desired state). Controller Manager otomatis membuat pod baru untuk mengembalikan state ke yang diinginkan.
+            </div>
+
+            <h3><span class="step-number">8</span> Rolling Update</h3>
+            <div class="code-block">
+<pre><span class="comment"># Update image ke versi baru</span>
+<span class="command">kubectl set image deployment/nginx-deployment nginx=nginx:1.26</span>
+
+<span class="comment"># Monitor rolling update</span>
+<span class="command">kubectl rollout status deployment/nginx-deployment</span>
+
+<span class="comment"># Cek history</span>
+<span class="command">kubectl rollout history deployment/nginx-deployment</span>
+
+<span class="comment"># Rollback jika ada masalah</span>
+<span class="command">kubectl rollout undo deployment/nginx-deployment</span></pre>
+            </div>
+
+            <h3><span class="step-number">9</span> Cleanup</h3>
+            <div class="code-block">
+<pre><span class="comment"># Hapus semua resources</span>
+<span class="command">kubectl delete -f pod-nginx.yml</span>
+<span class="command">kubectl delete -f deployment-nginx.yml</span>
+<span class="command">kubectl delete -f service-nginx.yml</span>
+
+<span class="comment"># Atau hapus semua sekaligus</span>
+<span class="command">kubectl delete all --all</span>
+
+<span class="comment"># Stop minikube</span>
+<span class="command">minikube stop</span></pre>
+            </div>
+
+            <h3>📋 Checklist Lab Kubernetes</h3>
+            <ul class="checklist">
+                <li>Minikube cluster berjalan tanpa error</li>
+                <li>Pod nginx berhasil dibuat dan running</li>
+                <li>Deployment dengan 3 replicas berjalan</li>
+                <li>Scaling dari 3 ke 5 replicas berhasil</li>
+                <li>Service NodePort berhasil expose pods</li>
+                <li>Self-healing bekerja saat pod dihapus</li>
+                <li>Rolling update ke image baru berhasil</li>
+                <li>Rollback ke versi sebelumnya berfungsi</li>
+            </ul>
+
+            <h3>🧠 Konsep Kunci yang Dipelajari</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>📦 Pod</h4>
+                    <p>Unit terkecil yang berisi satu atau lebih container yang share network dan storage.</p>
+                </div>
+                <div class="card">
+                    <h4>📋 Deployment</h4>
+                    <p>Mengelola ReplicaSet untuk memastikan jumlah pod sesuai desired state.</p>
+                </div>
+                <div class="card">
+                    <h4>🔌 Service</h4>
+                    <p>Abstraksi yang mendefinisikan logical set of pods dan policy untuk mengaksesnya.</p>
+                </div>
+                <div class="card">
+                    <h4>🎯 Desired State</h4>
+                    <p>Kubernetes terus-menerus membandingkan actual state dengan desired state dan melakukan koreksi.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7: RINGKASAN -->
+        <section class="section">
+            <h2><span class="icon">🎓</span> Ringkasan & Evaluasi</h2>
+
+            <h3>Perbedaan Automation vs Orchestration</h3>
+            <div class="highlight-box">
+                <strong>Automation</strong> = Script yang menjalankan tugas individual (install nginx, copy file).<br><br>
+                <strong>Orchestration</strong> = Sistem yang mengkoordinasikan banyak automation untuk mencapai system state yang diinginkan (deploy 3 replicas nginx, load balance, auto-heal, scale).
+            </div>
+
+            <h3>Kapan Menggunakan Ansible vs Kubernetes?</h3>
+            <table>
+                <tr>
+                    <th>Skenario</th>
+                    <th>Tools</th>
+                    <th>Alasan</th>
+                </tr>
+                <tr>
+                    <td>Provision VM, install software, konfigurasi OS</td>
+                    <td><strong>Ansible</strong></td>
+                    <td>Agentless, idempotent, simple</td>
+                </tr>
+                <tr>
+                    <td>Manage container lifecycle, scaling, self-healing</td>
+                    <td><strong>Kubernetes</strong></td>
+                    <td>Container orchestration native</td>
+                </tr>
+                <tr>
+                    <td>Deploy infrastructure di cloud (AWS, GCP, Azure)</td>
+                    <td><strong>Terraform + Ansible</strong></td>
+                    <td>Infrastructure as Code</td>
+                </tr>
+                <tr>
+                    <td>CI/CD pipeline automation</td>
+                    <td><strong>Jenkins/GitLab CI</strong></td>
+                    <td>Build, test, deploy automation</td>
+                </tr>
+            </table>
+
+            <h3>Pertanyaan Diskusi</h3>
+            <ol style="margin: 15px 0 15px 20px; color: #b0b0b0;">
+                <li>Mengapa cloud provider membutuhkan automation tools yang lebih sophisticated dibanding individual users?</li>
+                <li>Apa risiko jika kita hanya menggunakan script bash untuk manage 1000+ containers tanpa orchestrator?</li>
+                <li>Bagaimana Kubernetes menangani situasi ketika sebuah worker node mati total?</li>
+                <li>Jelaskan peran etcd dalam menjaga consistency cluster state!</li>
+                <li>Mengapa Pod menggunakan IP address yang berbeda-beda, dan bagaimana Service mengatasi hal ini?</li>
+            </ol>
+        </section>
+
+        <footer>
+            <p>🎓 <strong>Automation & Orchestration</strong> - Cloud Computing Course</p>
+            <p>Telkom University | Bachelor of Telecommunication Engineering</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Materi ini mencakup: Automation concepts, Orchestration principles, Kubernetes architecture, 
+                Ansible hands-on lab, dan Kubernetes hands-on lab.
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
