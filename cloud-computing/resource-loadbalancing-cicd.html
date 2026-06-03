@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materi Interaktif Cloud Computing</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #7c3aed;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --code-bg: #0f172a;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveGrid 20s linear infinite;
+            opacity: 0.3;
+        }
+        @keyframes moveGrid {
+            0% { transform: translate(0,0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        .header h1 { font-size: 3rem; margin-bottom: 10px; position: relative; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.2rem; opacity: 0.9; position: relative; }
+        .tabs {
+            display: flex; gap: 10px; margin-bottom: 30px;
+            flex-wrap: wrap; justify-content: center;
+        }
+        .tab-btn {
+            padding: 12px 24px; border: none;
+            background: rgba(255,255,255,0.2); color: white;
+            border-radius: 50px; cursor: pointer; font-weight: 600;
+            transition: all 0.3s; backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: var(--shadow-lg); }
+        .content-section { display: none; animation: fadeIn 0.5s ease; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card {
+            background: var(--card-bg); border-radius: 16px;
+            padding: 30px; margin-bottom: 20px;
+            box-shadow: var(--shadow-lg); transition: transform 0.3s;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .card-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .card-title { font-size: 1.5rem; color: var(--dark); }
+        .interactive-box {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid var(--accent); padding: 20px;
+            border-radius: 8px; margin: 15px 0; cursor: pointer;
+            transition: all 0.3s;
+        }
+        .interactive-box:hover { transform: translateX(10px); box-shadow: var(--shadow); }
+        .interactive-box.collapsed .content { display: none; }
+        .interactive-box .toggle { font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .interactive-box .toggle::after { content: '▼'; transition: transform 0.3s; }
+        .interactive-box.collapsed .toggle::after { transform: rotate(-90deg); }
+        .code-block {
+            background: var(--code-bg); color: #e2e8f0;
+            padding: 20px; border-radius: 12px; overflow-x: auto;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem; line-height: 1.5; margin: 15px 0;
+            position: relative;
+        }
+        .code-block::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 30px; background: linear-gradient(90deg, #ff5f56, #ffbd2e, #27c93f);
+            border-radius: 12px 12px 0 0; opacity: 0.3;
+        }
+        .code-block pre { margin-top: 20px; white-space: pre-wrap; word-wrap: break-word; }
+        .copy-btn {
+            position: absolute; top: 35px; right: 15px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 5px 12px; border-radius: 6px;
+            cursor: pointer; font-size: 0.8rem; transition: all 0.3s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); }
+        .quiz-container {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px; padding: 30px; margin: 20px 0;
+        }
+        .quiz-question { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: var(--dark); }
+        .quiz-options { display: grid; gap: 10px; }
+        .quiz-option {
+            padding: 15px 20px; background: white; border: 2px solid transparent;
+            border-radius: 10px; cursor: pointer; transition: all 0.3s; font-weight: 500;
+        }
+        .quiz-option:hover { border-color: var(--primary); transform: translateX(5px); }
+        .quiz-option.correct { background: #d1fae5; border-color: var(--success); color: #065f46; }
+        .quiz-option.wrong { background: #fee2e2; border-color: var(--danger); color: #991b1b; }
+        .quiz-feedback { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; }
+        .quiz-feedback.show { display: block; }
+        .progress-container {
+            background: rgba(255,255,255,0.2); border-radius: 50px;
+            padding: 5px; margin: 30px 0; position: sticky;
+            top: 20px; z-index: 100; backdrop-filter: blur(10px);
+        }
+        .progress-bar {
+            height: 8px; background: linear-gradient(90deg, var(--success), var(--accent));
+            border-radius: 50px; transition: width 0.5s ease; width: 0%;
+        }
+        .lab-step {
+            background: white; border-radius: 12px; padding: 25px;
+            margin-bottom: 20px; border-left: 5px solid var(--primary);
+            box-shadow: var(--shadow);
+        }
+        .lab-step-number {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 35px; height: 35px; background: var(--primary);
+            color: white; border-radius: 50%; font-weight: bold; margin-right: 10px;
+        }
+        .lab-step-title { font-size: 1.2rem; font-weight: 600; color: var(--dark); display: inline; }
+        .lab-step-content { margin-top: 15px; padding-left: 45px; }
+        .terminal {
+            background: #1e1e1e; border-radius: 12px; padding: 20px;
+            font-family: 'Fira Code', monospace; color: #00ff00;
+            margin: 15px 0; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        .terminal-line { margin: 5px 0; opacity: 0; animation: typeLine 0.5s forwards; }
+        @keyframes typeLine { to { opacity: 1; } }
+        .terminal-prompt { color: #00ff00; }
+        .terminal-command { color: #ffffff; }
+        .terminal-output { color: #bbbbbb; }
+        .comparison-table {
+            width: 100%; border-collapse: collapse; margin: 20px 0;
+            background: white; border-radius: 12px; overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .comparison-table th { background: var(--primary); color: white; padding: 15px; text-align: left; }
+        .comparison-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+        .comparison-table tr:hover { background: #f8fafc; }
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 600; margin: 5px;
+        }
+        .badge-primary { background: #dbeafe; color: #1e40af; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .diagram {
+            background: white; border-radius: 12px; padding: 30px;
+            margin: 20px 0; text-align: center; box-shadow: var(--shadow);
+        }
+        .diagram-box {
+            display: inline-block; padding: 15px 25px; margin: 10px;
+            border-radius: 8px; font-weight: 600; position: relative;
+        }
+        .diagram-arrow { font-size: 2rem; color: var(--gray); margin: 0 10px; }
+        .fab {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: var(--primary); color: white; border: none;
+            cursor: pointer; box-shadow: var(--shadow-lg);
+            font-size: 1.5rem; transition: all 0.3s; z-index: 1000;
+        }
+        .fab:hover { transform: scale(1.1) rotate(90deg); background: var(--primary-dark); }
+        .highlight {
+            background: linear-gradient(120deg, #fef08a 0%, #fef08a 100%);
+            background-repeat: no-repeat; background-size: 100% 40%;
+            background-position: 0 88%; padding: 0 4px;
+        }
+        .checklist { list-style: none; padding: 0; }
+        .checklist li {
+            padding: 10px 0; padding-left: 35px; position: relative;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .checklist li::before {
+            content: '☐'; position: absolute; left: 0;
+            font-size: 1.2rem; color: var(--gray);
+        }
+        .checklist li.checked::before { content: '☑'; color: var(--success); }
+        .checklist li.checked { text-decoration: line-through; opacity: 0.7; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .tabs { flex-direction: column; align-items: center; }
+            .card { padding: 20px; }
+            .lab-step-content { padding-left: 0; }
+        }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
+        .card { animation: slideUp 0.6s ease forwards; opacity: 0; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Cloud Computing Interactive</h1>
+            <p>Resource Management, DevOps and CI/CD Hands-On Lab</p>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <nav class="tabs">
+            <button class="tab-btn active" onclick="showTab('resource')">Resource Management</button>
+            <button class="tab-btn" onclick="showTab('scaling')">Scaling and LB</button>
+            <button class="tab-btn" onclick="showTab('devops')">DevOps</button>
+            <button class="tab-btn" onclick="showTab('cicd')">CI/CD Hands-On</button>
+            <button class="tab-btn" onclick="showTab('quiz')">Quiz</button>
+        </nav>
+
+        <!-- TAB 1: Resource Management -->
+        <section id="resource" class="content-section active">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">RM</div>
+                    <h2 class="card-title">Resource Pooling, Sharing and Provisioning</h2>
+                </div>
+
+                <div class="interactive-box" onclick="toggleBox(this)">
+                    <div class="toggle">1. Resource Pooling <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>Definisi:</strong> Menggabungkan dan mengelola sumber daya komputasi (storage, CPU, memory, networking) agar dapat dibagikan ke banyak pengguna/aplikasi.</p>
+                        <br>
+                        <p><strong>Karakteristik:</strong></p>
+                        <ul>
+                            <li><span class="highlight">Abstraksi Lokasi</span> - Pengguna tidak tahu lokasi fisik resource</li>
+                            <li><span class="highlight">Alokasi Dinamis</span> - Resource dialokasikan sesuai demand</li>
+                            <li><span class="highlight">Efisiensi</span> - Mengurangi idle resource</li>
+                        </ul>
+                        <br>
+                        <div class="diagram">
+                            <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap;">
+                                <div class="diagram-box" style="background: #dbeafe;">Physical Servers</div>
+                                <span class="diagram-arrow">-&gt;</span>
+                                <div class="diagram-box" style="background: #fef3c7;">Virtualization</div>
+                                <span class="diagram-arrow">-&gt;</span>
+                                <div class="diagram-box" style="background: #d1fae5;">Virtual Servers Pool</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">2. Arsitektur Resource Pool <span>&#9660;</span></div>
+                    <div class="content">
+                        <p>Resource pool terdiri dari 3 kategori utama:</p>
+                        <br>
+                        <table class="comparison-table">
+                            <tr><th>Pool Type</th><th>Description</th><th>Example</th></tr>
+                            <tr><td><span class="badge badge-primary">Compute/Server</span></td><td>Physical machines dengan OS, dikelompokkan menjadi VM pool</td><td>Virtual Machine Pool</td></tr>
+                            <tr><td><span class="badge badge-success">Storage</span></td><td>Block-based storage disks, dipartisi dan diformat secara virtual</td><td>Virtual Storage Devices</td></tr>
+                            <tr><td><span class="badge badge-warning">Network</span></td><td>Networking devices (switches, routers) dalam bentuk virtual</td><td>Virtual Networks</td></tr>
+                        </table>
+                        <br>
+                        <p><strong>Hierarchical Organization:</strong></p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre>Resource Pool - A
+|-- Resource Pool - A1
+|   |-- Virtual Server Pool
+|   |-- Processor Pool
+|   |-- Memory Pool
+|   |-- Network Pool
+|-- Resource Pool - A2
+    |-- Virtual Server Pool
+    |-- Processor Pool
+    |-- Memory Pool
+    |-- Network Pool</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">3. Resource Sharing and Multi-Tenancy <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>Multi-Tenancy:</strong> Satu resource element mendukung multiple consumers (tenants) dengan isolasi antar tenant.</p>
+                        <br>
+                        <p><strong>Levels of Multi-Tenancy:</strong></p>
+                        <ul>
+                            <li><strong>IaaS</strong> - Shared computing infrastructure (servers, storage)</li>
+                            <li><strong>PaaS</strong> - Shared OS, multiple apps from different vendors</li>
+                            <li><strong>SaaS</strong> - Single app instance serves multiple consumers</li>
+                        </ul>
+                        <br>
+                        <div class="diagram">
+                            <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap;">
+                                <div class="diagram-box" style="background: #fee2e2;">Tenant A</div>
+                                <div class="diagram-box" style="background: #dbeafe;">Tenant B</div>
+                                <div class="diagram-box" style="background: #d1fae5;">Tenant C</div>
+                                <br>
+                                <div style="width: 100%; text-align: center; font-size: 2rem;">v</div>
+                                <div class="diagram-box" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">Shared Resource Pool</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">4. Resource Provisioning <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>Definisi:</strong> Proses menyediakan dan mengalokasikan computing resources untuk memenuhi kebutuhan user/aplikasi.</p>
+                        <br>
+                        <table class="comparison-table">
+                            <tr><th>Approach</th><th>Description</th><th>Pros</th><th>Cons</th></tr>
+                            <tr><td><span class="badge badge-primary">Static</span></td><td>Fixed allocation, tidak berubah selama VM berjalan</td><td>Simple, no runtime overhead</td><td>Tidak handle demand spikes, inefficient</td></tr>
+                            <tr><td><span class="badge badge-success">Dynamic</span></td><td>Flexible adjustment on-demand selama runtime</td><td>Adaptif, pay-per-usage, scalable</td><td>Runtime overhead, minor delays</td></tr>
+                            <tr><td><span class="badge badge-warning">Hybrid</span></td><td>Static awal + dynamic selanjutnya</td><td>Balance efficiency and flexibility</td><td>Lebih kompleks</td></tr>
+                        </table>
+                        <br>
+                        <p><strong>Provisioning Plans:</strong></p>
+                        <ul>
+                            <li><strong>Short-term On-Demand:</strong> Pay-per-usage, dynamic, untuk demand unpredictable</li>
+                            <li><strong>Long-term Reservation:</strong> Fixed fee untuk periode tertentu, untuk demand predictable</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">5. SLA (Service Level Agreement) <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>SLA</strong> adalah kontrak antara consumer dan provider yang menentukan:</p>
+                        <ul>
+                            <li>Expected computing resource capacity</li>
+                            <li>Availability guarantees (e.g., 99.9% uptime)</li>
+                            <li>Performance metrics</li>
+                            <li>Penalties untuk breach</li>
+                        </ul>
+                        <br>
+                        <p>Provider menggunakan SLA untuk <span class="highlight">estimate resource needs</span> dan melakukan resource mapping.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <div class="quiz-question">Apa keuntungan utama dari Dynamic Resource Provisioning?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">A. Tidak ada runtime overhead</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, true)">B. Dapat menyesuaikan resource sesuai demand secara real-time</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">C. Lebih sederhana dari static provisioning</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">D. Fixed cost untuk jangka panjang</div>
+                </div>
+                <div class="quiz-feedback" id="resourceQuizFeedback"></div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Scaling and Load Balancing -->
+        <section id="scaling" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">SL</div>
+                    <h2 class="card-title">Resource Scaling, Load Balancing and High Availability</h2>
+                </div>
+
+                <div class="interactive-box" onclick="toggleBox(this)">
+                    <div class="toggle">1. Jenis Scaling <span>&#9660;</span></div>
+                    <div class="content">
+                        <table class="comparison-table">
+                            <tr><th>Type</th><th>Description</th><th>Pros</th><th>Cons</th></tr>
+                            <tr><td><span class="badge badge-primary">Vertical Scaling</span></td><td>Increase/decrease capacity existing instance (RAM, CPU, Storage)</td><td>No code changes, less complex network</td><td>Hardware limits, single point of failure</td></tr>
+                            <tr><td><span class="badge badge-success">Horizontal Scaling</span></td><td>Add more VMs/servers to spread workload</td><td>High availability, easy resize, fewer downtime</td><td>More complex, requires load balancer</td></tr>
+                            <tr><td><span class="badge badge-warning">Hybrid Scaling</span></td><td>Kombinasi Vertical + Horizontal</td><td>Best of both worlds</td><td>Complex implementation</td></tr>
+                        </table>
+                        <br>
+                        <div class="diagram">
+                            <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+                                <div>
+                                    <div class="diagram-box" style="background: #dbeafe;">Server (Small)</div>
+                                    <div style="font-size: 2rem;">v</div>
+                                    <div class="diagram-box" style="background: #3b82f6; color: white;">Server (Large)</div>
+                                    <p><strong>Vertical</strong></p>
+                                </div>
+                                <div>
+                                    <div class="diagram-box" style="background: #dbeafe;">Server</div>
+                                    <div style="font-size: 2rem;">-&gt;</div>
+                                    <div class="diagram-box" style="background: #dbeafe;">Server</div>
+                                    <div class="diagram-box" style="background: #dbeafe;">Server</div>
+                                    <p><strong>Horizontal</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">2. Elastic Computing <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>Elastic Computing</strong> adalah kemampuan untuk secara dinamis menambah/mengurangi server sesuai peak times.</p>
+                        <br>
+                        <p><strong>Karakteristik:</strong></p>
+                        <ul>
+                            <li><span class="highlight">Rapid creation/removal</span> - Fully software-managed</li>
+                            <li><span class="highlight">Physical sharing</span> - Multiple VMs on single physical server</li>
+                            <li><span class="highlight">Logical isolation</span> - VMs terisolasi meski di server fisik yang sama</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">3. Load Balancing <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>Definisi:</strong> Mendistribusikan workload secara merata di across multiple servers.</p>
+                        <br>
+                        <div class="diagram">
+                            <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap;">
+                                <div class="diagram-box" style="background: #fee2e2;">Internet</div>
+                                <span class="diagram-arrow">-&gt;</span>
+                                <div class="diagram-box" style="background: #f59e0b; color: white;">Load Balancer</div>
+                                <span class="diagram-arrow">-&gt;</span>
+                                <div>
+                                    <div class="diagram-box" style="background: #dbeafe;">Server 1</div>
+                                    <div class="diagram-box" style="background: #dbeafe;">Server 2</div>
+                                    <div class="diagram-box" style="background: #dbeafe;">Server N</div>
+                                </div>
+                            </div>
+                            <p style="margin-top: 15px; color: var(--gray);">Traffic dibagi: 1/N ke setiap server</p>
+                        </div>
+                        <br>
+                        <p><strong>Hierarchical Load Balancing:</strong></p>
+                        <p>Untuk large-scale, menggunakan struktur hierarki dari primary ke secondary load balancers.</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre>Internet
+    |
+Primary Load Balancer
+    |
+|--- LB-1 -&gt; Racks (Pool 1)
+|--- LB-2 -&gt; Racks (Pool 2)
+|--- LB-P -&gt; Racks (Pool P)</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">4. Load Balancing Algorithms <span>&#9660;</span></div>
+                    <div class="content">
+                        <table class="comparison-table">
+                            <tr><th>Algorithm</th><th>How It Works</th><th>Best For</th></tr>
+                            <tr><td><span class="badge badge-primary">Round Robin</span></td><td>Sequential/rotational distribution</td><td>Servers with equal capacity</td></tr>
+                            <tr><td><span class="badge badge-success">Sticky Round Robin</span></td><td>Same user -&gt; same server</td><td>Session persistence required</td></tr>
+                            <tr><td><span class="badge badge-warning">Weighted Round Robin</span></td><td>Distribution based on server weight</td><td>Unequal server capacities</td></tr>
+                            <tr><td><span class="badge badge-primary">IP/URL Hash</span></td><td>Hash function maps requests to servers</td><td>Consistent routing</td></tr>
+                            <tr><td><span class="badge badge-success">Least Connection</span></td><td>Route to server with fewest active connections</td><td>Variable session durations</td></tr>
+                            <tr><td><span class="badge badge-warning">Least Time</span></td><td>Route to server with lowest latency</td><td>Performance-critical apps</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">5. High Availability (HA) <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>Definisi:</strong> Memastikan sistem tetap operational meski terjadi failures.</p>
+                        <br>
+                        <p><strong>3-Layer Classification:</strong></p>
+                        <div class="diagram">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                                <div class="diagram-box" style="background: #dbeafe; width: 80%;">Middlewares</div>
+                                <div style="font-size: 1.5rem;">v</div>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                                    <div class="diagram-box" style="background: #fef3c7;">Monitoring</div>
+                                    <div class="diagram-box" style="background: #fef3c7;">Redundancy</div>
+                                    <div class="diagram-box" style="background: #fef3c7;">Replication</div>
+                                    <div class="diagram-box" style="background: #fef3c7;">Failure Detection</div>
+                                    <div class="diagram-box" style="background: #fef3c7;">Recovery</div>
+                                </div>
+                                <div style="font-size: 1.5rem;">v</div>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                                    <div class="diagram-box" style="background: #d1fae5;">Multi-core Processors</div>
+                                    <div class="diagram-box" style="background: #d1fae5;">Virtualization</div>
+                                    <div class="diagram-box" style="background: #d1fae5;">Storage System</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <div class="quiz-question">Algoritma mana yang mengirim request dari user yang sama ke server yang sama?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">A. Round Robin</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, true)">B. Sticky Round Robin</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">C. Least Connection</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">D. IP Hash</div>
+                </div>
+                <div class="quiz-feedback" id="scalingQuizFeedback"></div>
+            </div>
+        </section>
+
+        <!-- TAB 3: DevOps -->
+        <section id="devops" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #06b6d4);">DO</div>
+                    <h2 class="card-title">DevOps and Software Development Life Cycle</h2>
+                </div>
+
+                <div class="interactive-box" onclick="toggleBox(this)">
+                    <div class="toggle">1. Definisi DevOps <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>DevOps</strong> adalah pendekatan software engineering yang mengintegrasikan <span class="highlight">software development</span> dan <span class="highlight">IT operations</span>.</p>
+                        <br>
+                        <p><strong>Core Principles:</strong></p>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin: 20px 0;">
+                            <div class="diagram-box" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white;">Collaboration</div>
+                            <div class="diagram-box" style="background: linear-gradient(135deg, #10b981, #06b6d4); color: white;">Automation</div>
+                            <div class="diagram-box" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white;">Continuous Improvement</div>
+                            <div class="diagram-box" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white;">Measurement</div>
+                            <div class="diagram-box" style="background: linear-gradient(135deg, #06b6d4, #3b82f6); color: white;">Monitoring</div>
+                        </div>
+                        <br>
+                        <p><strong>Traditional vs DevOps:</strong></p>
+                        <table class="comparison-table">
+                            <tr><th>Aspect</th><th>Traditional</th><th>DevOps</th></tr>
+                            <tr><td>Approach</td><td>Sequential</td><td>Iterative</td></tr>
+                            <tr><td>Process</td><td>Manual</td><td>Automated</td></tr>
+                            <tr><td>Teams</td><td>Silos</td><td>Integrated</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">2. DevOps Lifecycle <span>&#9660;</span></div>
+                    <div class="content">
+                        <div class="diagram">
+                            <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px;">
+                                <div class="diagram-box" style="background: #dbeafe;">Planning</div><span>-&gt;</span>
+                                <div class="diagram-box" style="background: #dbeafe;">Coding</div><span>-&gt;</span>
+                                <div class="diagram-box" style="background: #dbeafe;">Building</div><span>-&gt;</span>
+                                <div class="diagram-box" style="background: #dbeafe;">Deployment</div>
+                                <br>
+                                <div style="width: 100%; text-align: center;">v Monitoring ^</div>
+                                <br>
+                                <div class="diagram-box" style="background: #fef3c7;">Monitoring</div><span>&lt;-</span>
+                                <div class="diagram-box" style="background: #fef3c7;">Operations</div><span>&lt;-</span>
+                                <div class="diagram-box" style="background: #fef3c7;">Testing</div><span>&lt;-</span>
+                                <div class="diagram-box" style="background: #fef3c7;">Releasing</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">3. SDLC Models <span>&#9660;</span></div>
+                    <div class="content">
+                        <table class="comparison-table">
+                            <tr><th>Model</th><th>Description</th><th>Best For</th></tr>
+                            <tr><td><span class="badge badge-primary">Waterfall</span></td><td>Linear, sequential, each step depends on previous</td><td>Requirements jelas and tidak berubah</td></tr>
+                            <tr><td><span class="badge badge-success">Agile</span></td><td>Iterative, incremental, adaptive</td><td>Requirements berubah frequently</td></tr>
+                            <tr><td><span class="badge badge-warning">V-Model</span></td><td>Validation and verification di setiap phase</td><td>Critical systems (medical, aerospace)</td></tr>
+                            <tr><td><span class="badge badge-danger">DevOps-driven</span></td><td>Automation + continuous delivery + feedback loops</td><td>Cloud-native applications</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="interactive-box collapsed" onclick="toggleBox(this)">
+                    <div class="toggle">4. CI/CD Pipeline <span>&#9660;</span></div>
+                    <div class="content">
+                        <p><strong>Continuous Integration (CI):</strong> Integrasi code frequently ke shared repository dengan automated builds dan tests.</p>
+                        <br>
+                        <p><strong>Continuous Delivery:</strong> Aplikasi selalu dalam deployable state melalui automated release preparation.</p>
+                        <br>
+                        <p><strong>Continuous Deployment:</strong> Deployment terjadi otomatis tanpa manual intervention setelah test stages pass.</p>
+                        <br>
+                        <div class="diagram">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                                <div class="diagram-box" style="background: #fee2e2;">Developers Commit</div>
+                                <span>v</span>
+                                <div class="diagram-box" style="background: #dbeafe;">Source Repository</div>
+                                <span>v</span>
+                                <div class="diagram-box" style="background: #fef3c7;">CI Server (Build + Test)</div>
+                                <span>v</span>
+                                <div style="display: flex; gap: 20px;">
+                                    <div>
+                                        <div class="diagram-box" style="background: #d1fae5;">Acceptance Test</div>
+                                        <span>v</span>
+                                        <div class="diagram-box" style="background: #d1fae5;">Manual -&gt; Production</div>
+                                        <p><strong>Continuous Delivery</strong></p>
+                                    </div>
+                                    <div>
+                                        <div class="diagram-box" style="background: #d1fae5;">Acceptance Test</div>
+                                        <span>v</span>
+                                        <div class="diagram-box" style="background: #d1fae5;">Auto -&gt; Production</div>
+                                        <p><strong>Continuous Deployment</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <div class="quiz-question">Apa perbedaan Continuous Delivery dan Continuous Deployment?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">A. Delivery untuk development, Deployment untuk production</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, true)">B. Delivery memerlukan manual approval, Deployment fully automated</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">C. Delivery untuk testing, Deployment untuk staging</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">D. Tidak ada perbedaan</div>
+                </div>
+                <div class="quiz-feedback" id="devopsQuizFeedback"></div>
+            </div>
+        </section>
+
+        <!-- TAB 4: CI/CD Hands-On -->
+        <section id="cicd" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">CI</div>
+                    <h2 class="card-title">Hands-On: CI/CD dengan GitHub Actions untuk Next.js Todo App</h2>
+                </div>
+
+                <p style="margin-bottom: 20px;">Project: <a href="https://github.com/jrgarciadev/nextjs-todo-list" target="_blank" style="color: var(--primary);">github.com/jrgarciadev/nextjs-todo-list</a></p>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">1</span>
+                    <span class="lab-step-title">Fork/Clone Repository ke Akun Pribadi</span>
+                    <div class="lab-step-content">
+                        <p>Buka terminal dan jalankan:</p>
+                        <div class="terminal">
+                            <div class="terminal-line" style="animation-delay: 0.1s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git clone https://github.com/jrgarciadev/nextjs-todo-list.git</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.3s;"><span class="terminal-prompt">$</span> <span class="terminal-command">cd nextjs-todo-list</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.5s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git remote -v</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.7s;"><span class="terminal-output">origin  https://github.com/jrgarciadev/nextjs-todo-list.git (fetch)</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.9s;"><span class="terminal-output">origin  https://github.com/jrgarciadev/nextjs-todo-list.git (push)</span></div>
+                        </div>
+                        <p><strong>Atau fork via GitHub UI:</strong></p>
+                        <ol>
+                            <li>Buka <a href="https://github.com/jrgarciadev/nextjs-todo-list" target="_blank">repository</a></li>
+                            <li>Klik tombol <strong>"Fork"</strong> di pojok kanan atas</li>
+                            <li>Pilih akun pribadi sebagai destination</li>
+                        </ol>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre># Set remote ke repo pribadi setelah fork
+git remote set-url origin https://github.com/YOUR_USERNAME/nextjs-todo-list.git
+git push -u origin main</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">2</span>
+                    <span class="lab-step-title">Persiapkan Project Next.js</span>
+                    <div class="lab-step-content">
+                        <p>Install dependencies dan verify build:</p>
+                        <div class="terminal">
+                            <div class="terminal-line" style="animation-delay: 0.1s;"><span class="terminal-prompt">$</span> <span class="terminal-command">npm install</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.5s;"><span class="terminal-prompt">$</span> <span class="terminal-command">npm run build</span></div>
+                            <div class="terminal-line" style="animation-delay: 1s;"><span class="terminal-output">✓ Linting and checking validity of types ...
+✓ Collecting page data  
+✓ Generating static pages (3/3)
+✓ Finalizing page optimization</span></div>
+                        </div>
+                        <p><strong>Update package.json scripts:</strong></p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre>{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
+  }
+}</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">3</span>
+                    <span class="lab-step-title">Buat Deploy Token (GitHub Personal Access Token)</span>
+                    <div class="lab-step-content">
+                        <p><strong>GitHub Personal Access Token (PAT):</strong></p>
+                        <ol>
+                            <li>Buka GitHub -> Settings -> Developer settings -> Personal access tokens -> Tokens (classic)</li>
+                            <li>Klik <strong>"Generate new token (classic)"</strong></li>
+                            <li>Beri nama: <code>nextjs-deploy-token</code></li>
+                            <li>Select scopes:
+                                <ul>
+                                    <li><code>repo</code> (full control of private repositories)</li>
+                                    <li><code>workflow</code> (update GitHub Action workflows)</li>
+                                    <li><code>write:packages</code> (upload packages to GitHub Package Registry)</li>
+                                </ul>
+                            </li>
+                            <li>Klik <strong>"Generate token"</strong></li>
+                            <li><strong>COPY TOKEN SEKARANG</strong> (tidak bisa dilihat lagi!)</li>
+                        </ol>
+                        <br>
+                        <p><strong>Simpan sebagai GitHub Secret:</strong></p>
+                        <ol>
+                            <li>Buka repository GitHub -> Settings -> Secrets and variables -> Actions</li>
+                            <li>Klik <strong>"New repository secret"</strong></li>
+                            <li>Name: <code>DEPLOY_TOKEN</code></li>
+                            <li>Value: Paste token yang tadi dibuat</li>
+                            <li>Klik <strong>"Add secret"</strong></li>
+                        </ol>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre># Alternatif: Gunakan GitHub CLI
+gh auth login
+gh secret set DEPLOY_TOKEN --body "ghp_xxxxxxxxxxxx"</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">4</span>
+                    <span class="lab-step-title">Setup Vercel (Deployment Target)</span>
+                    <div class="lab-step-content">
+                        <p><strong>Install Vercel CLI:</strong></p>
+                        <div class="terminal">
+                            <div class="terminal-line" style="animation-delay: 0.1s;"><span class="terminal-prompt">$</span> <span class="terminal-command">npm i -g vercel</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.3s;"><span class="terminal-prompt">$</span> <span class="terminal-command">vercel login</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.5s;"><span class="terminal-output">Vercel CLI 33.x.x
+? Log in to Vercel (Use arrow keys)
+&gt; Continue with Email 
+  Continue with GitHub 
+  Continue with GitLab 
+  Continue with Bitbucket</span></div>
+                        </div>
+                        <br>
+                        <p><strong>Generate Vercel Token:</strong></p>
+                        <ol>
+                            <li>Buka <a href="https://vercel.com/account/tokens" target="_blank">vercel.com/account/tokens</a></li>
+                            <li>Klik <strong>"Create Token"</strong></li>
+                            <li>Beri nama: <code>github-actions-deploy</code></li>
+                            <li>Scope: Pilih team/personal scope</li>
+                            <li>Klik <strong>"Create"</strong> dan copy token</li>
+                        </ol>
+                        <br>
+                        <p><strong>Simpan Vercel Token sebagai GitHub Secret:</strong></p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre># Secret Name: VERCEL_TOKEN
+# Secret Value: vercel_token_anda_disini
+
+# Juga tambahkan:
+# VERCEL_ORG_ID (dari .vercel/project.json setelah vercel link)
+# VERCEL_PROJECT_ID (dari .vercel/project.json)</pre>
+                        </div>
+                        <p>Atau gunakan command:</p>
+                        <div class="terminal">
+                            <div class="terminal-line"><span class="terminal-prompt">$</span> <span class="terminal-command">vercel link</span></div>
+                            <div class="terminal-line"><span class="terminal-output">? Set up "~/project"? [Y/n] y
+? Which scope? [Your Username]
+? Link to existing project? [y/N] n
+? What is your project name? [nextjs-todo-list]</span></div>
+                        </div>
+                        <p>Setelah <code>vercel link</code>, file <code>.vercel/project.json</code> akan berisi <code>orgId</code> dan <code>projectId</code>.</p>
+                    </div>
+                </div>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">5</span>
+                    <span class="lab-step-title">Buat GitHub Actions Workflow</span>
+                    <div class="lab-step-content">
+                        <p>Buat file <code>.github/workflows/ci-cd.yml</code>:</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre>name: CI/CD Pipeline - Next.js Todo App
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  # --- Stage 1: Lint &amp; Type Check ---
+  lint:
+    name: Lint &amp; Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Type check with TypeScript
+        run: npx tsc --noEmit
+
+  # --- Stage 2: Unit Tests ---
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # --- Stage 3: Build ---
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js app
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next/
+          retention-days: 1
+
+  # --- Stage 4: Deploy to Vercel (Production) ---
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [lint, test, build]
+    if: github.ref == 'refs/heads/main' &amp;&amp; github.event_name == 'push'
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Project Artifacts to Vercel
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" &gt;&gt; $GITHUB_OUTPUT
+          echo "Deployed to: $url"
+
+      - name: Comment Deployment URL
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comment } = await github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `**Production Deployed Successfully!**\n\nURL: ${{ steps.deploy.outputs.url }}`
+            })
+
+  # --- Stage 5: Deploy Preview (Pull Requests) ---
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: [lint, test, build]
+    if: github.event_name == 'pull_request'
+    environment:
+      name: preview
+      url: ${{ steps.deploy-preview.outputs.url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy Preview
+        id: deploy-preview
+        run: |
+          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" &gt;&gt; $GITHUB_OUTPUT
+
+      - name: Comment Preview URL on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `**Preview deployed:** ${{ steps.deploy-preview.outputs.url }}`
+            })</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">6</span>
+                    <span class="lab-step-title">Setup GitHub Secrets</span>
+                    <div class="lab-step-content">
+                        <p>Buka repository GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret</p>
+                        <br>
+                        <table class="comparison-table">
+                            <tr><th>Secret Name</th><th>Value</th><th>How to Get</th></tr>
+                            <tr><td><code>VERCEL_TOKEN</code></td><td>Vercel personal token</td><td>vercel.com/account/tokens</td></tr>
+                            <tr><td><code>VERCEL_ORG_ID</code></td><td>Organization ID</td><td><code>.vercel/project.json</code> setelah <code>vercel link</code></td></tr>
+                            <tr><td><code>VERCEL_PROJECT_ID</code></td><td>Project ID</td><td><code>.vercel/project.json</code> setelah <code>vercel link</code></td></tr>
+                        </table>
+                        <br>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre># Cek nilai orgId dan projectId
+cat .vercel/project.json
+# Output:
+# {
+#   "orgId": "team_xxxxxxxxxxxxxxxx",
+#   "projectId": "prj_xxxxxxxxxxxxxxxx"
+# }</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">7</span>
+                    <span class="lab-step-title">Commit &amp; Push Workflow</span>
+                    <div class="lab-step-content">
+                        <div class="terminal">
+                            <div class="terminal-line" style="animation-delay: 0.1s;"><span class="terminal-prompt">$</span> <span class="terminal-command">mkdir -p .github/workflows</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.2s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git add .github/workflows/ci-cd.yml</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.3s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git commit -m "feat: add CI/CD pipeline with GitHub Actions"</span></div>
+                            <div class="terminal-line" style="animation-delay: 0.5s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git push origin main</span></div>
+                        </div>
+                        <p>Setelah push, buka tab <strong>Actions</strong> di repository GitHub untuk melihat pipeline berjalan!</p>
+                    </div>
+                </div>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">8</span>
+                    <span class="lab-step-title">Verifikasi Pipeline</span>
+                    <div class="lab-step-content">
+                        <p><strong>Checklist Verifikasi:</strong></p>
+                        <ul class="checklist" id="cicdChecklist">
+                            <li onclick="toggleCheck(this)">Repository di-fork ke akun pribadi</li>
+                            <li onclick="toggleCheck(this)">GitHub Secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID) sudah di-set</li>
+                            <li onclick="toggleCheck(this)">File <code>.github/workflows/ci-cd.yml</code> sudah dibuat</li>
+                            <li onclick="toggleCheck(this)">Push ke branch <code>main</code> berhasil</li>
+                            <li onclick="toggleCheck(this)">Tab Actions menunjukkan workflow berjalan</li>
+                            <li onclick="toggleCheck(this)">Job "Lint &amp; Type Check" pass (hijau)</li>
+                            <li onclick="toggleCheck(this)">Job "Unit Tests" pass dengan coverage report</li>
+                            <li onclick="toggleCheck(this)">Job "Build Application" pass</li>
+                            <li onclick="toggleCheck(this)">Job "Deploy to Production" berhasil deploy ke Vercel</li>
+                            <li onclick="toggleCheck(this)">URL deployment bisa diakses di browser</li>
+                        </ul>
+                        <br>
+                        <p><strong>Troubleshooting:</strong></p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre># Jika build gagal, cek logs:
+# 1. Buka GitHub -> repository -> Actions -> failed workflow
+# 2. Klik job yang failed untuk melihat detail error
+# 3. Common issues:
+#    - Missing secrets: pastikan VERCEL_TOKEN dll sudah di-set
+#    - Node version mismatch: pastikan package.json compatible
+#    - Missing test script: tambahkan "test": "jest" di package.json
+
+# Test locally sebelum push:
+npm ci
+npm run lint
+npm run test
+npm run build</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lab-step">
+                    <span class="lab-step-number">9</span>
+                    <span class="lab-step-title">GitLab CI/CD Alternative (Opsional)</span>
+                    <div class="lab-step-content">
+                        <p>Jika menggunakan GitLab, buat file <code>.gitlab-ci.yml</code>:</p>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre>stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  NODE_VERSION: "20"
+  VERCEL_TOKEN: $VERCEL_TOKEN
+  VERCEL_ORG_ID: $VERCEL_ORG_ID
+  VERCEL_PROJECT_ID: $VERCEL_PROJECT_ID
+
+# Cache node_modules
+cache:
+  paths:
+    - node_modules/
+
+build:
+  stage: build
+  image: node:20-alpine
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - .next/
+    expire_in: 1 hour
+
+test:
+  stage: test
+  image: node:20-alpine
+  script:
+    - npm ci
+    - npm run lint
+    - npm run test
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+
+deploy:
+  stage: deploy
+  image: node:20-alpine
+  script:
+    - npm install -g vercel
+    - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+    - vercel build --prod --token=$VERCEL_TOKEN
+    - vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+  only:
+    - main</pre>
+                        </div>
+                        <p><strong>Setup GitLab CI/CD Variables:</strong></p>
+                        <ol>
+                            <li>Buka GitLab -> Project -> Settings -> CI/CD -> Variables</li>
+                            <li>Add variables: <code>VERCEL_TOKEN</code>, <code>VERCEL_ORG_ID</code>, <code>VERCEL_PROJECT_ID</code></li>
+                            <li>Protect variables jika hanya untuk protected branches</li>
+                            <li>Mask variables untuk keamanan</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <div class="quiz-question">Apa yang terjadi jika job "lint" gagal di GitHub Actions?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">A. Pipeline tetap berjalan ke deployment</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, true)">B. Job "test" dan "build" tidak akan dijalankan (blocked by needs)</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">C. Hanya job "build" yang di-skip</div>
+                    <div class="quiz-option" onclick="checkAnswer(this, false)">D. Pipeline akan retry otomatis</div>
+                </div>
+                <div class="quiz-feedback" id="cicdQuizFeedback"></div>
+            </div>
+        </section>
+
+        <!-- TAB 5: Quiz -->
+        <section id="quiz" class="content-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">QZ</div>
+                    <h2 class="card-title">Quiz Komprehensif Cloud Computing</h2>
+                </div>
+
+                <div class="quiz-container">
+                    <div class="quiz-question">1. Apa keuntungan utama dari Horizontal Scaling dibandingkan Vertical Scaling?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Tidak memerlukan load balancer</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">B. Meningkatkan high availability dan mengurangi downtime</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">C. Lebih murah karena tidak perlu hardware baru</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Tidak perlu mengubah kode aplikasi</div>
+                    </div>
+                    <div class="quiz-feedback" id="q1Feedback"></div>
+                </div>
+
+                <div class="quiz-container" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+                    <div class="quiz-question">2. Dalam Multi-Tenancy SaaS, bagaimana data antar tenant diisolasi?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Menggunakan database terpisah untuk setiap tenant</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">B. Menggunakan server fisik terpisah</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">C. Logical separation dengan consumer IDs pada database yang sama</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Menggunakan enkripsi end-to-end saja</div>
+                    </div>
+                    <div class="quiz-feedback" id="q2Feedback"></div>
+                </div>
+
+                <div class="quiz-container" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                    <div class="quiz-question">3. Apa tujuan dari Service Level Agreement (SLA) dalam cloud computing?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Menentukan harga fixed untuk semua layanan</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">B. Menetapkan expected capacity, availability, dan performance metrics</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">C. Mengatur hak paten teknologi cloud</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Menentukan lokasi fisik data center</div>
+                    </div>
+                    <div class="quiz-feedback" id="q3Feedback"></div>
+                </div>
+
+                <div class="quiz-container" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                    <div class="quiz-question">4. Dalam DevOps Lifecycle, phase apa yang berulang secara terus-menerus?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Planning -> Coding -> Building</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">B. Monitoring -> Operations -> Testing -> Releasing -> Deployment -> Building -> Coding -> Planning</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">C. Requirements -> Planning -> Design</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Hanya Testing dan Deployment</div>
+                    </div>
+                    <div class="quiz-feedback" id="q4Feedback"></div>
+                </div>
+
+                <div class="quiz-container" style="background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);">
+                    <div class="quiz-question">5. Apa fungsi dari <code>needs: [lint, test]</code> dalam GitHub Actions workflow?</div>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Menjalankan job secara parallel</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">B. Menentukan dependency - job ini hanya berjalan jika lint dan test pass</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">C. Menggabungkan output dari lint dan test</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Membuat artifact dari lint dan test</div>
+                    </div>
+                    <div class="quiz-feedback" id="q5Feedback"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <div id="scoreDisplay" style="font-size: 1.5rem; font-weight: bold; color: var(--primary); display: none;"></div>
+                    <button onclick="calculateScore()" style="padding: 15px 30px; font-size: 1.1rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: var(--shadow-lg); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        Hitung Skor
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 40px 20px; color: white; opacity: 0.8;">
+            <p>Materi ini mencakup: Resource Pooling/Sharing/Provisioning, Scaling &amp; Load Balancing, High Availability, DevOps, SDLC, dan CI/CD Hands-On</p>
+            <p style="margin-top: 10px;">Telkom University - Cloud Computing - Bachelor of Telecommunication Engineering</p>
+        </footer>
+    </div>
+
+    <button class="fab" onclick="scrollToTop()" title="Back to Top">&#8593;</button>
+
+    <script>
+        // Tab Navigation
+        function showTab(tabId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            updateProgress();
+        }
+
+        // Toggle Interactive Boxes
+        function toggleBox(element) {
+            element.classList.toggle('collapsed');
+            updateProgress();
+        }
+
+        // Copy Code
+        function copyCode(btn) {
+            const codeBlock = btn.nextElementSibling;
+            const text = codeBlock.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+            });
+        }
+
+        // Checklist Toggle
+        function toggleCheck(item) {
+            item.classList.toggle('checked');
+            updateProgress();
+        }
+
+        // Quiz Answer Check
+        function checkAnswer(element, isCorrect) {
+            const container = element.parentElement;
+            const feedback = container.nextElementSibling;
+
+            container.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct', 'wrong');
+                opt.style.pointerEvents = 'none';
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.innerHTML = '<strong>Benar!</strong> ' + getExplanation(element);
+                feedback.style.background = '#d1fae5';
+            } else {
+                element.classList.add('wrong');
+                feedback.innerHTML = '<strong>Salah.</strong> ' + getExplanation(element);
+                feedback.style.background = '#fee2e2';
+            }
+
+            feedback.classList.add('show');
+            feedback.style.borderRadius = '8px';
+        }
+
+        function getExplanation(element) {
+            const text = element.textContent;
+            if (text.includes('Dynamic Resource Provisioning')) {
+                return 'Dynamic provisioning memungkinkan penyesuaian resource secara real-time sesuai demand, berbeda dengan static yang fixed.';
+            } else if (text.includes('Sticky Round Robin')) {
+                return 'Sticky Round Robin memastikan subsequent requests dari user yang sama selalu ke server yang sama untuk session persistence.';
+            } else if (text.includes('Continuous Delivery')) {
+                return 'Continuous Delivery memerlukan manual approval sebelum deploy ke production, sedangkan Continuous Deployment fully automated.';
+            } else if (text.includes('job "lint" gagal')) {
+                return 'GitHub Actions menggunakan keyword "needs" untuk mendefinisikan dependency. Jika prerequisite job gagal, dependent job tidak dijalankan.';
+            } else if (text.includes('Horizontal Scaling')) {
+                return 'Horizontal scaling menambah server instances, sehingga jika satu gagal, server lain masih bisa handle request (high availability).';
+            } else if (text.includes('Multi-Tenancy SaaS')) {
+                return 'Dalam SaaS multi-tenancy, tenant berbagi application code base dan database, dengan logical separation menggunakan consumer IDs.';
+            } else if (text.includes('Service Level Agreement')) {
+                return 'SLA mendefinisikan expected capacity, availability guarantees, performance metrics, dan penalties untuk breach.';
+            } else if (text.includes('DevOps Lifecycle')) {
+                return 'DevOps lifecycle adalah infinite loop: Planning -> Coding -> Building -> Deployment -> Releasing -> Testing -> Operations -> Monitoring -> (back to Planning).';
+            } else if (text.includes('needs: [lint, test]')) {
+                return 'Keyword "needs" mendefinisikan job dependencies. Job hanya berjalan jika semua prerequisite jobs berhasil (success).';
+            }
+            return '';
+        }
+
+        // Calculate Score
+        function calculateScore() {
+            const correctAnswers = document.querySelectorAll('.quiz-option.correct').length;
+            const totalQuestions = 5;
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            scoreDisplay.style.display = 'block';
+
+            let message = '';
+            if (percentage >= 80) message = 'Excellent!';
+            else if (percentage >= 60) message = 'Good Job!';
+            else message = 'Keep Learning!';
+
+            scoreDisplay.innerHTML = message + '<br>Skor: ' + correctAnswers + '/' + totalQuestions + ' (' + percentage + '%)';
+        }
+
+        // Progress Bar
+        function updateProgress() {
+            const totalBoxes = document.querySelectorAll('.interactive-box').length;
+            const openedBoxes = document.querySelectorAll('.interactive-box:not(.collapsed)').length;
+            const checkedItems = document.querySelectorAll('.checklist li.checked').length;
+            const totalChecklist = document.querySelectorAll('.checklist li').length;
+
+            const progress = ((openedBoxes + checkedItems) / (totalBoxes + totalChecklist)) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Scroll to Top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.querySelectorAll('.terminal-line').forEach((line, index) => {
+                            setTimeout(() => {
+                                line.style.opacity = '1';
+                            }, index * 200);
+                        });
+                    }
+                });
+            });
+
+            document.querySelectorAll('.terminal').forEach(terminal => {
+                observer.observe(terminal);
+            });
+        });
+    </script>
+</body>
+</html>
