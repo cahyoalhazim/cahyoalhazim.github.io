@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial Sequential File - CRUD CSV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            font-size: 1.5em;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            white-space: pre;
+            tab-size: 4;
+        }
+
+        .code-block .keyword { color: #569cd6; }
+        .code-block .type { color: #4ec9b0; }
+        .code-block .string { color: #ce9178; }
+        .code-block .comment { color: #6a9955; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+        .code-block .preproc { color: #c586c0; }
+
+        .simulator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .simulator {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sim-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .sim-panel h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-create { background: #28a745; color: white; }
+        .btn-create:hover { background: #218838; transform: translateY(-2px); }
+
+        .btn-read { background: #17a2b8; color: white; }
+        .btn-read:hover { background: #138496; transform: translateY(-2px); }
+
+        .btn-update { background: #ffc107; color: #212529; }
+        .btn-update:hover { background: #e0a800; transform: translateY(-2px); }
+
+        .btn-delete { background: #dc3545; color: white; }
+        .btn-delete:hover { background: #c82333; transform: translateY(-2px); }
+
+        .btn-clear { background: #6c757d; color: white; }
+        .btn-clear:hover { background: #5a6268; transform: translateY(-2px); }
+
+        .file-display {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            min-height: 200px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+        }
+
+        .file-display .header-line {
+            color: #569cd6;
+            font-weight: bold;
+        }
+
+        .file-display .data-line {
+            color: #ce9178;
+        }
+
+        .file-display .highlight {
+            background: rgba(255, 193, 7, 0.3);
+            padding: 2px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .explanation {
+            background: #e7f3ff;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .flow-box {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .note {
+            font-size: 0.9em;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .comparison-box {
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .comparison-box.good {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+
+        .comparison-box.bad {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+
+        footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 30px;
+            padding: 20px;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <h1>Sequential File - CRUD CSV</h1>
+        <p class="subtitle">Tutorial Interaktif: Create, Read, Update, Delete dengan Format CSV</p>
+
+        <!-- KONSEP DASAR -->
+        <div class="card">
+            <h2><span class="icon">📚</span> Konsep Dasar</h2>
+
+            <div class="explanation">
+                <strong>Sequential File</strong> = data disimpan berurutan, dibaca dari awal sampai akhir.<br>
+                <strong>CSV</strong> = Comma Separated Values, format standar dengan koma sebagai pemisah.
+            </div>
+
+            <div class="flow-diagram">
+                <div class="flow-box">Program<br>C++</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">ofstream<br>(Write)</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">File CSV<br>data.csv</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">ifstream<br>(Read)</div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">Program<br>C++</div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>Struct</strong> - Definisikan tipe data rekaman
+                    <div class="code-block">struct Mahasiswa {
+    string nim;
+    string nama;
+    float nilai;
+};</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>Format CSV</strong> - Data dipisah dengan koma
+                    <div class="code-block">// Format: NIM,Nama,Nilai
+22001,Budi Santoso,85.5
+22002,Ani Wijaya,90.0
+22003,Caca Putri,78.5</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Stream</strong> - Alur data seperti air mengalir
+                    <div class="code-block">ofstream file("data.csv", ios::app);  // Tulis (append)
+ifstream file("data.csv");              // Baca
+stringstream ss(line);                    // Split string</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIMULATOR INTERAKTIF -->
+        <div class="card">
+            <h2><span class="icon">🎮</span> Simulator Interaktif</h2>
+            <p class="note">Coba operasi CRUD di bawah ini. Lihat bagaimana file CSV berubah secara real-time!</p>
+
+            <div class="simulator">
+                <!-- Panel Input -->
+                <div class="sim-panel">
+                    <h3>📝 Input Data</h3>
+                    <input type="text" id="inputNim" placeholder="NIM (contoh: 22001)">
+                    <input type="text" id="inputNama" placeholder="Nama (contoh: Budi Santoso)">
+                    <input type="number" id="inputNilai" placeholder="Nilai (contoh: 85.5)" step="0.1">
+
+                    <div style="margin-top: 10px;">
+                        <button class="btn btn-create" onclick="createData()">➕ CREATE (Tambah)</button>
+                        <button class="btn btn-read" onclick="readData()">📖 READ (Tampilkan)</button>
+                    </div>
+
+                    <div style="margin-top: 15px; border-top: 2px solid #dee2e6; padding-top: 15px;">
+                        <h3>✏️ Update / 🗑️ Delete</h3>
+                        <input type="number" id="updateIndex" placeholder="Nomor baris (1, 2, 3...)">
+                        <input type="text" id="updateNim" placeholder="NIM baru (kosong = tidak ubah)">
+                        <input type="text" id="updateNama" placeholder="Nama baru (kosong = tidak ubah)">
+                        <input type="number" id="updateNilai" placeholder="Nilai baru (kosong = tidak ubah)" step="0.1">
+
+                        <div style="margin-top: 10px;">
+                            <button class="btn btn-update" onclick="updateData()">✏️ UPDATE (Ubah)</button>
+                            <button class="btn btn-delete" onclick="deleteData()">🗑️ DELETE (Hapus)</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-clear" onclick="clearAll()">🧹 CLEAR ALL (Hapus Semua)</button>
+                    </div>
+                </div>
+
+                <!-- Panel Output -->
+                <div class="sim-panel">
+                    <h3>💾 Isi File CSV (data.csv)</h3>
+                    <div class="file-display" id="fileDisplay">NIM,Nama,Nilai
+<span class="comment">// File masih kosong. Klik CREATE untuk menambah data!</span></div>
+
+                    <h3 style="margin-top: 15px;">📊 Tabel Data</h3>
+                    <div id="tableDisplay">
+                        <table>
+                            <tr>
+                                <th>No</th>
+                                <th>NIM</th>
+                                <th>Nama</th>
+                                <th>Nilai</th>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #6c757d;">Belum ada data</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <h3 style="margin-top: 15px;">📋 Log Operasi</h3>
+                    <div class="file-display" id="logDisplay" style="min-height: 100px; font-size: 12px;"><span class="comment">// Log operasi akan muncul di sini...</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CREATE -->
+        <div class="card">
+            <h2><span class="icon">➕</span> 1. CREATE - Menambah Data</h2>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('create-cpp')">C++ Code</button>
+                <button class="tab" onclick="showTab('create-explain')">Penjelasan</button>
+                <button class="tab" onclick="showTab('create-flow')">Alur</button>
+            </div>
+
+            <div id="create-cpp" class="tab-content active">
+                <div class="code-block">void createData() {
+    ofstream file("data.csv", ios::app);  // Mode append (tambah di akhir)
+    Mahasiswa mhs;
+
+    // Input dari user
+    cout << "NIM   : "; cin >> mhs.nim;
+    cin.ignore();
+    cout << "Nama  : "; getline(cin, mhs.nama);
+    cout << "Nilai : "; cin >> mhs.nilai;
+
+    // Tulis ke file dengan format CSV
+    file << mhs.nim << ","
+         << mhs.nama << ","
+         << mhs.nilai << endl;
+
+    file.close();
+    cout << "Data berhasil ditambahkan!";
+}</div>
+            </div>
+
+            <div id="create-explain" class="tab-content">
+                <div class="explanation">
+                    <strong>Mode File:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li><code>ios::out</code> = Hapus file lama, buat baru (OVERWRITE)</li>
+                        <li><code>ios::app</code> = Tambah di akhir file (APPEND) ← <strong>Pakai ini!</strong></li>
+                    </ul>
+                </div>
+                <div class="warning">
+                    <strong>Perhatian:</strong> Kalau pakai <code>ios::out</code>, data lama akan hilang! Untuk menambah data baru, selalu pakai <code>ios::app</code>.
+                </div>
+            </div>
+
+            <div id="create-flow" class="tab-content">
+                <div class="flow-diagram">
+                    <div class="flow-box">User Input<br>NIM, Nama, Nilai</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Buka File<br>ios::app</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Format CSV<br>nim,nama,nilai</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Tulis ke File<br>+ endl</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Close File<br>data tersimpan</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- READ -->
+        <div class="card">
+            <h2><span class="icon">📖</span> 2. READ - Membaca & Menampilkan Data</h2>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('read-cpp')">C++ Code</button>
+                <button class="tab" onclick="showTab('read-explain')">Penjelasan</button>
+                <button class="tab" onclick="showTab('read-flow')">Alur Split</button>
+            </div>
+
+            <div id="read-cpp" class="tab-content active">
+                <div class="code-block">void readData() {
+    ifstream file("data.csv");
+    string line, nim, nama, nilaiStr;
+
+    if (!file) {
+        cout << "File tidak ditemukan!";
+        return;
+    }
+
+    // Lewati header (baris pertama)
+    getline(file, line);
+
+    cout << "No.  NIM       NAMA              NILAI" << endl;
+    cout << "----------------------------------------" << endl;
+
+    int no = 1;
+    while (getline(file, line)) {           // Baca per baris sampai EOF
+        stringstream ss(line);              // Ubah string jadi stream
+
+        // SPLIT dengan delimiter ','
+        getline(ss, nim, ',');              // Ambil sampai koma -> NIM
+        getline(ss, nama, ',');             // Ambil sampai koma -> Nama
+        getline(ss, nilaiStr);              // Sisa sampai akhir -> Nilai
+
+        cout << no << "    "
+             << nim << "   "
+             << nama << "   "
+             << nilaiStr << endl;
+        no++;
+    }
+
+    file.close();
+}</div>
+            </div>
+
+            <div id="read-explain" class="tab-content">
+                <div class="explanation">
+                    <strong>getline dengan 3 parameter:</strong>
+                    <div class="code-block" style="margin-top: 10px;">getline(stream, variabel, delimiter);
+// stream     = sumber data (stringstream)
+// variabel   = tempat menyimpan hasil
+// delimiter  = karakter pemisah (',')</div>
+                </div>
+                <div class="comparison">
+                    <div class="comparison-box bad">
+                        <strong>Salah:</strong><br>
+                        Mustahil split string dengan delimiter di C++ native
+                    </div>
+                    <div class="comparison-box good">
+                        <strong>Benar:</strong><br>
+                        Simpel, fleksibel, delimiter bebas diganti!
+                    </div>
+                </div>
+            </div>
+
+            <div id="read-flow" class="tab-content">
+                <div class="code-block">// Baris CSV: 22001,Budi Santoso,85.5
+//             ^      ^           ^
+//           koma1  koma2      akhir
+
+stringstream ss("22001,Budi Santoso,85.5");
+
+getline(ss, nim,   ',');   // nim   = "22001"
+getline(ss, nama,  ',');   // nama  = "Budi Santoso"
+getline(ss, nilai, ',');   // nilai = "85.5"
+
+// Hasil: 3 variabel terpisah dari 1 baris!</div>
+            </div>
+        </div>
+
+        <!-- UPDATE -->
+        <div class="card">
+            <h2><span class="icon">✏️</span> 3. UPDATE - Mengubah Data</h2>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('update-cpp')">C++ Code</button>
+                <button class="tab" onclick="showTab('update-explain')">Penjelasan</button>
+                <button class="tab" onclick="showTab('update-flow')">Alur Rewrite</button>
+            </div>
+
+            <div id="update-cpp" class="tab-content active">
+                <div class="code-block">void updateData(int nomorBaris) {
+    ifstream fileLama("data.csv");
+    ofstream fileBaru("data_temp.csv");
+    string line, nim, nama, nilaiStr;
+    int baris = 0;
+
+    // Baca header
+    getline(fileLama, line);
+    fileBaru << line << endl;
+    baris++;
+
+    while (getline(fileLama, line)) {
+        baris++;
+
+        if (baris == nomorBaris) {
+            // Baris ini di-UPDATE
+            fileBaru << "22001,Budi UPDATE,95.0" << endl;
+        } else {
+            // Baris ini tetap (copy)
+            fileBaru << line << endl;
+        }
+    }
+
+    fileLama.close();
+    fileBaru.close();
+
+    // Ganti file lama dengan file baru
+    remove("data.csv");
+    rename("data_temp.csv", "data.csv");
+
+    cout << "Data berhasil diupdate!";
+}</div>
+            </div>
+
+            <div id="update-explain" class="tab-content">
+                <div class="warning">
+                    <strong>Penting:</strong> Sequential file <strong>TIDAK BISA</strong> edit di tengah! Harus rewrite seluruh file.
+                </div>
+                <div class="explanation">
+                    <strong>Strategi Update:</strong>
+                    <ol style="margin-left: 20px; margin-top: 10px;">
+                        <li>Baca file lama baris per baris</li>
+                        <li>Tulis ke file baru</li>
+                        <li>Baris yang diupdate -> tulis data baru</li>
+                        <li>Baris lain -> copy langsung</li>
+                        <li>Hapus file lama, rename file baru</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div id="update-flow" class="tab-content">
+                <div class="flow-diagram">
+                    <div class="flow-box">data.csv<br>(File Lama)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Baca Baris 1<br>Copy -> temp</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="background: #ffc107; color: #212529;">Baris 2<br>UPDATE!</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Baca Baris 3<br>Copy -> temp</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">data_temp.csv<br>(File Baru)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Hapus data.csv<br>Rename -> data.csv</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DELETE -->
+        <div class="card">
+            <h2><span class="icon">🗑️</span> 4. DELETE - Menghapus Data</h2>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('delete-cpp')">C++ Code</button>
+                <button class="tab" onclick="showTab('delete-explain')">Penjelasan</button>
+                <button class="tab" onclick="showTab('delete-flow')">Alur Skip</button>
+            </div>
+
+            <div id="delete-cpp" class="tab-content active">
+                <div class="code-block">void deleteData(int nomorBaris) {
+    ifstream fileLama("data.csv");
+    ofstream fileBaru("data_temp.csv");
+    string line;
+    int baris = 0;
+
+    // Baca header
+    getline(fileLama, line);
+    fileBaru << line << endl;
+    baris++;
+
+    while (getline(fileLama, line)) {
+        baris++;
+
+        if (baris != nomorBaris) {
+            // Baris ini tetap (bukan yang dihapus)
+            fileBaru << line << endl;
+        }
+        // Kalau baris == nomorBaris -> SKIP (tidak ditulis)
+    }
+
+    fileLama.close();
+    fileBaru.close();
+
+    remove("data.csv");
+    rename("data_temp.csv", "data.csv");
+
+    cout << "Data berhasil dihapus!";
+}</div>
+            </div>
+
+            <div id="delete-explain" class="tab-content">
+                <div class="explanation">
+                    <strong>Sama seperti Update:</strong> Tidak bisa hapus langsung. Strateginya <strong>SKIP</strong> baris yang dihapus saat rewrite.
+                </div>
+                <div class="comparison">
+                    <div class="comparison-box bad">
+                        <strong>Salah:</strong><br>
+                        Hapus baris di tengah file<br>
+                        -> Corrupt! Sequential tidak bisa!
+                    </div>
+                    <div class="comparison-box good">
+                        <strong>Benar:</strong><br>
+                        Copy semua kecuali baris target<br>
+                        -> File baru tanpa baris tersebut
+                    </div>
+                </div>
+            </div>
+
+            <div id="delete-flow" class="tab-content">
+                <div class="flow-diagram">
+                    <div class="flow-box">data.csv<br>(File Lama)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Baris 1<br>Copy -> temp</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box" style="background: #dc3545;">Baris 2<br>DELETE!<br>(Skip)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Baris 3<br>Copy -> temp</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">data_temp.csv<br>(Tanpa Baris 2)</div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">Rename<br>jadi data.csv</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROGRAM LENGKAP -->
+        <div class="card">
+            <h2><span class="icon">🚀</span> Program Lengkap dengan Menu</h2>
+
+            <div class="code-block">#include &lt;iostream&gt;
+#include &lt;fstream&gt;
+#include &lt;sstream&gt;
+#include &lt;string&gt;
+#include &lt;iomanip&gt;
+using namespace std;
+
+struct Mahasiswa {
+    string nim = "";
+    string nama = "";
+    float nilai = 0.0;
+};
+
+// Fungsi-fungsi CRUD
+void create();
+void read();
+void update();
+void hapus();
+
+int main() {
+    int pilihan;
+
+    do {
+        cout << "
+========== MENU ==========" << endl;
+        cout << "1. Create (Tambah Data)" << endl;
+        cout << "2. Read   (Tampilkan Data)" << endl;
+        cout << "3. Update (Ubah Data)" << endl;
+        cout << "4. Delete (Hapus Data)" << endl;
+        cout << "5. Keluar" << endl;
+        cout << "Pilihan: "; cin >> pilihan;
+
+        switch (pilihan) {
+            case 1: create(); break;
+            case 2: read();   break;
+            case 3: update(); break;
+            case 4: hapus();  break;
+            case 5: cout << "Bye!"; break;
+            default: cout << "Salah!";
+        }
+    } while (pilihan != 5);
+
+    return 0;
+}</div>
+        </div>
+
+        <!-- TIPS -->
+        <div class="card">
+            <h2><span class="icon">💡</span> Tips & Best Practices</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>Selalu tutup file</strong> dengan <code>file.close()</code> setelah operasi selesai.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>Cek file berhasil dibuka</strong> dengan <code>if (!file)</code> sebelum operasi.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Pakai <code>cin.ignore()</code></strong> setelah <code>cin >></code> sebelum <code>getline()</code> untuk membersihkan buffer.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>Header CSV</strong> selalu tulis di baris pertama untuk dokumentasi.
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <strong>Backup file</strong> sebelum operasi Update/Delete yang berisiko.
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Materi Pembelajaran Sequential File - Algoritma & Pemrograman</p>
+            <p>Format CSV | C++ fstream | CRUD Operations</p>
+        </footer>
+    </div>
+
+    <script>
+        // Data storage (simulasi file CSV di memory)
+        let csvData = ["NIM,Nama,Nilai"];  // Header
+        let logMessages = [];
+
+        function log(msg) {
+            const now = new Date().toLocaleTimeString();
+            logMessages.push(`[${now}] ${msg}`);
+            updateLog();
+        }
+
+        function updateLog() {
+            const logDiv = document.getElementById('logDisplay');
+            if (logMessages.length === 0) {
+                logDiv.innerHTML = '<span class="comment">// Log operasi akan muncul di sini...</span>';
+            } else {
+                logDiv.innerHTML = logMessages.slice(-10).join('\n');
+            }
+        }
+
+        function updateFileDisplay() {
+            const display = document.getElementById('fileDisplay');
+            if (csvData.length === 1) {
+                display.innerHTML = '<span class="header-line">NIM,Nama,Nilai</span>\n<span class="comment">// File masih kosong. Klik CREATE untuk menambah data!</span>';
+            } else {
+                let html = '<span class="header-line">' + csvData[0] + '</span>\n';
+                for (let i = 1; i < csvData.length; i++) {
+                    html += '<span class="data-line">' + csvData[i] + '</span>\n';
+                }
+                display.innerHTML = html;
+            }
+        }
+
+        function updateTable() {
+            const tableDiv = document.getElementById('tableDisplay');
+            if (csvData.length === 1) {
+                tableDiv.innerHTML = `
+                    <table>
+                        <tr><th>No</th><th>NIM</th><th>Nama</th><th>Nilai</th></tr>
+                        <tr><td colspan="4" style="text-align: center; color: #6c757d;">Belum ada data</td></tr>
+                    </table>`;
+                return;
+            }
+
+            let html = '<table><tr><th>No</th><th>NIM</th><th>Nama</th><th>Nilai</th></tr>';
+            for (let i = 1; i < csvData.length; i++) {
+                const parts = csvData[i].split(',');
+                html += `<tr>
+                    <td>${i}</td>
+                    <td>${parts[0] || '-'}</td>
+                    <td>${parts[1] || '-'}</td>
+                    <td>${parts[2] || '-'}</td>
+                </tr>`;
+            }
+            html += '</table>';
+            tableDiv.innerHTML = html;
+        }
+
+        function createData() {
+            const nim = document.getElementById('inputNim').value.trim();
+            const nama = document.getElementById('inputNama').value.trim();
+            const nilai = document.getElementById('inputNilai').value.trim();
+
+            if (!nim || !nama || !nilai) {
+                alert('Semua field harus diisi!');
+                return;
+            }
+
+            const namaSafe = nama.replace(/,/g, ' ');
+
+            csvData.push(`${nim},${namaSafe},${nilai}`);
+
+            log(`CREATE: Menambah data -> ${nim},${namaSafe},${nilai}`);
+            log(`File dibuka: ios::app (append mode)`);
+            log(`Data ditulis ke baris ${csvData.length - 1}`);
+            log(`File ditutup`);
+
+            document.getElementById('inputNim').value = '';
+            document.getElementById('inputNama').value = '';
+            document.getElementById('inputNilai').value = '';
+
+            updateFileDisplay();
+            updateTable();
+        }
+
+        function readData() {
+            if (csvData.length === 1) {
+                log('READ: File kosong, tidak ada data untuk ditampilkan');
+                alert('File masih kosong!');
+                return;
+            }
+
+            log('READ: Membuka file data.csv (ios::in)');
+            log(`Header: ${csvData[0]}`);
+            for (let i = 1; i < csvData.length; i++) {
+                const parts = csvData[i].split(',');
+                log(`Baris ${i}: NIM=${parts[0]}, Nama=${parts[1]}, Nilai=${parts[2]}`);
+            }
+            log(`Total: ${csvData.length - 1} data`);
+            log('File ditutup');
+
+            updateTable();
+        }
+
+        function updateData() {
+            const index = parseInt(document.getElementById('updateIndex').value);
+
+            if (!index || index < 1 || index >= csvData.length) {
+                alert('Nomor baris tidak valid!');
+                return;
+            }
+
+            const parts = csvData[index].split(',');
+            const newNim = document.getElementById('updateNim').value.trim() || parts[0];
+            const newNama = document.getElementById('updateNama').value.trim() || parts[1];
+            const newNilai = document.getElementById('updateNilai').value.trim() || parts[2];
+
+            const oldData = csvData[index];
+            const newData = `${newNim},${newNama.replace(/,/g, ' ')},${newNilai}`;
+
+            log('UPDATE: Membaca file lama -> data.csv');
+            for (let i = 0; i < csvData.length; i++) {
+                if (i === index) {
+                    log(`Baris ${i}: SKIP -> tulis data BARU`);
+                } else {
+                    log(`Baris ${i}: Copy -> data_temp.csv`);
+                }
+            }
+
+            csvData[index] = newData;
+
+            log(`Data lama: ${oldData}`);
+            log(`Data baru: ${newData}`);
+            log('Hapus data.csv, rename data_temp.csv -> data.csv');
+            log('Update berhasil!');
+
+            document.getElementById('updateIndex').value = '';
+            document.getElementById('updateNim').value = '';
+            document.getElementById('updateNama').value = '';
+            document.getElementById('updateNilai').value = '';
+
+            updateFileDisplay();
+            updateTable();
+        }
+
+        function deleteData() {
+            const index = parseInt(document.getElementById('updateIndex').value);
+
+            if (!index || index < 1 || index >= csvData.length) {
+                alert('Nomor baris tidak valid!');
+                return;
+            }
+
+            const deletedData = csvData[index];
+
+            log('DELETE: Membaca file lama -> data.csv');
+            for (let i = 0; i < csvData.length; i++) {
+                if (i === index) {
+                    log(`Baris ${i}: DELETE -> ${deletedData} (tidak ditulis)`);
+                } else {
+                    log(`Baris ${i}: Copy -> data_temp.csv`);
+                }
+            }
+
+            csvData.splice(index, 1);
+
+            log('Hapus data.csv, rename data_temp.csv -> data.csv');
+            log('Delete berhasil!');
+
+            document.getElementById('updateIndex').value = '';
+
+            updateFileDisplay();
+            updateTable();
+        }
+
+        function clearAll() {
+            if (csvData.length === 1) {
+                alert('File sudah kosong!');
+                return;
+            }
+
+            if (!confirm('Yakin hapus SEMUA data?')) return;
+
+            const count = csvData.length - 1;
+            csvData = ["NIM,Nama,Nilai"];
+
+            log(`CLEAR: Menghapus ${count} data`);
+            log('File di-reset ke header saja');
+
+            updateFileDisplay();
+            updateTable();
+        }
+
+        function showTab(tabId) {
+            const card = document.getElementById(tabId).closest('.card');
+            const contents = card.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active'));
+
+            const tabs = card.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        updateFileDisplay();
+        updateTable();
+    </script>
+</body>
+</html>
