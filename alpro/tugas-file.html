@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugas Praktikum - Sequential File CRUD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 5px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 25px;
+            font-size: 1em;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #667eea;
+            font-size: 1.3em;
+        }
+
+        .card h3 {
+            color: #495057;
+            margin: 15px 0 10px 0;
+            font-size: 1.1em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-wajib { background: #dc3545; color: white; }
+        .badge-bonus { background: #28a745; color: white; }
+        .badge-tips { background: #17a2b8; color: white; }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .danger-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 18px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 12px 0;
+            border-left: 4px solid #667eea;
+            white-space: pre;
+            tab-size: 4;
+        }
+
+        .code-block .keyword { color: #569cd6; }
+        .code-block .type { color: #4ec9b0; }
+        .code-block .string { color: #ce9178; }
+        .code-block .comment { color: #6a9955; }
+        .code-block .function { color: #dcdcaa; }
+        .code-block .number { color: #b5cea8; }
+
+        /* OUTPUT BOX - untuk tampilan terminal/console */
+        .output-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 18px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 12px 0;
+            border-left: 4px solid #28a745;
+            white-space: pre;
+            tab-size: 4;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .checklist li.checked::before {
+            content: "☑";
+            color: #28a745;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin: 12px 0;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 12px;
+            flex-shrink: 0;
+            font-size: 0.9em;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .rubrik-table th {
+            background: #495057;
+        }
+
+        .rubrik-table .poin {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 20px;
+            padding: 15px;
+            font-size: 0.9em;
+        }
+
+        .file-preview {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            margin: 10px 0;
+            white-space: pre;
+        }
+
+        .file-preview .header {
+            color: #569cd6;
+            font-weight: bold;
+        }
+
+        .file-preview .data {
+            color: #ce9178;
+        }
+
+        .file-preview .comment {
+            color: #6a9955;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <h1>Tugas Praktikum</h1>
+        <p class="subtitle">Sequential File Processing - CRUD dengan Format CSV</p>
+
+        <!-- INFORMASI UMUM -->
+        <div class="card">
+            <h2>Informasi Tugas</h2>
+
+            <table>
+                <tr>
+                    <th style="width: 30%;">Item</th>
+                    <th>Keterangan</th>
+                </tr>
+                <tr>
+                    <td><strong>Mata Kuliah</strong></td>
+                    <td>Algoritma dan Pemrograman</td>
+                </tr>
+                <tr>
+                    <td><strong>Topik</strong></td>
+                    <td>Sequential File Processing</td>
+                </tr>
+                <tr>
+                    <td><strong>Bobot Nilai</strong></td>
+                    <td>20% dari total nilai mata kuliah</td>
+                </tr>
+                <tr>
+                    <td><strong>Format File</strong></td>
+                    <td>CSV (Comma Separated Values)</td>
+                </tr>
+                <tr>
+                    <td><strong>Bahasa</strong></td>
+                    <td>C++</td>
+                </tr>
+                <tr>
+                    <td><strong>Deadline</strong></td>
+                    <td>1 minggu dari hari ini</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- TUJUAN -->
+        <div class="card">
+            <h2>Tujuan Pembelajaran</h2>
+            <p>Setelah mengerjakan tugas ini, mahasiswa diharapkan mampu:</p>
+            <ul class="checklist">
+                <li>Memahami konsep <strong>sequential file</strong> dan cara kerjanya</li>
+                <li>Menggunakan <strong>struct</strong> untuk mendefinisikan tipe data rekaman</li>
+                <li>Melakukan operasi <strong>CRUD</strong> (Create, Read, Update, Delete) pada file</li>
+                <li>Menggunakan <strong>delimiter</strong> untuk memisahkan data dalam file</li>
+                <li>Memahami strategi <strong>rewrite file</strong> untuk Update dan Delete</li>
+            </ul>
+        </div>
+
+        <!-- DESKRIPSI TUGAS -->
+        <div class="card">
+            <h2>Deskripsi Tugas</h2>
+
+            <p>Buatlah program C++ untuk mengelola data <strong>Nilai Mahasiswa</strong> dengan spesifikasi berikut:</p>
+
+            <div class="info-box">
+                <strong>Satu mahasiswa</strong> dapat memiliki <strong>beberapa nilai</strong> (karena mengambil beberapa mata kuliah dalam satu semester).
+            </div>
+
+            <h3>Struktur Data (Struct)</h3>
+            <div class="code-block">struct NilaiMahasiswa {
+    string nim;         // Nomor Induk Mahasiswa
+    string nama;        // Nama Mahasiswa
+    string kodeMatkul;  // Kode Mata Kuliah
+    string namaMatkul;  // Nama Mata Kuliah
+    float nilai;        // Nilai (0 - 100)
+};</div>
+
+            <h3>Format File CSV</h3>
+            <div class="file-preview"><span class="header">NIM,Nama,KodeMatkul,NamaMatkul,Nilai</span>
+<span class="data">22001,Budi Santoso,IF101,Algoritma Pemrograman,85.5</span>
+<span class="data">22001,Budi Santoso,IF102,Struktur Data,78.0</span>
+<span class="data">22002,Ani Wijaya,IF101,Algoritma Pemrograman,90.0</span>
+<span class="data">22002,Ani Wijaya,IF103,Basis Data,88.5</span>
+<span class="data">22003,Caca Putri,IF101,Algoritma Pemrograman,75.0</span></div>
+
+            <div class="warning-box">
+                <strong>Perhatian:</strong> Gunakan koma <strong>,</strong> sebagai delimiter. Pastikan tidak ada koma di dalam data (nama, matkul, dll)!
+            </div>
+        </div>
+
+        <!-- FITUR WAJIB -->
+        <div class="card">
+            <h2>Fitur Wajib <span class="badge badge-wajib">WAJIB</span></h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>CREATE - Tambah Data Nilai</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Input: NIM, Nama, Kode Matkul, Nama Matkul, Nilai</li>
+                        <li>Simpan ke file <code>nilai_mahasiswa.csv</code> dengan format CSV</li>
+                        <li>Gunakan mode <code>ios::app</code> agar data lama tidak hilang</li>
+                        <li>Bisa input banyak data (loop sampai user selesai)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>READ - Tampilkan Semua Data</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Baca file <code>nilai_mahasiswa.csv</code> secara sequential</li>
+                        <li>Split setiap baris menggunakan delimiter koma <code>,</code></li>
+                        <li>Tampilkan dalam bentuk tabel yang rapi</li>
+                        <li>Tampilkan nomor urut setiap baris</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>READ (Khusus) - Tampilkan per Mahasiswa + Rata-rata</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Hitung <strong>rata-rata nilai</strong> setiap mahasiswa</li>
+                        <li>Tampilkan: NIM, Nama, Jumlah Matkul, Rata-rata Nilai</li>
+                        <li>Contoh: Budi Santoso mengambil 2 matkul, rata-rata = (85.5 + 78.0) / 2 = 81.75</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>UPDATE - Ubah Data</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>User memilih nomor baris yang akan diubah</li>
+                        <li>Input data baru (semua field)</li>
+                        <li>Strategi: <strong>baca file lama -> tulis file baru -> rename</strong></li>
+                        <li>Gunakan file temporary: <code>nilai_temp.csv</code></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <strong>DELETE - Hapus Data</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>User memilih nomor baris yang akan dihapus</li>
+                        <li>Strategi: <strong>skip baris target</strong> saat rewrite file</li>
+                        <li>Gunakan file temporary: <code>nilai_temp.csv</code></li>
+                        <li>Hapus file lama, rename file baru</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <strong>Menu Utama</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Tampilkan menu dengan pilihan 1-6</li>
+                        <li>Loop sampai user memilih keluar</li>
+                        <li>Setiap operasi menampilkan konfirmasi berhasil/gagal</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU YANG DIHARAPKAN -->
+        <div class="card">
+            <h2>Tampilan Menu yang Diharapkan</h2>
+
+            <div class="output-box">========================================
+   SISTEM MANAJEMEN NILAI MAHASISWA
+========================================
+
+1. Tambah Data Nilai (CREATE)
+2. Tampilkan Semua Data (READ)
+3. Tampilkan Rata-rata per Mahasiswa
+4. Ubah Data (UPDATE)
+5. Hapus Data (DELETE)
+6. Keluar
+
+Pilihan: _</div>
+
+            <h3>Contoh Output CREATE</h3>
+            <div class="output-box">=== TAMBAH DATA NILAI ===
+NIM          : 22001
+Nama         : Budi Santoso
+Kode Matkul  : IF101
+Nama Matkul  : Algoritma Pemrograman
+Nilai        : 85.5
+
+Data berhasil disimpan!
+Tambah data lagi? (y/n): y
+
+=== TAMBAH DATA NILAI ===
+NIM          : 22001
+Nama         : Budi Santoso
+Kode Matkul  : IF102
+Nama Matkul  : Struktur Data
+Nilai        : 78
+
+Data berhasil disimpan!
+Tambah data lagi? (y/n): n</div>
+
+            <h3>Contoh Output READ</h3>
+            <div class="output-box">=== DAFTAR SEMUA NILAI ===
+-----------------------------------------------------------------
+No   NIM       NAMA              KODE      MATA KULIAH           NILAI
+-----------------------------------------------------------------
+1    22001     Budi Santoso      IF101     Algoritma Pemrograman 85.50
+2    22001     Budi Santoso      IF102     Struktur Data         78.00
+3    22002     Ani Wijaya        IF101     Algoritma Pemrograman 90.00
+4    22002     Ani Wijaya        IF103     Basis Data            88.50
+5    22003     Caca Putri        IF101     Algoritma Pemrograman 75.00
+-----------------------------------------------------------------
+Total: 5 data</div>
+
+            <h3>Contoh Output Rata-rata</h3>
+            <div class="output-box">=== RATA-RATA NILAI PER MAHASISWA ===
+-----------------------------------------------------------
+NIM       NAMA              JML MATKUL   RATA-RATA
+-----------------------------------------------------------
+22001     Budi Santoso      2            81.75
+22002     Ani Wijaya        2            89.25
+22003     Caca Putri        1            75.00
+-----------------------------------------------------------</div>
+        </div>
+
+        <!-- FITUR BONUS -->
+        <div class="card">
+            <h2>Fitur Bonus <span class="badge badge-bonus">BONUS +20%</span></h2>
+
+            <div class="success-box">
+                <strong>Kerjakan fitur bonus untuk mendapatkan nilai tambahan!</strong>
+            </div>
+
+            <div class="step">
+                <div class="step-number">B1</div>
+                <div class="step-content">
+                    <strong>Validasi Input</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Nilai harus antara 0 - 100</li>
+                        <li>NIM tidak boleh kosong</li>
+                        <li>Nama tidak boleh kosong</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">B2</div>
+                <div class="step-content">
+                    <strong>Cari Data</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Menu tambahan: Cari berdasarkan NIM</li>
+                        <li>Tampilkan semua nilai mahasiswa dengan NIM tersebut</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">B3</div>
+                <div class="step-content">
+                    <strong>Sorting</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Urutkan data berdasarkan NIM (ascending)</li>
+                        <li>Atau urutkan berdasarkan Nilai (descending)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">B4</div>
+                <div class="step-content">
+                    <strong>Export ke Format Lain</strong>
+                    <ul style="margin-left: 20px; margin-top: 5px;">
+                        <li>Export data ke file TXT dengan format tabel rapi</li>
+                        <li>Atau export ke file dengan delimiter pipe |</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- TIPS PENGERJAAN -->
+        <div class="card">
+            <h2>Tips Pengerjaan <span class="badge badge-tips">TIPS</span></h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <strong>Header File yang Dibutuhkan</strong>
+                    <div class="code-block">#include &lt;iostream&gt;     // cin, cout
+#include &lt;fstream&gt;     // ofstream, ifstream
+#include &lt;sstream&gt;     // stringstream (untuk split)
+#include &lt;string&gt;      // string
+#include &lt;iomanip&gt;     // setw, fixed, setprecision
+#include &lt;cstdio&gt;      // remove, rename (untuk update/delete)</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <strong>Rumus Split (Explode) dengan stringstream</strong>
+                    <div class="code-block">string line = "22001,Budi,IF101,Algo,85.5";
+stringstream ss(line);
+
+string nim, nama, kode, matkul, nilaiStr;
+
+getline(ss, nim,     ',');  // nim     = "22001"
+getline(ss, nama,    ',');  // nama    = "Budi"
+getline(ss, kode,    ',');  // kode    = "IF101"
+getline(ss, matkul,  ',');  // matkul  = "Algo"
+getline(ss, nilaiStr,',');  // nilaiStr= "85.5"
+
+float nilai = stof(nilaiStr);  // Konversi string -> float</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <strong>Strategi Update/Delete (Rewrite File)</strong>
+                    <div class="code-block">// UPDATE: ganti baris target dengan data baru
+// DELETE: skip baris target (tidak ditulis ke file baru)
+
+ifstream fileLama("nilai_mahasiswa.csv");
+ofstream fileBaru("nilai_temp.csv");
+
+// Copy header
+getline(fileLama, line);
+fileBaru &lt;&lt; line &lt;&lt; endl;
+
+// Baca dan proses setiap baris
+while (getline(fileLama, line)) {
+    baris++;
+
+    if (baris == targetBaris) {
+        // UPDATE: tulis data baru
+        // DELETE: skip (tidak tulis apa-apa)
+    } else {
+        fileBaru &lt;&lt; line &lt;&lt; endl;  // Copy langsung
+    }
+}
+
+fileLama.close();
+fileBaru.close();
+
+remove("nilai_mahasiswa.csv");
+rename("nilai_temp.csv", "nilai_mahasiswa.csv");</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <strong>Hitung Rata-rata per Mahasiswa</strong>
+                    <div class="code-block">// Algoritma:
+// 1. Baca file sequential
+// 2. Simpan data ke array of struct
+// 3. Kelompokkan berdasarkan NIM
+// 4. Hitung total nilai / jumlah matkul
+
+// Pseudocode:
+sort array berdasarkan NIM  // agar NIM sama berurutan
+
+for setiap data:
+    if NIM sama dengan sebelumnya:
+        total += nilai
+        count++
+    else:
+        // Cetak rata-rata mahasiswa sebelumnya
+        rata = total / count
+        // Reset untuk mahasiswa baru
+        total = nilai
+        count = 1</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <strong>Format Tabel Rapi dengan setw</strong>
+                    <div class="code-block">cout &lt;&lt; left &lt;&lt; setw(8)  &lt;&lt; "No"
+     &lt;&lt; setw(12) &lt;&lt; "NIM"
+     &lt;&lt; setw(20) &lt;&lt; "NAMA"
+     &lt;&lt; setw(10) &lt;&lt; "KODE"
+     &lt;&lt; setw(25) &lt;&lt; "MATA KULIAH"
+     &lt;&lt; setw(8)  &lt;&lt; "NILAI" &lt;&lt; endl;
+
+cout &lt;&lt; fixed &lt;&lt; setprecision(2) &lt;&lt; nilai;  // 85.50</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RUBRIK PENILAIAN -->
+        <div class="card">
+            <h2>Rubrik Penilaian</h2>
+
+            <table class="rubrik-table">
+                <tr>
+                    <th>Komponen</th>
+                    <th>Kriteria</th>
+                    <th class="poin">Poin</th>
+                </tr>
+                <tr>
+                    <td><strong>CREATE</strong></td>
+                    <td>Berhasil menambah data ke file CSV dengan benar</td>
+                    <td class="poin">20</td>
+                </tr>
+                <tr>
+                    <td><strong>READ</strong></td>
+                    <td>Berhasil membaca dan menampilkan semua data dalam tabel</td>
+                    <td class="poin">20</td>
+                </tr>
+                <tr>
+                    <td><strong>READ (Rata-rata)</strong></td>
+                    <td>Berhasil menghitung dan menampilkan rata-rata per mahasiswa</td>
+                    <td class="poin">20</td>
+                </tr>
+                <tr>
+                    <td><strong>UPDATE</strong></td>
+                    <td>Berhasil mengubah data dengan strategi rewrite file</td>
+                    <td class="poin">15</td>
+                </tr>
+                <tr>
+                    <td><strong>DELETE</strong></td>
+                    <td>Berhasil menghapus data dengan strategi rewrite file</td>
+                    <td class="poin">15</td>
+                </tr>
+                <tr>
+                    <td><strong>Menu & UI</strong></td>
+                    <td>Menu lengkap, tampilan rapi, ada konfirmasi</td>
+                    <td class="poin">10</td>
+                </tr>
+                <tr style="background: #d4edda;">
+                    <td><strong>BONUS</strong></td>
+                    <td>Validasi, Cari, Sorting, Export (+20% max)</td>
+                    <td class="poin">+20</td>
+                </tr>
+                <tr style="background: #667eea; color: white;">
+                    <td><strong>TOTAL</strong></td>
+                    <td></td>
+                    <td class="poin">100+20</td>
+                </tr>
+            </table>
+
+            <div class="danger-box">
+                <strong>Pengurangan Poin:</strong>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>Tidak pakai struct: -10 poin</li>
+                    <li>Tidak pakai delimiter: -10 poin</li>
+                    <li>Update/Delete tanpa rewrite file: -10 poin</li>
+                    <li>File corrupt / tidak bisa dibaca: -15 poin</li>
+                    <li>Tidak ada menu: -5 poin</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PENGUMPULAN -->
+        <div class="card">
+            <h2>Ketentuan Pengumpulan</h2>
+
+            <div class="info-box">
+                <strong>Format Pengumpulan:</strong>
+                <ol style="margin-left: 20px; margin-top: 8px;">
+                    <li>Source code (.cpp)</li>
+                    <li>Screenshot hasil running (minimal 3 operasi: CREATE, READ, UPDATE/DELETE)</li>
+                    <li>File CSV hasil (nilai_mahasiswa.csv)</li>
+                </ol>
+            </div>
+
+            <div class="warning-box">
+                <strong>Catatan Penting:</strong>
+                <ul style="margin-left: 20px; margin-top: 5px;">
+                    <li>Dilarang menyalin kode dari internet tanpa memahami</li>
+                    <li>Dilarang kerja kelompok (individu)</li>
+                    <li>Plagiarisme = nilai 0</li>
+                    <li>Kumpulkan via LMS sesuai deadline</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- CHECKLIST -->
+        <div class="card">
+            <h2>Checklist Sebelum Mengumpulkan</h2>
+
+            <ul class="checklist">
+                <li>Program bisa compile tanpa error</li>
+                <li>CREATE berhasil menambah data ke file CSV</li>
+                <li>READ berhasil menampilkan semua data</li>
+                <li>Rata-rata per mahasiswa dihitung dengan benar</li>
+                <li>UPDATE berhasil mengubah data tanpa corrupt file</li>
+                <li>DELETE berhasil menghapus data tanpa corrupt file</li>
+                <li>Menu berfungsi dengan baik</li>
+                <li>File CSV bisa dibuka di Notepad/Excel</li>
+                <li>Format tabel rapi saat ditampilkan</li>
+                <li>Screenshot sudah diattach</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p><strong>Selamat Mengerjakan!</strong></p>
+            <p>Sequential File Processing - Algoritma dan Pemrograman</p>
+            <p>Tim Dosen Algoritma dan Pemrograman</p>
+        </footer>
+    </div>
+</body>
+</html>
