@@ -1,1372 +1,2000 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Materi Interaktif Cloud Computing</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #7c3aed;
-            --accent: #06b6d4;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gray: #64748b;
-            --code-bg: #0f172a;
-            --card-bg: #ffffff;
-            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: var(--dark);
-            line-height: 1.6;
-        }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header {
-            text-align: center;
-            padding: 60px 20px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: moveGrid 20s linear infinite;
-            opacity: 0.3;
-        }
-        @keyframes moveGrid {
-            0% { transform: translate(0,0); }
-            100% { transform: translate(50px, 50px); }
-        }
-        .header h1 { font-size: 3rem; margin-bottom: 10px; position: relative; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-        .header p { font-size: 1.2rem; opacity: 0.9; position: relative; }
-        .tabs {
-            display: flex; gap: 10px; margin-bottom: 30px;
-            flex-wrap: wrap; justify-content: center;
-        }
-        .tab-btn {
-            padding: 12px 24px; border: none;
-            background: rgba(255,255,255,0.2); color: white;
-            border-radius: 50px; cursor: pointer; font-weight: 600;
-            transition: all 0.3s; backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-        .tab-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-2px); }
-        .tab-btn.active { background: white; color: var(--primary); box-shadow: var(--shadow-lg); }
-        .content-section { display: none; animation: fadeIn 0.5s ease; }
-        .content-section.active { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .card {
-            background: var(--card-bg); border-radius: 16px;
-            padding: 30px; margin-bottom: 20px;
-            box-shadow: var(--shadow-lg); transition: transform 0.3s;
-        }
-        .card:hover { transform: translateY(-5px); }
-        .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
-        .card-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .card-title { font-size: 1.5rem; color: var(--dark); }
-        .interactive-box {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-            border-left: 4px solid var(--accent); padding: 20px;
-            border-radius: 8px; margin: 15px 0; cursor: pointer;
-            transition: all 0.3s;
-        }
-        .interactive-box:hover { transform: translateX(10px); box-shadow: var(--shadow); }
-        .interactive-box.collapsed .content { display: none; }
-        .interactive-box .toggle { font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
-        .interactive-box .toggle::after { content: '▼'; transition: transform 0.3s; }
-        .interactive-box.collapsed .toggle::after { transform: rotate(-90deg); }
-        .code-block {
-            background: var(--code-bg); color: #e2e8f0;
-            padding: 20px; border-radius: 12px; overflow-x: auto;
-            font-family: 'Fira Code', 'Consolas', monospace;
-            font-size: 0.9rem; line-height: 1.5; margin: 15px 0;
-            position: relative;
-        }
-        .code-block::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0;
-            height: 30px; background: linear-gradient(90deg, #ff5f56, #ffbd2e, #27c93f);
-            border-radius: 12px 12px 0 0; opacity: 0.3;
-        }
-        .code-block pre { margin-top: 20px; white-space: pre-wrap; word-wrap: break-word; }
-        .copy-btn {
-            position: absolute; top: 35px; right: 15px;
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 5px 12px; border-radius: 6px;
-            cursor: pointer; font-size: 0.8rem; transition: all 0.3s;
-        }
-        .copy-btn:hover { background: rgba(255,255,255,0.2); }
-        .quiz-container {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-radius: 16px; padding: 30px; margin: 20px 0;
-        }
-        .quiz-question { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: var(--dark); }
-        .quiz-options { display: grid; gap: 10px; }
-        .quiz-option {
-            padding: 15px 20px; background: white; border: 2px solid transparent;
-            border-radius: 10px; cursor: pointer; transition: all 0.3s; font-weight: 500;
-        }
-        .quiz-option:hover { border-color: var(--primary); transform: translateX(5px); }
-        .quiz-option.correct { background: #d1fae5; border-color: var(--success); color: #065f46; }
-        .quiz-option.wrong { background: #fee2e2; border-color: var(--danger); color: #991b1b; }
-        .quiz-feedback { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; }
-        .quiz-feedback.show { display: block; }
-        .progress-container {
-            background: rgba(255,255,255,0.2); border-radius: 50px;
-            padding: 5px; margin: 30px 0; position: sticky;
-            top: 20px; z-index: 100; backdrop-filter: blur(10px);
-        }
-        .progress-bar {
-            height: 8px; background: linear-gradient(90deg, var(--success), var(--accent));
-            border-radius: 50px; transition: width 0.5s ease; width: 0%;
-        }
-        .lab-step {
-            background: white; border-radius: 12px; padding: 25px;
-            margin-bottom: 20px; border-left: 5px solid var(--primary);
-            box-shadow: var(--shadow);
-        }
-        .lab-step-number {
-            display: inline-flex; align-items: center; justify-content: center;
-            width: 35px; height: 35px; background: var(--primary);
-            color: white; border-radius: 50%; font-weight: bold; margin-right: 10px;
-        }
-        .lab-step-title { font-size: 1.2rem; font-weight: 600; color: var(--dark); display: inline; }
-        .lab-step-content { margin-top: 15px; padding-left: 45px; }
-        .terminal {
-            background: #1e1e1e; border-radius: 12px; padding: 20px;
-            font-family: 'Fira Code', monospace; color: #00ff00;
-            margin: 15px 0; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-        }
-        .terminal-line { margin: 5px 0; opacity: 0; animation: typeLine 0.5s forwards; }
-        @keyframes typeLine { to { opacity: 1; } }
-        .terminal-prompt { color: #00ff00; }
-        .terminal-command { color: #ffffff; }
-        .terminal-output { color: #bbbbbb; }
-        .comparison-table {
-            width: 100%; border-collapse: collapse; margin: 20px 0;
-            background: white; border-radius: 12px; overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        .comparison-table th { background: var(--primary); color: white; padding: 15px; text-align: left; }
-        .comparison-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; }
-        .comparison-table tr:hover { background: #f8fafc; }
-        .badge {
-            display: inline-block; padding: 4px 12px; border-radius: 50px;
-            font-size: 0.85rem; font-weight: 600; margin: 5px;
-        }
-        .badge-primary { background: #dbeafe; color: #1e40af; }
-        .badge-success { background: #d1fae5; color: #065f46; }
-        .badge-warning { background: #fef3c7; color: #92400e; }
-        .badge-danger { background: #fee2e2; color: #991b1b; }
-        .diagram {
-            background: white; border-radius: 12px; padding: 30px;
-            margin: 20px 0; text-align: center; box-shadow: var(--shadow);
-        }
-        .diagram-box {
-            display: inline-block; padding: 15px 25px; margin: 10px;
-            border-radius: 8px; font-weight: 600; position: relative;
-        }
-        .diagram-arrow { font-size: 2rem; color: var(--gray); margin: 0 10px; }
-        .fab {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 60px; height: 60px; border-radius: 50%;
-            background: var(--primary); color: white; border: none;
-            cursor: pointer; box-shadow: var(--shadow-lg);
-            font-size: 1.5rem; transition: all 0.3s; z-index: 1000;
-        }
-        .fab:hover { transform: scale(1.1) rotate(90deg); background: var(--primary-dark); }
-        .highlight {
-            background: linear-gradient(120deg, #fef08a 0%, #fef08a 100%);
-            background-repeat: no-repeat; background-size: 100% 40%;
-            background-position: 0 88%; padding: 0 4px;
-        }
-        .checklist { list-style: none; padding: 0; }
-        .checklist li {
-            padding: 10px 0; padding-left: 35px; position: relative;
-            cursor: pointer; transition: all 0.3s;
-        }
-        .checklist li::before {
-            content: '☐'; position: absolute; left: 0;
-            font-size: 1.2rem; color: var(--gray);
-        }
-        .checklist li.checked::before { content: '☑'; color: var(--success); }
-        .checklist li.checked { text-decoration: line-through; opacity: 0.7; }
-        @media (max-width: 768px) {
-            .header h1 { font-size: 2rem; }
-            .tabs { flex-direction: column; align-items: center; }
-            .card { padding: 20px; }
-            .lab-step-content { padding-left: 0; }
-        }
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
-        .card { animation: slideUp 0.6s ease forwards; opacity: 0; }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .card:nth-child(1) { animation-delay: 0.1s; }
-        .card:nth-child(2) { animation-delay: 0.2s; }
-        .card:nth-child(3) { animation-delay: 0.3s; }
-        .card:nth-child(4) { animation-delay: 0.4s; }
-        .card:nth-child(5) { animation-delay: 0.5s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materi Interaktif Cloud Computing - Teori Lengkap & CI/CD ke VPS Ubuntu</title>
+<style>
+:root {
+  --primary:#2563eb;--primary-dark:#1d4ed8;--secondary:#7c3aed;--accent:#06b6d4;
+  --success:#10b981;--warning:#f59e0b;--danger:#ef4444;--dark:#1e293b;
+  --light:#f8fafc;--gray:#64748b;--code-bg:#0f172a;--card-bg:#ffffff;
+  --shadow:0 4px 6px -1px rgba(0,0,0,0.1);--shadow-lg:0 20px 25px -5px rgba(0,0,0,0.1);
+}
+* {margin:0;padding:0;box-sizing:border-box}
+body {
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+  min-height:100vh;color:var(--dark);line-height:1.6;
+}
+.container {max-width:1200px;margin:0 auto;padding:20px}
+.header {
+  text-align:center;padding:60px 20px;color:white;position:relative;overflow:hidden;
+}
+.header::before {
+  content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle,rgba(255,255,255,0.1) 1px,transparent 1px);
+  background-size:50px 50px;animation:moveGrid 20s linear infinite;opacity:0.3;
+}
+@keyframes moveGrid {0%{transform:translate(0,0)}100%{transform:translate(50px,50px)}}
+.header h1 {font-size:3rem;margin-bottom:10px;position:relative;text-shadow:2px 2px 4px rgba(0,0,0,0.2)}
+.header p {font-size:1.2rem;opacity:0.9;position:relative}
+.tabs {display:flex;gap:10px;margin-bottom:30px;flex-wrap:wrap;justify-content:center}
+.tab-btn {
+  padding:12px 24px;border:none;background:rgba(255,255,255,0.2);color:white;
+  border-radius:50px;cursor:pointer;font-weight:600;transition:all 0.3s;backdrop-filter:blur(10px);
+  border:2px solid rgba(255,255,255,0.3);
+}
+.tab-btn:hover {background:rgba(255,255,255,0.3);transform:translateY(-2px)}
+.tab-btn.active {background:white;color:var(--primary);box-shadow:var(--shadow-lg)}
+.content-section {display:none;animation:fadeIn 0.5s ease}
+.content-section.active {display:block}
+@keyframes fadeIn {from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.card {
+  background:var(--card-bg);border-radius:16px;padding:30px;margin-bottom:20px;
+  box-shadow:var(--shadow-lg);transition:transform 0.3s;
+}
+.card:hover {transform:translateY(-5px)}
+.card-header {display:flex;align-items:center;gap:15px;margin-bottom:20px}
+.card-icon {width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;color:white;font-weight:bold}
+.card-title {font-size:1.5rem;color:var(--dark)}
+.interactive-box {
+  background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border-left:4px solid var(--accent);
+  padding:20px;border-radius:8px;margin:15px 0;cursor:pointer;transition:all 0.3s;
+}
+.interactive-box:hover {transform:translateX(10px);box-shadow:var(--shadow)}
+.interactive-box.collapsed .content {display:none}
+.interactive-box .toggle {font-weight:bold;color:var(--primary);display:flex;justify-content:space-between;align-items:center}
+.interactive-box .toggle::after {content:'▼';transition:transform 0.3s}
+.interactive-box.collapsed .toggle::after {transform:rotate(-90deg)}
+.code-block {
+  background:var(--code-bg);color:#e2e8f0;padding:20px;border-radius:12px;overflow-x:auto;
+  font-family:'Fira Code','Consolas',monospace;font-size:0.9rem;line-height:1.5;margin:15px 0;position:relative;
+}
+.code-block::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:30px;
+  background:linear-gradient(90deg,#ff5f56,#ffbd2e,#27c93f);border-radius:12px 12px 0 0;opacity:0.3;
+}
+.code-block pre {margin-top:20px;white-space:pre-wrap;word-wrap:break-word}
+.copy-btn {
+  position:absolute;top:35px;right:15px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+  color:white;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.8rem;transition:all 0.3s;
+}
+.copy-btn:hover {background:rgba(255,255,255,0.2)}
+.quiz-container {
+  background:linear-gradient(135deg,#fef3c7 0%,#fde68a 100%);border-radius:16px;padding:30px;margin:20px 0;
+}
+.quiz-question {font-size:1.2rem;font-weight:600;margin-bottom:20px;color:var(--dark)}
+.quiz-options {display:grid;gap:10px}
+.quiz-option {
+  padding:15px 20px;background:white;border:2px solid transparent;border-radius:10px;
+  cursor:pointer;transition:all 0.3s;font-weight:500;
+}
+.quiz-option:hover {border-color:var(--primary);transform:translateX(5px)}
+.quiz-option.correct {background:#d1fae5;border-color:var(--success);color:#065f46}
+.quiz-option.wrong {background:#fee2e2;border-color:var(--danger);color:#991b1b}
+.quiz-feedback {margin-top:15px;padding:15px;border-radius:8px;display:none}
+.quiz-feedback.show {display:block}
+.progress-container {
+  background:rgba(255,255,255,0.2);border-radius:50px;padding:5px;margin:30px 0;
+  position:sticky;top:20px;z-index:100;backdrop-filter:blur(10px);
+}
+.progress-bar {
+  height:8px;background:linear-gradient(90deg,var(--success),var(--accent));
+  border-radius:50px;transition:width 0.5s ease;width:0%;
+}
+.lab-step {
+  background:white;border-radius:12px;padding:25px;margin-bottom:20px;
+  border-left:5px solid var(--primary);box-shadow:var(--shadow);
+}
+.lab-step-number {
+  display:inline-flex;align-items:center;justify-content:center;width:35px;height:35px;
+  background:var(--primary);color:white;border-radius:50%;font-weight:bold;margin-right:10px;
+}
+.lab-step-title {font-size:1.2rem;font-weight:600;color:var(--dark);display:inline}
+.lab-step-content {margin-top:15px;padding-left:45px}
+.terminal {
+  background:#1e1e1e;border-radius:12px;padding:20px;font-family:'Fira Code',monospace;
+  color:#00ff00;margin:15px 0;box-shadow:inset 0 0 20px rgba(0,0,0,0.5);
+}
+.terminal-line {margin:5px 0;opacity:0;animation:typeLine 0.5s forwards}
+@keyframes typeLine {to{opacity:1}}
+.terminal-prompt {color:#00ff00}
+.terminal-command {color:#ffffff}
+.terminal-output {color:#bbbbbb}
+.comparison-table {
+  width:100%;border-collapse:collapse;margin:20px 0;background:white;border-radius:12px;
+  overflow:hidden;box-shadow:var(--shadow);
+}
+.comparison-table th {background:var(--primary);color:white;padding:15px;text-align:left}
+.comparison-table td {padding:15px;border-bottom:1px solid #e2e8f0}
+.comparison-table tr:hover {background:#f8fafc}
+.badge {
+  display:inline-block;padding:4px 12px;border-radius:50px;font-size:0.85rem;font-weight:600;margin:5px;
+}
+.badge-primary {background:#dbeafe;color:#1e40af}
+.badge-success {background:#d1fae5;color:#065f46}
+.badge-warning {background:#fef3c7;color:#92400e}
+.badge-danger {background:#fee2e2;color:#991b1b}
+.diagram {
+  background:white;border-radius:12px;padding:30px;margin:20px 0;text-align:center;box-shadow:var(--shadow);
+}
+.diagram-box {
+  display:inline-block;padding:15px 25px;margin:10px;border-radius:8px;font-weight:600;position:relative;
+}
+.diagram-arrow {font-size:2rem;color:var(--gray);margin:0 10px}
+.two-laptop {
+  display:flex;gap:20px;flex-wrap:wrap;margin:20px 0;
+}
+.laptop-box {
+  flex:1;min-width:300px;background:linear-gradient(135deg,#f8fafc,#e2e8f0);
+  border-radius:12px;padding:20px;border:2px solid #cbd5e1;
+}
+.laptop-box.dev {border-color:var(--primary);background:linear-gradient(135deg,#eff6ff,#dbeafe)}
+.laptop-box.vps {border-color:var(--success);background:linear-gradient(135deg,#f0fdf4,#dcfce7)}
+.laptop-header {font-weight:bold;font-size:1.1rem;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+@media (max-width:768px) {
+  .header h1 {font-size:2rem}.tabs {flex-direction:column;align-items:center}
+  .card {padding:20px}.lab-step-content {padding-left:0}.two-laptop {flex-direction:column}
+}
+::-webkit-scrollbar {width:10px}
+::-webkit-scrollbar-track {background:#f1f1f1}
+::-webkit-scrollbar-thumb {background:var(--primary);border-radius:5px}
+.card {animation:slideUp 0.6s ease forwards;opacity:0}
+@keyframes slideUp {from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.card:nth-child(1){animation-delay:0.1s}.card:nth-child(2){animation-delay:0.2s}
+.card:nth-child(3){animation-delay:0.3s}.card:nth-child(4){animation-delay:0.4s}
+.card:nth-child(5){animation-delay:0.5s}
+.checklist {list-style:none;padding:0}
+.checklist li {
+  padding:10px 0;padding-left:35px;position:relative;cursor:pointer;transition:all 0.3s;
+}
+.checklist li::before {content:'☐';position:absolute;left:0;font-size:1.2rem;color:var(--gray)}
+.checklist li.checked::before {content:'☑';color:var(--success)}
+.checklist li.checked {text-decoration:line-through;opacity:0.7}
+.note-box {
+  background:linear-gradient(135deg,#fef9c3,#fde047);
+  border-left:4px solid #eab308;
+  padding:15px 20px;
+  border-radius:8px;
+  margin:15px 0;
+  font-size:0.95rem;
+}
+.note-box strong {color:#854d0e}
+.warn-box {
+  background:linear-gradient(135deg,#fee2e2,#fca5a5);
+  border-left:4px solid #ef4444;
+  padding:15px 20px;
+  border-radius:8px;
+  margin:15px 0;
+  font-size:0.95rem;
+}
+.warn-box strong {color:#991b1b}
+</style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>Cloud Computing Interactive</h1>
-            <p>Resource Management, DevOps and CI/CD Hands-On Lab</p>
-        </header>
+<div class="container">
+<header class="header">
+  <h1>Cloud Computing Interactive</h1>
+  <p>Teori Lengkap: Resource Management, Scaling, Load Balancing, High Availability, DevOps & CI/CD ke VPS Ubuntu</p>
+  <p style="margin-top:10px;font-size:0.95rem;opacity:0.8">🖥️ Skenario 2 Laptop: Developer (Lokal) + VPS Ubuntu (Remote)</p>
+</header>
 
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
+<div class="progress-container">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" onclick="showTab('resource')">Resource Management</button>
+  <button class="tab-btn" onclick="showTab('scaling')">Scaling & LB</button>
+  <button class="tab-btn" onclick="showTab('ha')">High Availability</button>
+  <button class="tab-btn" onclick="showTab('devops')">DevOps & SDLC</button>
+  <button class="tab-btn" onclick="showTab('cicd')">CI/CD Hands-On (2 Laptop)</button>
+  <button class="tab-btn" onclick="showTab('quiz')">Quiz</button>
+</nav>
+
+<!-- TAB 1: Resource Management -->
+<section id="resource" class="content-section active">
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon" style="background:linear-gradient(135deg,#3b82f6,#8b5cf6)">RM</div>
+    <h2 class="card-title">Resource Pooling, Sharing & Provisioning</h2>
+  </div>
+
+  <div class="interactive-box" onclick="toggleBox(this)">
+    <div class="toggle">1. Resource Pooling <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> Resource pooling adalah pendekatan menggabungkan dan mengelola sumber daya komputasi seperti storage, processing power (CPU), memory, dan networking secara kolektif agar dapat dibagikan ke banyak pengguna atau aplikasi. Cloud provider mengalokasikan resource secara dinamis sesuai demand tanpa pengguna perlu mengetahui lokasi fisiknya.</p>
+      <br>
+      <p><strong>Karakteristik Utama:</strong></p>
+      <ul>
+        <li><span class="highlight">Abstraksi Lokasi</span> - Pengguna tidak tahu dan tidak perlu tahu lokasi fisik resource yang mereka gunakan. Cloud menyembunyikan detail ini.</li>
+        <li><span class="highlight">Alokasi Dinamis</span> - Resource dialokasikan secara otomatis sesuai dengan kebutuhan workload pada saat itu.</li>
+        <li><span class="highlight">Efisiensi</span> - Mengurangi idle resource karena resource yang tidak digunakan oleh satu tenant dapat dialokasikan ke tenant lain.</li>
+        <li><span class="highlight">Transparansi</span> - Resource disajikan secara virtual kepada pengguna seolah-olah dedicated.</li>
+      </ul>
+      <br>
+      <div class="diagram">
+        <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;">
+          <div class="diagram-box" style="background:#fee2e2">Physical Servers (Data Center)</div>
+          <span class="diagram-arrow">-&gt;</span>
+          <div class="diagram-box" style="background:#fef3c7">Virtualization Layer (Hypervisor)</div>
+          <span class="diagram-arrow">-&gt;</span>
+          <div class="diagram-box" style="background:#dbeafe">Resource Pool (VMs, Storage, Network)</div>
+          <span class="diagram-arrow">-&gt;</span>
+          <div class="diagram-box" style="background:#d1fae5">Users/Tenants (IaaS/PaaS/SaaS)</div>
         </div>
+      </div>
+      <br>
+      <p><strong>Proses Pooling:</strong> Physical servers di data center dipartisi melalui virtualization layer (seperti VMware ESXi, KVM, Xen, atau Hyper-V) menjadi virtual resources. Virtual resources ini kemudian dikelompokkan menjadi pool berdasarkan jenisnya: compute pool (CPU+RAM), storage pool (disk), dan network pool (bandwidth+switch virtual).</p>
+    </div>
+  </div>
 
-        <nav class="tabs">
-            <button class="tab-btn active" onclick="showTab('resource')">Resource Management</button>
-            <button class="tab-btn" onclick="showTab('scaling')">Scaling and LB</button>
-            <button class="tab-btn" onclick="showTab('devops')">DevOps</button>
-            <button class="tab-btn" onclick="showTab('cicd')">CI/CD Hands-On</button>
-            <button class="tab-btn" onclick="showTab('quiz')">Quiz</button>
-        </nav>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">2. Arsitektur Resource Pool (3 Kategori) <span>&#9660;</span></div>
+    <div class="content">
+      <p>Resource pool architecture mengelompokkan resource ke dalam 3 kategori utama yang masing-masing memiliki karakteristik dan manajemen berbeda:</p>
+      <br>
+      <table class="comparison-table">
+        <tr><th>Pool Type</th><th>Komponen</th><th>Cara Kerja</th><th>Contoh</th></tr>
+        <tr>
+          <td><span class="badge badge-primary">Compute/Server Pool</span></td>
+          <td>CPU, RAM, Physical Machines</td>
+          <td>Physical servers di-install OS dan hypervisor. VM dibuat di atasnya. Processor dan memory dari pool masing-masing di-attach ke VM sesuai kebutuhan. Resource dikembalikan ke pool saat VM tidak aktif.</td>
+          <td>VM Pool di AWS EC2, Azure VMs, Google Compute Engine</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Storage Pool</span></td>
+          <td>HDD, SSD, SAN, NAS</td>
+          <td>Disk fisik dipartisi dan diformat. Data yang ditulis ke virtual storage device sebenarnya disimpan di underlying physical disk. Storage pool dapat di-expand secara dinamis.</td>
+          <td>AWS S3, Azure Blob Storage, Google Cloud Storage, Ceph</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">Network Pool</span></td>
+          <td>Switches, Routers, NIC, Bandwidth</td>
+          <td>Physical networking devices (switch, router) di data center di-virtualisasi. Tenant mendapat virtual network elements yang dapat dikonfigurasi sesuai kebutuhan (subnet, firewall, load balancer).</td>
+          <td>AWS VPC, Azure Virtual Network, Open vSwitch</td>
+        </tr>
+      </table>
+      <br>
+      <p><strong>Hierarchical Organization:</strong> Untuk data center yang sangat besar, resource pool diorganisir secara hierarkis menggunakan parent-child relationship. Ini memastikan tidak ada single point of failure dan memudahkan manajemen.</p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre>Resource Pool - Region (Asia-Pacific)
+|-- Resource Pool - Data Center A (Jakarta)
+|   |-- Compute Pool (Server Rack 1-10)
+|   |   |-- Virtual Server Pool (Web Servers)
+|   |   |-- Virtual Server Pool (Database Servers)
+|   |-- Storage Pool (SSD Tier 1)
+|   |-- Storage Pool (HDD Tier 2)
+|   |-- Network Pool (Public Subnet)
+|   |-- Network Pool (Private Subnet)
+|-- Resource Pool - Data Center B (Singapore)
+    |-- Compute Pool (Server Rack 11-20)
+    |-- Storage Pool (NVMe Tier 0)
+    |-- Network Pool (Inter-DC Link)</pre>
+      </div>
+      <br>
+      <p><strong>Commoditization of Data Center:</strong> Cloud computing menggunakan commodity hardware (low-cost, easy to replace, widely available) dibandingkan traditional system yang menggunakan specialized (costly) hardware. Ini mengurangi CAPEX dan memudahkan maintenance.</p>
+    </div>
+  </div>
 
-        <!-- TAB 1: Resource Management -->
-        <section id="resource" class="content-section active">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6);">RM</div>
-                    <h2 class="card-title">Resource Pooling, Sharing and Provisioning</h2>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">3. Resource Sharing & Multi-Tenancy <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Resource Sharing</strong> memungkinkan cloud system mencapai tingkat utilisasi resource yang lebih tinggi. Ketika multiple applications berjalan di shared resource pool, rata-rata penggunaan setiap komponen meningkat karena aplikasi jarang mencapai peak demand secara bersamaan.</p>
+      <br>
+      <p><strong>Multi-Tenancy</strong> adalah atribut sistem yang memungkinkan satu resource element mendukung multiple consumers (tenants) sambil menjaga isolasi antar tenant. Ini muncul dari prinsip <em>ownership-free resource utilization</em> - resource diakses dalam environment virtualized dan di-assign secara temporary dari shared pool.</p>
+      <br>
+      <p><strong>Levels of Multi-Tenancy:</strong></p>
+      <table class="comparison-table">
+        <tr><th>Layer</th><th>Apa yang Di-share</th><th>Isolasi</th><th>Contoh</th></tr>
+        <tr>
+          <td><span class="badge badge-primary">IaaS</span></td>
+          <td>Computing infrastructure: servers, storage, network</td>
+          <td>VM-level isolation via hypervisor</td>
+          <td>AWS EC2, Azure VMs, DigitalOcean Droplets</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">PaaS</span></td>
+          <td>Operating System, runtime environment</td>
+          <td>Process/container-level isolation</td>
+          <td>Heroku, Google App Engine, AWS Elastic Beanstalk</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">SaaS</span></td>
+          <td>Application code base, database tables, functions</td>
+          <td>Logical separation via consumer IDs/tenant IDs</td>
+          <td>Salesforce, Gmail, Office 365, Slack</td>
+        </tr>
+      </table>
+      <br>
+      <p><strong>Tantangan Multi-Tenancy:</strong> Sharing resource mengurangi <em>performance isolation</em>, sehingga diperlukan resource management strategies yang efektif untuk menjaga Quality of Service (QoS). Tenant A yang menggunakan resource secara intensif tidak boleh mengganggu Tenant B.</p>
+      <br>
+      <div class="diagram">
+        <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-right:20px">
+            <div class="diagram-box" style="background:#fee2e2">Tenant A (E-commerce)</div>
+            <div class="diagram-box" style="background:#dbeafe">Tenant B (SaaS Startup)</div>
+            <div class="diagram-box" style="background:#d1fae5">Tenant C (Enterprise)</div>
+          </div>
+          <span class="diagram-arrow" style="font-size:3rem">=&gt;</span>
+          <div class="diagram-box" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:30px">
+            <strong>Shared Resource Pool</strong><br>
+            <small>Hypervisor/Container Orchestrator<br>menjaga isolasi antar tenant</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                <div class="interactive-box" onclick="toggleBox(this)">
-                    <div class="toggle">1. Resource Pooling <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>Definisi:</strong> Menggabungkan dan mengelola sumber daya komputasi (storage, CPU, memory, networking) agar dapat dibagikan ke banyak pengguna/aplikasi.</p>
-                        <br>
-                        <p><strong>Karakteristik:</strong></p>
-                        <ul>
-                            <li><span class="highlight">Abstraksi Lokasi</span> - Pengguna tidak tahu lokasi fisik resource</li>
-                            <li><span class="highlight">Alokasi Dinamis</span> - Resource dialokasikan sesuai demand</li>
-                            <li><span class="highlight">Efisiensi</span> - Mengurangi idle resource</li>
-                        </ul>
-                        <br>
-                        <div class="diagram">
-                            <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap;">
-                                <div class="diagram-box" style="background: #dbeafe;">Physical Servers</div>
-                                <span class="diagram-arrow">-&gt;</span>
-                                <div class="diagram-box" style="background: #fef3c7;">Virtualization</div>
-                                <span class="diagram-arrow">-&gt;</span>
-                                <div class="diagram-box" style="background: #d1fae5;">Virtual Servers Pool</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">4. Resource Provisioning (Static, Dynamic, Hybrid) <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> Resource provisioning adalah proses menyediakan dan mengalokasikan computing resources (CPU, memory, storage, network, applications) untuk memenuhi kebutuhan user atau aplikasi. Dalam cloud computing, ini merujuk pada alokasi resource dari cloud provider ke consumer.</p>
+      <br>
+      <table class="comparison-table">
+        <tr><th>Approach</th><th>Deskripsi Detail</th><th>Kapan Digunakan</th><th>Pros</th><th>Cons</th></tr>
+        <tr>
+          <td><span class="badge badge-primary">Static</span></td>
+          <td>Resource capacity ditetapkan fixed saat VM pertama kali diluncurkan dan tidak berubah selama VM beroperasi. Keputusan alokasi hanya dilakukan sekali di awal.</td>
+          <td>Aplikasi dengan workload predictable dan consistent (e.g., internal company database)</td>
+          <td>Simple, no runtime overhead, predictable cost</td>
+          <td>Cannot handle demand spikes, inefficient (over-provisioning), limited scalability</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Dynamic</span></td>
+          <td>Resource capacity per VM dapat disesuaikan secara flexible dan on-demand selama runtime. Alokasi dan de-allocation terjadi precisely saat dibutuhkan. Provider mengelola centralized common resource pool.</td>
+          <td>Cloud computing environments dengan workload yang berubah-ubah (e.g., e-commerce saat flash sale)</td>
+          <td>Adaptif, pay-per-usage billing, scalable, zero-downtime migration via live VM migration</td>
+          <td>Runtime overhead dari ongoing allocation decisions, minor system delays</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">Hybrid</span></td>
+          <td>Kombinasi: static provisioning di awal (initial VM creation) kemudian beralih ke dynamic provisioning untuk menangani perubahan workload.</td>
+          <td>Real-time scenarios dengan baseline workload yang stabil tapi occasional spikes</td>
+          <td>Balance efficiency and flexibility, reduced overhead compared to pure dynamic</td>
+          <td>Lebih kompleks, memerlukan monitoring dan threshold configuration</td>
+        </tr>
+      </table>
+      <br>
+      <p><strong>Autonomic Resource Provisioning:</strong> Dalam cloud modern, provisioning dilakukan secara otomatis menggunakan AI/ML techniques. Sistem memonitor workload patterns dan secara otomatis menambah/mengurangi resource tanpa manual intervention.</p>
+      <br>
+      <p><strong>Zero-Downtime Architecture:</strong> Dynamic provisioning memungkinkan runtime replacement of computing resources. Jika physical server hosting multiple VMs crash, sistem secara otomatis memindahkan VM yang berjalan ke physical server baru melalui <strong>Live VM Migration</strong> tanpa downtime.</p>
+    </div>
+  </div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">2. Arsitektur Resource Pool <span>&#9660;</span></div>
-                    <div class="content">
-                        <p>Resource pool terdiri dari 3 kategori utama:</p>
-                        <br>
-                        <table class="comparison-table">
-                            <tr><th>Pool Type</th><th>Description</th><th>Example</th></tr>
-                            <tr><td><span class="badge badge-primary">Compute/Server</span></td><td>Physical machines dengan OS, dikelompokkan menjadi VM pool</td><td>Virtual Machine Pool</td></tr>
-                            <tr><td><span class="badge badge-success">Storage</span></td><td>Block-based storage disks, dipartisi dan diformat secara virtual</td><td>Virtual Storage Devices</td></tr>
-                            <tr><td><span class="badge badge-warning">Network</span></td><td>Networking devices (switches, routers) dalam bentuk virtual</td><td>Virtual Networks</td></tr>
-                        </table>
-                        <br>
-                        <p><strong>Hierarchical Organization:</strong></p>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre>Resource Pool - A
-|-- Resource Pool - A1
-|   |-- Virtual Server Pool
-|   |-- Processor Pool
-|   |-- Memory Pool
-|   |-- Network Pool
-|-- Resource Pool - A2
-    |-- Virtual Server Pool
-    |-- Processor Pool
-    |-- Memory Pool
-    |-- Network Pool</pre>
-                        </div>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">5. Provisioning Plans & SLA <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Short-Term On-Demand Plan:</strong></p>
+      <ul>
+        <li>Resource dialokasikan flexible on short-term basis</li>
+        <li>Saat demand naik, resource ditambah; saat turun, resource dikembalikan ke free pool</li>
+        <li>Billing: <span class="highlight">pay-per-usage</span> (dibayar sesuai yang digunakan)</li>
+        <li>Menggunakan dynamic provisioning approach</li>
+        <li>Cocok untuk: workload unpredictable, development/testing environments, seasonal applications</li>
+        <li>Risiko: performance bergantung pada provider capability untuk memprediksi collective resource demand selama peak</li>
+      </ul>
+      <br>
+      <p><strong>Long-Term Reservation Plan (Advance Provisioning):</strong></p>
+      <ul>
+        <li>Consumer dan provider membuat service contract yang menspesifikasikan resource needs</li>
+        <li>Provider secara proaktif menyediakan dan menyisihkan resource dari pool untuk memenuhi kebutuhan consumer, terutama saat peak demand</li>
+        <li>Billing: <span class="highlight">fixed one-time fee</span> untuk durasi tertentu (bulan/tahun)</li>
+        <li>Dari perspektif provider: reduced computational complexity dan lower costs karena maximum resource commitment diketahui di awal</li>
+        <li>Cocok untuk: workload predictable, production systems dengan SLA ketat</li>
+        <li>Risiko: jika consumer underestimate resource needs, aplikasi kehabisan resource; jika overestimate, ada waste</li>
+      </ul>
+      <br>
+      <p><strong>Service Level Agreement (SLA):</strong></p>
+      <p>SLA adalah kontrak formal antara cloud consumer dan provider yang mendefinisikan:</p>
+      <ul>
+        <li><strong>Expected capacity:</strong> Berapa CPU, RAM, storage, bandwidth yang dijamin</li>
+        <li><strong>Availability:</strong> Uptime guarantee (e.g., 99.9%, 99.99%, 99.999%)</li>
+        <li><strong>Performance metrics:</strong> Response time, throughput, latency</li>
+        <li><strong>Penalties:</strong> Kompensasi jika provider gagal memenuhi SLA (e.g., service credits)</li>
+        <li><strong>Security:</strong> Data protection, encryption, compliance requirements</li>
+      </ul>
+      <p>Provider menggunakan SLA untuk estimate resource needs dan melakukan resource mapping - yaitu menempatkan VM dari consumer ke physical infrastructure yang tersedia.</p>
+    </div>
+  </div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">3. Resource Sharing and Multi-Tenancy <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>Multi-Tenancy:</strong> Satu resource element mendukung multiple consumers (tenants) dengan isolasi antar tenant.</p>
-                        <br>
-                        <p><strong>Levels of Multi-Tenancy:</strong></p>
-                        <ul>
-                            <li><strong>IaaS</strong> - Shared computing infrastructure (servers, storage)</li>
-                            <li><strong>PaaS</strong> - Shared OS, multiple apps from different vendors</li>
-                            <li><strong>SaaS</strong> - Single app instance serves multiple consumers</li>
-                        </ul>
-                        <br>
-                        <div class="diagram">
-                            <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap;">
-                                <div class="diagram-box" style="background: #fee2e2;">Tenant A</div>
-                                <div class="diagram-box" style="background: #dbeafe;">Tenant B</div>
-                                <div class="diagram-box" style="background: #d1fae5;">Tenant C</div>
-                                <br>
-                                <div style="width: 100%; text-align: center; font-size: 2rem;">v</div>
-                                <div class="diagram-box" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">Shared Resource Pool</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">6. Standardization, Automation, Optimization <span>&#9660;</span></div>
+    <div class="content">
+      <p>Virtualization layer menciptakan opportunities untuk standardize, automate, dan optimize deployment processes dalam cloud data center:</p>
+      <br>
+      <table class="comparison-table">
+        <tr><th>Aspek</th><th>Deskripsi</th><th>Manfaat</th></tr>
+        <tr>
+          <td><span class="badge badge-primary">Standardization</span></td>
+          <td>Commodity hardware dalam resource pool mengikuti diverse architectural standards. Melalui resource virtualization, application instances di-abstract dari underlying physical hardware, enabling consistent and flexible deployment.</td>
+          <td>Interoperability, portability, reduced vendor lock-in</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Automation</span></td>
+          <td>Automation mendukung efficient resource provisioning seperti VM instantiation. VMs dapat di-bring online atau di-take offline quickly, serta di-remove automatically berdasarkan predefined criteria atau operational policies.</td>
+          <td>Speed, consistency, reduced human error, 24/7 operation</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">Optimization</span></td>
+          <td>Optimization fokus pada improving bagaimana resource di-utilize. Goal adalah mencapai best possible performance menggunakan limited set of available resources.</td>
+          <td>Cost efficiency, energy saving, better user experience</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">4. Resource Provisioning <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>Definisi:</strong> Proses menyediakan dan mengalokasikan computing resources untuk memenuhi kebutuhan user/aplikasi.</p>
-                        <br>
-                        <table class="comparison-table">
-                            <tr><th>Approach</th><th>Description</th><th>Pros</th><th>Cons</th></tr>
-                            <tr><td><span class="badge badge-primary">Static</span></td><td>Fixed allocation, tidak berubah selama VM berjalan</td><td>Simple, no runtime overhead</td><td>Tidak handle demand spikes, inefficient</td></tr>
-                            <tr><td><span class="badge badge-success">Dynamic</span></td><td>Flexible adjustment on-demand selama runtime</td><td>Adaptif, pay-per-usage, scalable</td><td>Runtime overhead, minor delays</td></tr>
-                            <tr><td><span class="badge badge-warning">Hybrid</span></td><td>Static awal + dynamic selanjutnya</td><td>Balance efficiency and flexibility</td><td>Lebih kompleks</td></tr>
-                        </table>
-                        <br>
-                        <p><strong>Provisioning Plans:</strong></p>
-                        <ul>
-                            <li><strong>Short-term On-Demand:</strong> Pay-per-usage, dynamic, untuk demand unpredictable</li>
-                            <li><strong>Long-term Reservation:</strong> Fixed fee untuk periode tertentu, untuk demand predictable</li>
-                        </ul>
-                    </div>
-                </div>
+<div class="quiz-container">
+  <div class="quiz-question">1. Apa keuntungan utama dari Dynamic Resource Provisioning dibandingkan Static?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Lebih sederhana dan tidak memerlukan monitoring</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Dapat menyesuaikan resource secara real-time sesuai demand dan mendukung pay-per-usage</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Fixed cost yang lebih predictable untuk budgeting</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Tidak ada runtime overhead sama sekali</div>
+  </div>
+  <div class="quiz-feedback" id="q1Feedback"></div>
+</div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">5. SLA (Service Level Agreement) <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>SLA</strong> adalah kontrak antara consumer dan provider yang menentukan:</p>
-                        <ul>
-                            <li>Expected computing resource capacity</li>
-                            <li>Availability guarantees (e.g., 99.9% uptime)</li>
-                            <li>Performance metrics</li>
-                            <li>Penalties untuk breach</li>
-                        </ul>
-                        <br>
-                        <p>Provider menggunakan SLA untuk <span class="highlight">estimate resource needs</span> dan melakukan resource mapping.</p>
-                    </div>
-                </div>
-            </div>
+<div class="quiz-container" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)">
+  <div class="quiz-question">2. Dalam arsitektur multi-tenancy SaaS, bagaimana data antar tenant diisolasi?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Menggunakan database fisik terpisah untuk setiap tenant</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">B. Setiap tenant mendapat dedicated server fisik</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">C. Logical separation menggunakan consumer/tenant IDs pada shared database dan application instance</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Menggunakan enkripsi end-to-end tanpa logical separation</div>
+  </div>
+  <div class="quiz-feedback" id="q2Feedback"></div>
+</div>
+</section>
 
-            <div class="quiz-container">
-                <div class="quiz-question">Apa keuntungan utama dari Dynamic Resource Provisioning?</div>
-                <div class="quiz-options">
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">A. Tidak ada runtime overhead</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, true)">B. Dapat menyesuaikan resource sesuai demand secara real-time</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">C. Lebih sederhana dari static provisioning</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">D. Fixed cost untuk jangka panjang</div>
-                </div>
-                <div class="quiz-feedback" id="resourceQuizFeedback"></div>
-            </div>
-        </section>
+<!-- TAB 2: Scaling & Load Balancing -->
+<section id="scaling" class="content-section">
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">SL</div>
+    <h2 class="card-title">Resource Scaling & Load Balancing</h2>
+  </div>
 
-        <!-- TAB 2: Scaling and Load Balancing -->
-        <section id="scaling" class="content-section">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">SL</div>
-                    <h2 class="card-title">Resource Scaling, Load Balancing and High Availability</h2>
-                </div>
+  <div class="interactive-box" onclick="toggleBox(this)">
+    <div class="toggle">1. Konsep Resource Scaling <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> Resource scaling adalah kemampuan cloud system untuk menyesuaikan (menambah atau mengurangi) computing resources secara otomatis atau manual berdasarkan workload demand. Scaling dapat melibatkan penambahan/pengurangan CPU, RAM, storage, atau server instances.</p>
+      <br>
+      <p><strong>Kenapa Scaling Penting?</strong></p>
+      <ul>
+        <li><strong>High traffic</strong> memerlukan lebih banyak resource untuk menjaga performance</li>
+        <li><strong>Low traffic</strong> memerlukan lebih sedikit resource untuk menghemat cost</li>
+        <li>Scaling memastikan: <span class="highlight">good performance</span>, <span class="highlight">cost efficiency</span>, dan <span class="highlight">no downtime</span></li>
+      </ul>
+      <br>
+      <p><strong>Scalability vs Elasticity:</strong></p>
+      <ul>
+        <li><strong>Scalability</strong> - Kemampuan sistem untuk handle growing amount of work (scale up/out)</li>
+        <li><strong>Elasticity</strong> - Kemampuan untuk secara otomatis scale up dan scale down sesuai demand real-time</li>
+      </ul>
+    </div>
+  </div>
 
-                <div class="interactive-box" onclick="toggleBox(this)">
-                    <div class="toggle">1. Jenis Scaling <span>&#9660;</span></div>
-                    <div class="content">
-                        <table class="comparison-table">
-                            <tr><th>Type</th><th>Description</th><th>Pros</th><th>Cons</th></tr>
-                            <tr><td><span class="badge badge-primary">Vertical Scaling</span></td><td>Increase/decrease capacity existing instance (RAM, CPU, Storage)</td><td>No code changes, less complex network</td><td>Hardware limits, single point of failure</td></tr>
-                            <tr><td><span class="badge badge-success">Horizontal Scaling</span></td><td>Add more VMs/servers to spread workload</td><td>High availability, easy resize, fewer downtime</td><td>More complex, requires load balancer</td></tr>
-                            <tr><td><span class="badge badge-warning">Hybrid Scaling</span></td><td>Kombinasi Vertical + Horizontal</td><td>Best of both worlds</td><td>Complex implementation</td></tr>
-                        </table>
-                        <br>
-                        <div class="diagram">
-                            <div style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-                                <div>
-                                    <div class="diagram-box" style="background: #dbeafe;">Server (Small)</div>
-                                    <div style="font-size: 2rem;">v</div>
-                                    <div class="diagram-box" style="background: #3b82f6; color: white;">Server (Large)</div>
-                                    <p><strong>Vertical</strong></p>
-                                </div>
-                                <div>
-                                    <div class="diagram-box" style="background: #dbeafe;">Server</div>
-                                    <div style="font-size: 2rem;">-&gt;</div>
-                                    <div class="diagram-box" style="background: #dbeafe;">Server</div>
-                                    <div class="diagram-box" style="background: #dbeafe;">Server</div>
-                                    <p><strong>Horizontal</strong></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">2. Vertical Scaling (Scale Up/Down) <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> Vertical scaling adalah menambah atau mengurangi kapasitas dari existing server/instance tanpa menambah jumlah server. Ini berarti meningkatkan/menurunkan RAM, CPU cores, storage capacity, atau network bandwidth pada satu mesin.</p>
+      <br>
+      <table class="comparison-table">
+        <tr><th>Aspek</th><th>Detail</th></tr>
+        <tr><td><span class="badge badge-primary">Cara Kerja</span></td><td>Upgrade/downgrade spesifikasi hardware virtual (vCPU, RAM, disk) pada VM yang sama</td></tr>
+        <tr><td><span class="badge badge-success">Keuntungan</span></td><td>No code changes required, less complex network configuration, simpler maintenance karena hanya 1 server</td></tr>
+        <tr><td><span class="badge badge-warning">Keterbatasan</span></td><td>Hardware limits (tidak bisa scale infinitely), single point of failure, downtime saat resize (biasanya perlu reboot)</td></tr>
+        <tr><td><span class="badge badge-danger">Use Case</span></td><td>Database servers, monolithic applications yang sulit di-distribute, systems dengan shared state</td></tr>
+      </table>
+      <br>
+      <div class="diagram">
+        <div style="display:flex;align-items:center;justify-content:center;gap:20px">
+          <div>
+            <div class="diagram-box" style="background:#dbeafe;width:80px;height:80px;display:flex;align-items:center;justify-content:center">Small<br>1 vCPU<br>2GB RAM</div>
+            <div style="font-size:2rem;text-align:center">&#8595;</div>
+            <div class="diagram-box" style="background:#3b82f6;color:white;width:120px;height:120px;display:flex;align-items:center;justify-content:center">Large<br>4 vCPU<br>16GB RAM</div>
+          </div>
+          <div style="border-left:2px dashed var(--gray);padding-left:20px">
+            <p><strong>Vertical Scaling</strong></p>
+            <p>Server yang SAMA<br>kapasitasnya dinaikkan</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">2. Elastic Computing <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>Elastic Computing</strong> adalah kemampuan untuk secara dinamis menambah/mengurangi server sesuai peak times.</p>
-                        <br>
-                        <p><strong>Karakteristik:</strong></p>
-                        <ul>
-                            <li><span class="highlight">Rapid creation/removal</span> - Fully software-managed</li>
-                            <li><span class="highlight">Physical sharing</span> - Multiple VMs on single physical server</li>
-                            <li><span class="highlight">Logical isolation</span> - VMs terisolasi meski di server fisik yang sama</li>
-                        </ul>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">3. Horizontal Scaling (Scale Out/In) <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> Horizontal scaling adalah menambah atau mengurangi jumlah server/VM instances dalam sistem untuk menyebar workload. Aplikasi harus didesain untuk menangani banyak independent requests simultaneously.</p>
+      <br>
+      <table class="comparison-table">
+        <tr><th>Aspek</th><th>Detail</th></tr>
+        <tr><td><span class="badge badge-primary">Cara Kerja</span></td><td>Tambah/kurangi jumlah server instances. Setiap server identik dan menangani sebagian workload</td></tr>
+        <tr><td><span class="badge badge-success">Keuntungan</span></td><td>Increases high availability (jika 1 server fail, yang lain masih jalan), fewer periods of downtime, easy to resize, virtually unlimited scale</td></tr>
+        <tr><td><span class="badge badge-warning">Keterbatasan</span></td><td>More complex (memerlukan load balancer), application harus stateless atau shared state, network latency antar server</td></tr>
+        <tr><td><span class="badge badge-danger">Use Case</span></td><td>Web servers, API servers, microservices, stateless applications</td></tr>
+      </table>
+      <br>
+      <div class="diagram">
+        <div style="display:flex;align-items:center;justify-content:center;gap:20px">
+          <div>
+            <div class="diagram-box" style="background:#dbeafe">Server 1</div>
+          </div>
+          <div style="font-size:2rem">&#8594;</div>
+          <div>
+            <div class="diagram-box" style="background:#dbeafe">Server 1</div>
+            <div class="diagram-box" style="background:#dbeafe">Server 2</div>
+            <div class="diagram-box" style="background:#dbeafe">Server 3</div>
+          </div>
+          <div style="border-left:2px dashed var(--gray);padding-left:20px">
+            <p><strong>Horizontal Scaling</strong></p>
+            <p>Jumlah server<br>DITAMBAH untuk<br>menyebar workload</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">3. Load Balancing <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>Definisi:</strong> Mendistribusikan workload secara merata di across multiple servers.</p>
-                        <br>
-                        <div class="diagram">
-                            <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap;">
-                                <div class="diagram-box" style="background: #fee2e2;">Internet</div>
-                                <span class="diagram-arrow">-&gt;</span>
-                                <div class="diagram-box" style="background: #f59e0b; color: white;">Load Balancer</div>
-                                <span class="diagram-arrow">-&gt;</span>
-                                <div>
-                                    <div class="diagram-box" style="background: #dbeafe;">Server 1</div>
-                                    <div class="diagram-box" style="background: #dbeafe;">Server 2</div>
-                                    <div class="diagram-box" style="background: #dbeafe;">Server N</div>
-                                </div>
-                            </div>
-                            <p style="margin-top: 15px; color: var(--gray);">Traffic dibagi: 1/N ke setiap server</p>
-                        </div>
-                        <br>
-                        <p><strong>Hierarchical Load Balancing:</strong></p>
-                        <p>Untuk large-scale, menggunakan struktur hierarki dari primary ke secondary load balancers.</p>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre>Internet
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">4. Hybrid Scaling <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> Hybrid scaling adalah kombinasi dari vertical scaling dan horizontal scaling. Sistem pertama kali di-scale vertically sampai batas hardware, kemudian di-scale horizontally dengan menambah lebih banyak instances.</p>
+      <br>
+      <p><strong>Alur Hybrid Scaling:</strong></p>
+      <ol>
+        <li>Mulai dengan 1 server kecil (vertical: small)</li>
+        <li>Naikkan kapasitas server tersebut (vertical: medium -> large)</li>
+        <li>Saat mencapai batas vertical, tambah server ke-2, ke-3 (horizontal)</li>
+        <li>Setiap server baru juga bisa di-scale vertically jika perlu</li>
+      </ol>
+      <br>
+      <p><strong>Kapan Digunakan:</strong> Applications dengan baseline workload yang cukup besar (perlu vertical) tapi juga mengalami traffic spikes (perlu horizontal). Contoh: E-commerce platform, video streaming services.</p>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">5. Elastic Computing <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> Elastic computing adalah kemampuan customer untuk secara dinamis mengubah alokasi server - menambah server saat peak times dan mengurangi saat tidak dibutuhkan. Ini adalah dynamic service yang fully software-managed.</p>
+      <br>
+      <p><strong>Karakteristik Elastic Computing:</strong></p>
+      <ul>
+        <li><strong>Rapid creation and removal:</strong> VMs dapat dibuat atau dihapus tanpa perlu mengubah atau reboot physical servers</li>
+        <li><strong>Physical sharing:</strong> Multiple virtualized servers dapat beroperasi concurrently pada satu physical server</li>
+        <li><strong>Logical isolation:</strong> Meski berjalan pada satu physical server, setiap virtualized server completely isolated dari yang lain</li>
+        <li><strong>Virtualized servers:</strong> Menawarkan fast, flexible allocation at low cost</li>
+      </ul>
+      <br>
+      <p><strong>Auto-Scaling:</strong> Dalam praktik modern, elastic computing diimplementasikan melalui auto-scaling groups/policies yang memonitor metrics (CPU utilization, request count, queue depth) dan secara otomatis menambah/mengurangi instances berdasarkan thresholds yang ditentukan.</p>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">6. Load Balancing - Konsep Dasar <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> Load balancing adalah distribusi workload secara merata di across multiple servers untuk ensure optimal resource utilization, minimize response time, dan prevent server overload.</p>
+      <br>
+      <p><strong>Mengapa Load Balancer Diperlukan?</strong></p>
+      <ul>
+        <li>Website harus didesain untuk memproses banyak independent requests simultaneously</li>
+        <li>Bagaimana website scale untuk accommodate thousands of users? -> Load Balancer</li>
+        <li>Load balancer mendistribusikan incoming network traffic ke multiple backend servers</li>
+      </ul>
+      <br>
+      <p><strong>Karakteristik Load Balancing:</strong></p>
+      <ul>
+        <li>Jika site memiliki N servers, setiap server menangani approximately 1/N of the customers</li>
+        <li>Load balancer ensures all communication dari given customer goes to the same server (session persistence/stickiness)</li>
+        <li>Site dapat di-expand dengan menambah additional servers; load balancer secara otomatis includes new servers</li>
+      </ul>
+      <br>
+      <div class="diagram">
+        <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap">
+          <div class="diagram-box" style="background:#fee2e2">Internet<br><small>Incoming Traffic</small></div>
+          <span class="diagram-arrow">-&gt;</span>
+          <div class="diagram-box" style="background:#f59e0b;color:white">Load Balancer<br><small>Distribusi 1/N</small></div>
+          <span class="diagram-arrow">-&gt;</span>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div class="diagram-box" style="background:#dbeafe">Server 1</div>
+            <div class="diagram-box" style="background:#dbeafe">Server 2</div>
+            <div class="diagram-box" style="background:#dbeafe">Server 3</div>
+            <div class="diagram-box" style="background:#dbeafe">Server N</div>
+          </div>
+          <span class="diagram-arrow">-&gt;</span>
+          <div class="diagram-box" style="background:#d1fae5">Shared Database<br>/ Storage</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">7. Hierarchical Load Balancing <span>&#9660;</span></div>
+    <div class="content">
+      <p>Untuk large-scale data center, single load balancer tidak cukup. Diperlukan struktur <strong>hierarchical</strong> dari primary ke secondary load balancers.</p>
+      <br>
+      <p><strong>Struktur Hierarki:</strong></p>
+      <ul>
+        <li><strong>Primary Load Balancer (Top):</strong> Menangani 100% incoming traffic. Ini adalah single entry point dari internet.</li>
+        <li><strong>Secondary Load Balancers (Middle):</strong> Setiap secondary LB menangani 1/P dari traffic, di mana P = jumlah pods (groups of racks).</li>
+        <li><strong>Servers (Bottom):</strong> Dalam setiap pod yang berisi R racks, setiap link dari rack ke pod LB menangani 1/(P*R) dari total traffic.</li>
+      </ul>
+      <br>
+      <p><strong>Trade-off:</strong> Links near the top of hierarchy carry more traffic than links farther away. Primary LB adalah bottleneck potensial. Solusi: menggunakan multiple primary LBs dengan DNS round-robin atau anycast.</p>
+      <br>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre>Internet Traffic (100%)
     |
-Primary Load Balancer
-    |
-|--- LB-1 -&gt; Racks (Pool 1)
-|--- LB-2 -&gt; Racks (Pool 2)
-|--- LB-P -&gt; Racks (Pool P)</pre>
-                        </div>
-                    </div>
-                </div>
+    v
+[Primary Load Balancer]
+    |         |         |
+    v         v         v
+[LB Pod 1] [LB Pod 2] [LB Pod P]  <- Each handles 1/P of traffic
+    |         |         |
+    v         v         v
+[Rack 1]   [Rack 1]   [Rack 1]
+[Rack 2]   [Rack 2]   [Rack 2]
+  ...        ...        ...
+[Rack R]   [Rack R]   [Rack R]   <- Each link handles 1/(P*R) of traffic</pre>
+      </div>
+    </div>
+  </div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">4. Load Balancing Algorithms <span>&#9660;</span></div>
-                    <div class="content">
-                        <table class="comparison-table">
-                            <tr><th>Algorithm</th><th>How It Works</th><th>Best For</th></tr>
-                            <tr><td><span class="badge badge-primary">Round Robin</span></td><td>Sequential/rotational distribution</td><td>Servers with equal capacity</td></tr>
-                            <tr><td><span class="badge badge-success">Sticky Round Robin</span></td><td>Same user -&gt; same server</td><td>Session persistence required</td></tr>
-                            <tr><td><span class="badge badge-warning">Weighted Round Robin</span></td><td>Distribution based on server weight</td><td>Unequal server capacities</td></tr>
-                            <tr><td><span class="badge badge-primary">IP/URL Hash</span></td><td>Hash function maps requests to servers</td><td>Consistent routing</td></tr>
-                            <tr><td><span class="badge badge-success">Least Connection</span></td><td>Route to server with fewest active connections</td><td>Variable session durations</td></tr>
-                            <tr><td><span class="badge badge-warning">Least Time</span></td><td>Route to server with lowest latency</td><td>Performance-critical apps</td></tr>
-                        </table>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">8. Load Balancing Algorithms (6 Jenis) <span>&#9660;</span></div>
+    <div class="content">
+      <table class="comparison-table">
+        <tr><th>Algorithm</th><th>Cara Kerja Detail</th><th>Kapan Digunakan</th><th>Kelebihan</th><th>Kekurangan</th></tr>
+        <tr>
+          <td><span class="badge badge-primary">Round Robin</span></td>
+          <td>Requests didistribusikan secara sequential/rotational ke setiap server dalam daftar. Req 1 -> Server 1, Req 2 -> Server 2, ..., Req N+1 -> Server 1 lagi.</td>
+          <td>Servers dengan equal capacity dan similar workload</td>
+          <td>Simple, fair distribution, no state tracking</td>
+          <td>Tidak memperhitungkan current load, session persistence issues</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Sticky Round Robin</span></td>
+          <td>Extension dari Round Robin yang mengirim subsequent requests dari user yang sama ke server yang sama. User Alice selalu ke Server A, User Bob selalu ke Server B.</td>
+          <td>Applications yang memerlukan session persistence (e.g., shopping cart, login state)</td>
+          <td>Session consistency, cache efficiency</td>
+          <td>Uneven load jika beberapa users lebih aktif, server failure memerlukan session recovery</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">Weighted Round Robin</span></td>
+          <td>Mirip Round Robin tapi setiap server diberi weighted score. Server dengan weight lebih tinggi menerima proporsional lebih banyak requests.</td>
+          <td>Servers dengan berbeda capacity (e.g., Server A: 32GB RAM, Server B: 16GB RAM)</td>
+          <td>Accommodates heterogeneous servers, proportional distribution</td>
+          <td>Requires manual weight configuration, weights mungkin outdated</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-primary">IP/URL Hash</span></td>
+          <td>Menggunakan hash function (e.g., MD5, SHA-256) pada IP address client atau requested URL untuk menentukan server tujuan. Hash yang sama selalu menghasilkan server yang sama.</td>
+          <td>Consistent routing requirements, CDN, cache layers</td>
+          <td>Deterministic routing, no session storage needed</td>
+          <td>Uneven distribution jika hash tidak uniform, server addition/removal mengubah mapping</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Least Connection</span></td>
+          <td>Setiap request baru di-route ke server dengan jumlah active connections paling sedikit. LB memonitor connection count real-time.</td>
+          <td>Variable session durations (e.g., file uploads, video streaming, WebSocket)</td>
+          <td>Adapts to actual load, good for long-lived connections</td>
+          <td>Requires connection tracking overhead, tidak memperhitungkan connection weight</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">Least Time</span></td>
+          <td>Route incoming requests ke server dengan lowest current latency atau fastest response time. Mempertimbangkan response time dari health checks.</td>
+          <td>Performance-critical applications, global deployments dengan varying network conditions</td>
+          <td>Optimal user experience, adapts to network conditions</td>
+          <td>Requires frequent health checks, response time bisa fluktuatif</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">5. High Availability (HA) <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>Definisi:</strong> Memastikan sistem tetap operational meski terjadi failures.</p>
-                        <br>
-                        <p><strong>3-Layer Classification:</strong></p>
-                        <div class="diagram">
-                            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                                <div class="diagram-box" style="background: #dbeafe; width: 80%;">Middlewares</div>
-                                <div style="font-size: 1.5rem;">v</div>
-                                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                                    <div class="diagram-box" style="background: #fef3c7;">Monitoring</div>
-                                    <div class="diagram-box" style="background: #fef3c7;">Redundancy</div>
-                                    <div class="diagram-box" style="background: #fef3c7;">Replication</div>
-                                    <div class="diagram-box" style="background: #fef3c7;">Failure Detection</div>
-                                    <div class="diagram-box" style="background: #fef3c7;">Recovery</div>
-                                </div>
-                                <div style="font-size: 1.5rem;">v</div>
-                                <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
-                                    <div class="diagram-box" style="background: #d1fae5;">Multi-core Processors</div>
-                                    <div class="diagram-box" style="background: #d1fae5;">Virtualization</div>
-                                    <div class="diagram-box" style="background: #d1fae5;">Storage System</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="quiz-container">
+  <div class="quiz-question">1. Algoritma mana yang mengirim request dari user yang sama ke server yang sama?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Round Robin</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Sticky Round Robin</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Least Connection</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. IP Hash</div>
+  </div>
+  <div class="quiz-feedback" id="q3Feedback"></div>
+</div>
 
-            <div class="quiz-container">
-                <div class="quiz-question">Algoritma mana yang mengirim request dari user yang sama ke server yang sama?</div>
-                <div class="quiz-options">
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">A. Round Robin</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, true)">B. Sticky Round Robin</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">C. Least Connection</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">D. IP Hash</div>
-                </div>
-                <div class="quiz-feedback" id="scalingQuizFeedback"></div>
-            </div>
-        </section>
+<div class="quiz-container" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)">
+  <div class="quiz-question">2. Apa keuntungan utama Horizontal Scaling dibandingkan Vertical Scaling?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Tidak memerlukan load balancer</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Meningkatkan high availability dan mengurangi downtime</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Lebih murah karena tidak perlu hardware baru</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Tidak perlu mengubah kode aplikasi</div>
+  </div>
+  <div class="quiz-feedback" id="q4Feedback"></div>
+</div>
+</section>
 
-        <!-- TAB 3: DevOps -->
-        <section id="devops" class="content-section">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #10b981, #06b6d4);">DO</div>
-                    <h2 class="card-title">DevOps and Software Development Life Cycle</h2>
-                </div>
+<!-- TAB 3: High Availability -->
+<section id="ha" class="content-section">
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon" style="background:linear-gradient(135deg,#10b981,#06b6d4)">HA</div>
+    <h2 class="card-title">High Availability (HA)</h2>
+  </div>
 
-                <div class="interactive-box" onclick="toggleBox(this)">
-                    <div class="toggle">1. Definisi DevOps <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>DevOps</strong> adalah pendekatan software engineering yang mengintegrasikan <span class="highlight">software development</span> dan <span class="highlight">IT operations</span>.</p>
-                        <br>
-                        <p><strong>Core Principles:</strong></p>
-                        <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin: 20px 0;">
-                            <div class="diagram-box" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white;">Collaboration</div>
-                            <div class="diagram-box" style="background: linear-gradient(135deg, #10b981, #06b6d4); color: white;">Automation</div>
-                            <div class="diagram-box" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: white;">Continuous Improvement</div>
-                            <div class="diagram-box" style="background: linear-gradient(135deg, #8b5cf6, #ec4899); color: white;">Measurement</div>
-                            <div class="diagram-box" style="background: linear-gradient(135deg, #06b6d4, #3b82f6); color: white;">Monitoring</div>
-                        </div>
-                        <br>
-                        <p><strong>Traditional vs DevOps:</strong></p>
-                        <table class="comparison-table">
-                            <tr><th>Aspect</th><th>Traditional</th><th>DevOps</th></tr>
-                            <tr><td>Approach</td><td>Sequential</td><td>Iterative</td></tr>
-                            <tr><td>Process</td><td>Manual</td><td>Automated</td></tr>
-                            <tr><td>Teams</td><td>Silos</td><td>Integrated</td></tr>
-                        </table>
-                    </div>
-                </div>
+  <div class="interactive-box" onclick="toggleBox(this)">
+    <div class="toggle">1. Definisi High Availability <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> High Availability (HA) adalah kemampuan sistem untuk tetap operational dan accessible meskipun terjadi failures pada komponen hardware, software, atau network. Tujuannya adalah memastikan <span class="highlight">minimal downtime</span> dan <span class="highlight">continuous service delivery</span>.</p>
+      <br>
+      <p><strong>Mengapa HA Penting?</strong></p>
+      <ul>
+        <li>Hardware failures tidak dapat dihindari (disk crash, memory failure, network outage)</li>
+        <li>Software bugs dapat menyebabkan service crashes</li>
+        <li>Human errors dalam operations dapat menyebabkan downtime</li>
+        <li>Downtime = lost revenue + damaged reputation + violated SLA</li>
+      </ul>
+      <br>
+      <p><strong>Uptime Measurements:</strong></p>
+      <table class="comparison-table">
+        <tr><th>Availability</th><th>Downtime per Year</th><th>Class</th></tr>
+        <tr><td>99% (Two Nines)</td><td>3.65 days</td><td>Basic</td></tr>
+        <tr><td>99.9% (Three Nines)</td><td>8.76 hours</td><td>Standard</td></tr>
+        <tr><td>99.99% (Four Nines)</td><td>52.56 minutes</td><td>High Availability</td></tr>
+        <tr><td>99.999% (Five Nines)</td><td>5.26 minutes</td><td>Very High Availability</td></tr>
+        <tr><td>99.9999% (Six Nines)</td><td>31.5 seconds</td><td>Extreme Availability</td></tr>
+      </table>
+    </div>
+  </div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">2. DevOps Lifecycle <span>&#9660;</span></div>
-                    <div class="content">
-                        <div class="diagram">
-                            <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px;">
-                                <div class="diagram-box" style="background: #dbeafe;">Planning</div><span>-&gt;</span>
-                                <div class="diagram-box" style="background: #dbeafe;">Coding</div><span>-&gt;</span>
-                                <div class="diagram-box" style="background: #dbeafe;">Building</div><span>-&gt;</span>
-                                <div class="diagram-box" style="background: #dbeafe;">Deployment</div>
-                                <br>
-                                <div style="width: 100%; text-align: center;">v Monitoring ^</div>
-                                <br>
-                                <div class="diagram-box" style="background: #fef3c7;">Monitoring</div><span>&lt;-</span>
-                                <div class="diagram-box" style="background: #fef3c7;">Operations</div><span>&lt;-</span>
-                                <div class="diagram-box" style="background: #fef3c7;">Testing</div><span>&lt;-</span>
-                                <div class="diagram-box" style="background: #fef3c7;">Releasing</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">2. 3-Layer Classification for HA Cloud Solutions <span>&#9660;</span></div>
+    <div class="content">
+      <p>Berdasarkan penelitian Endo et al. (2016), solusi HA di cloud dapat diklasifikasikan ke dalam 3 layer:</p>
+      <br>
+      <div class="diagram">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:15px">
+          <div class="diagram-box" style="background:#dbeafe;width:80%;padding:20px">
+            <strong>Layer 1: Middlewares</strong><br>
+            <small>Software layer yang menghubungkan applications dengan underlying infrastructure. Contoh: message brokers, API gateways, service meshes.</small>
+          </div>
+          <div style="font-size:2rem">&#8595;</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+            <div class="diagram-box" style="background:#fef3c7">Monitoring<br><small>Health checks, metrics, alerts</small></div>
+            <div class="diagram-box" style="background:#fef3c7">Redundancy<br><small>Duplicate components</small></div>
+            <div class="diagram-box" style="background:#fef3c7">Replication<br><small>Data copies across nodes</small></div>
+            <div class="diagram-box" style="background:#fef3c7">Failure Detection<br><small>Heartbeat, ping, watchdog</small></div>
+            <div class="diagram-box" style="background:#fef3c7">Recovery<br><small>Failover, rollback, restore</small></div>
+          </div>
+          <div style="font-size:2rem">&#8595;</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+            <div class="diagram-box" style="background:#d1fae5">Multi-core Processors<br><small>Parallel processing, NUMA</small></div>
+            <div class="diagram-box" style="background:#d1fae5">Virtualization<br><small>VM isolation, live migration</small></div>
+            <div class="diagram-box" style="background:#d1fae5">Storage System<br><small>RAID, SAN, distributed storage</small></div>
+          </div>
+        </div>
+      </div>
+      <br>
+      <p><strong>Layer 2: Services</strong> - 5 komponen kunci:</p>
+      <ul>
+        <li><strong>Monitoring:</strong> Continuous health checks, performance metrics collection, alerting systems (Prometheus, Grafana, Nagios)</li>
+        <li><strong>Redundancy:</strong> Duplicate critical components sehingga jika satu gagal, yang lain mengambil alih (active-passive atau active-active)</li>
+        <li><strong>Replication:</strong> Membuat copies data/application state di multiple nodes secara real-time atau near-real-time</li>
+        <li><strong>Failure Detection:</strong> Mechanisms untuk mendeteksi failures secepat mungkin (heartbeat, ping, watchdog timers, health check endpoints)</li>
+        <li><strong>Recovery:</strong> Proses failover ke backup systems, automatic restart, data restoration dari backups</li>
+      </ul>
+      <br>
+      <p><strong>Layer 3: Underlying Technologies</strong> - Foundation HA:</p>
+      <ul>
+        <li><strong>Multi-core Processors:</strong> Memungkinkan parallel processing dan fault isolation. Jika satu core fail, yang lain masih operational.</li>
+        <li><strong>Virtualization:</strong> VM isolation memastikan failure di satu VM tidak mempengaruhi VM lain. Live migration memungkinkan moving VMs dari failing host ke healthy host tanpa downtime.</li>
+        <li><strong>Storage System:</strong> RAID untuk disk redundancy, SAN/NAS untuk network storage, distributed storage systems (Ceph, GlusterFS) untuk data replication across nodes.</li>
+      </ul>
+    </div>
+  </div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">3. SDLC Models <span>&#9660;</span></div>
-                    <div class="content">
-                        <table class="comparison-table">
-                            <tr><th>Model</th><th>Description</th><th>Best For</th></tr>
-                            <tr><td><span class="badge badge-primary">Waterfall</span></td><td>Linear, sequential, each step depends on previous</td><td>Requirements jelas and tidak berubah</td></tr>
-                            <tr><td><span class="badge badge-success">Agile</span></td><td>Iterative, incremental, adaptive</td><td>Requirements berubah frequently</td></tr>
-                            <tr><td><span class="badge badge-warning">V-Model</span></td><td>Validation and verification di setiap phase</td><td>Critical systems (medical, aerospace)</td></tr>
-                            <tr><td><span class="badge badge-danger">DevOps-driven</span></td><td>Automation + continuous delivery + feedback loops</td><td>Cloud-native applications</td></tr>
-                        </table>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">3. Redundancy Strategies <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Active-Passive Redundancy:</strong></p>
+      <ul>
+        <li>Satu node active melayani traffic, satu atau lebih node passive standby</li>
+        <li>Passive nodes tidak melayani traffic tapi selalu synchronized dengan active node</li>
+        <li>Ketika active node fail, passive node di-promote menjadi active (failover)</li>
+        <li>Contoh: MySQL Master-Slave replication, Windows Server Failover Cluster</li>
+        <li><strong>Trade-off:</strong> Resource idle (passive nodes tidak digunakan), tapi failover cepat karena data sudah synchronized</li>
+      </ul>
+      <br>
+      <p><strong>Active-Active Redundancy:</strong></p>
+      <ul>
+        <li>Semua nodes active dan melayani traffic simultaneously</li>
+        <li>Load balancer mendistribusikan traffic ke semua nodes</li>
+        <li>Jika satu node fail, traffic di-redirect ke nodes yang masih active</li>
+        <li>Contoh: Web server clusters, database sharding, microservices</li>
+        <li><strong>Trade-off:</strong> Tidak ada resource idle, tapi memerlukan careful data synchronization dan conflict resolution</li>
+      </ul>
+      <br>
+      <p><strong>N+1 Redundancy:</strong></p>
+      <ul>
+        <li>N nodes active + 1 spare node untuk failover</li>
+        <li>Lebih cost-efficient daripada 1:1 active-passive</li>
+        <li>Spare node bisa melayani traffic ringan atau digunakan untuk maintenance</li>
+      </ul>
+    </div>
+  </div>
 
-                <div class="interactive-box collapsed" onclick="toggleBox(this)">
-                    <div class="toggle">4. CI/CD Pipeline <span>&#9660;</span></div>
-                    <div class="content">
-                        <p><strong>Continuous Integration (CI):</strong> Integrasi code frequently ke shared repository dengan automated builds dan tests.</p>
-                        <br>
-                        <p><strong>Continuous Delivery:</strong> Aplikasi selalu dalam deployable state melalui automated release preparation.</p>
-                        <br>
-                        <p><strong>Continuous Deployment:</strong> Deployment terjadi otomatis tanpa manual intervention setelah test stages pass.</p>
-                        <br>
-                        <div class="diagram">
-                            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
-                                <div class="diagram-box" style="background: #fee2e2;">Developers Commit</div>
-                                <span>v</span>
-                                <div class="diagram-box" style="background: #dbeafe;">Source Repository</div>
-                                <span>v</span>
-                                <div class="diagram-box" style="background: #fef3c7;">CI Server (Build + Test)</div>
-                                <span>v</span>
-                                <div style="display: flex; gap: 20px;">
-                                    <div>
-                                        <div class="diagram-box" style="background: #d1fae5;">Acceptance Test</div>
-                                        <span>v</span>
-                                        <div class="diagram-box" style="background: #d1fae5;">Manual -&gt; Production</div>
-                                        <p><strong>Continuous Delivery</strong></p>
-                                    </div>
-                                    <div>
-                                        <div class="diagram-box" style="background: #d1fae5;">Acceptance Test</div>
-                                        <span>v</span>
-                                        <div class="diagram-box" style="background: #d1fae5;">Auto -&gt; Production</div>
-                                        <p><strong>Continuous Deployment</strong></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">4. Failure Detection Mechanisms <span>&#9660;</span></div>
+    <div class="content">
+      <table class="comparison-table">
+        <tr><th>Mechanism</th><th>Cara Kerja</th><th>Response Time</th><th>Use Case</th></tr>
+        <tr>
+          <td><span class="badge badge-primary">Heartbeat</span></td>
+          <td>Node mengirim periodic signals ke monitoring system. Jika heartbeat terlambat atau hilang, node dianggap failed.</td>
+          <td>Seconds to minutes</td>
+          <td>Distributed systems, database clusters</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Health Check Endpoint</span></td>
+          <td>Load balancer atau monitoring system mengirim HTTP/TCP requests ke /health endpoint. Jika non-200 atau timeout, node dianggap unhealthy.</td>
+          <td>Milliseconds to seconds</td>
+          <td>Web applications, microservices, containers</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">Watchdog Timer</span></td>
+          <td>Hardware/software timer yang harus di-reset secara periodic oleh monitored system. Jika tidak di-reset, system dianggap hang dan di-restart.</td>
+          <td>Milliseconds</td>
+          <td>Embedded systems, critical real-time systems</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-danger">Ping/ICMP</span></td>
+          <td>Network-level check menggunakan ICMP echo request. Jika no response, network connectivity dianggap down.</td>
+          <td>Seconds</td>
+          <td>Network devices, basic server monitoring</td>
+        </tr>
+      </table>
+    </div>
+  </div>
 
-            <div class="quiz-container">
-                <div class="quiz-question">Apa perbedaan Continuous Delivery dan Continuous Deployment?</div>
-                <div class="quiz-options">
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">A. Delivery untuk development, Deployment untuk production</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, true)">B. Delivery memerlukan manual approval, Deployment fully automated</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">C. Delivery untuk testing, Deployment untuk staging</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">D. Tidak ada perbedaan</div>
-                </div>
-                <div class="quiz-feedback" id="devopsQuizFeedback"></div>
-            </div>
-        </section>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">5. Recovery Techniques <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Failover:</strong> Proses switching dari failed primary system ke standby/secondary system. Dapat dilakukan secara:</p>
+      <ul>
+        <li><strong>Automatic Failover:</strong> System mendeteksi failure dan melakukan switch tanpa human intervention (e.g., keepalived, Pacemaker, Kubernetes self-healing)</li>
+        <li><strong>Manual Failover:</strong> Administrator secara manual melakukan switch setelah menerima alert (lebih aman untuk critical systems yang memerlukan verification)</li>
+      </ul>
+      <br>
+      <p><strong>Failback:</strong> Proses mengembalikan traffic ke primary system setelah primary telah diperbaiki. Failback bisa:</p>
+      <ul>
+        <li><strong>Automatic:</strong> Primary otomatis mengambil alih ketika healthy lagi</li>
+        <li><strong>Manual:</strong> Administrator memutuskan kapan switch back (safer untuk verifying primary stability)</li>
+      </ul>
+      <br>
+      <p><strong>Live VM Migration:</strong> Memindahkan running VM dari failing physical server ke healthy physical server tanpa downtime. Proses:</p>
+      <ol>
+        <li>Copy memory pages dari source ke destination secara iteratif</li>
+        <li>Pause VM briefly untuk copy dirty pages terakhir</li>
+        <li>Resume VM di destination</li>
+        <li>Total downtime: typically milliseconds</li>
+      </ol>
+      <br>
+      <p><strong>Checkpoint/Restart:</strong> Periodically save application state (checkpoint) ke stable storage. Jika failure terjadi, restart dari checkpoint terakhir. Trade-off: overhead dari checkpointing vs recovery time.</p>
+    </div>
+  </div>
 
-        <!-- TAB 4: CI/CD Hands-On -->
-        <section id="cicd" class="content-section">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #ef4444, #f59e0b);">CI</div>
-                    <h2 class="card-title">Hands-On: CI/CD dengan GitHub Actions untuk Next.js Todo App</h2>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">6. Data Replication Strategies <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Synchronous Replication:</strong></p>
+      <ul>
+        <li>Write operation dianggap complete hanya setelah data telah ditulis ke primary DAN replica</li>
+        <li>Zero data loss (RPO = 0)</li>
+        <li>Latency lebih tinggi karena harus menunggu acknowledgment dari replica</li>
+        <li>Cocok untuk: financial transactions, critical databases</li>
+      </ul>
+      <br>
+      <p><strong>Asynchronous Replication:</strong></p>
+      <ul>
+        <li>Write operation dianggap complete setelah ditulis ke primary. Replica di-update secara asynchronous (lag).</li>
+        <li>Potential data loss jika primary fail sebelum replica di-update (RPO > 0)</li>
+        <li>Latency lebih rendah</li>
+        <li>Cocok untuk: analytics, logging, non-critical data, geo-distributed systems</li>
+      </ul>
+      <br>
+      <p><strong>Quorum-based Replication:</strong></p>
+      <ul>
+        <li>Write dianggap complete jika ditulis ke W replicas dari total N replicas (W > N/2)</li>
+        <li>Read dianggap valid jika dibaca dari R replicas (R + W > N)</li>
+        <li>Memastikan consistency meski beberapa nodes fail</li>
+        <li>Contoh: Cassandra, DynamoDB, CockroachDB</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-                <p style="margin-bottom: 20px;">Project: <a href="https://github.com/jrgarciadev/nextjs-todo-list" target="_blank" style="color: var(--primary);">github.com/jrgarciadev/nextjs-todo-list</a></p>
+<div class="quiz-container">
+  <div class="quiz-question">Berapa downtime maksimum per tahun untuk sistem dengan availability 99.99% (Four Nines)?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. 8.76 jam</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. 52.56 menit</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. 5.26 menit</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. 3.65 hari</div>
+  </div>
+  <div class="quiz-feedback" id="q5Feedback"></div>
+</div>
+</section>
 
-                <div class="lab-step">
-                    <span class="lab-step-number">1</span>
-                    <span class="lab-step-title">Fork/Clone Repository ke Akun Pribadi</span>
-                    <div class="lab-step-content">
-                        <p>Buka terminal dan jalankan:</p>
-                        <div class="terminal">
-                            <div class="terminal-line" style="animation-delay: 0.1s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git clone https://github.com/jrgarciadev/nextjs-todo-list.git</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.3s;"><span class="terminal-prompt">$</span> <span class="terminal-command">cd nextjs-todo-list</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.5s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git remote -v</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.7s;"><span class="terminal-output">origin  https://github.com/jrgarciadev/nextjs-todo-list.git (fetch)</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.9s;"><span class="terminal-output">origin  https://github.com/jrgarciadev/nextjs-todo-list.git (push)</span></div>
-                        </div>
-                        <p><strong>Atau fork via GitHub UI:</strong></p>
-                        <ol>
-                            <li>Buka <a href="https://github.com/jrgarciadev/nextjs-todo-list" target="_blank">repository</a></li>
-                            <li>Klik tombol <strong>"Fork"</strong> di pojok kanan atas</li>
-                            <li>Pilih akun pribadi sebagai destination</li>
-                        </ol>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre># Set remote ke repo pribadi setelah fork
-git remote set-url origin https://github.com/YOUR_USERNAME/nextjs-todo-list.git
-git push -u origin main</pre>
-                        </div>
-                    </div>
-                </div>
+<!-- TAB 4: DevOps & SDLC -->
+<section id="devops" class="content-section">
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon" style="background:linear-gradient(135deg,#f97316,#ef4444)">DO</div>
+    <h2 class="card-title">DevOps & Software Development Life Cycle (SDLC)</h2>
+  </div>
 
-                <div class="lab-step">
-                    <span class="lab-step-number">2</span>
-                    <span class="lab-step-title">Persiapkan Project Next.js</span>
-                    <div class="lab-step-content">
-                        <p>Install dependencies dan verify build:</p>
-                        <div class="terminal">
-                            <div class="terminal-line" style="animation-delay: 0.1s;"><span class="terminal-prompt">$</span> <span class="terminal-command">npm install</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.5s;"><span class="terminal-prompt">$</span> <span class="terminal-command">npm run build</span></div>
-                            <div class="terminal-line" style="animation-delay: 1s;"><span class="terminal-output">✓ Linting and checking validity of types ...
-✓ Collecting page data  
-✓ Generating static pages (3/3)
-✓ Finalizing page optimization</span></div>
-                        </div>
-                        <p><strong>Update package.json scripts:</strong></p>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre>{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "jest --coverage",
-    "test:watch": "jest --watch"
-  }
-}</pre>
-                        </div>
-                    </div>
-                </div>
+  <div class="interactive-box" onclick="toggleBox(this)">
+    <div class="toggle">1. Definisi DevOps <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>DevOps</strong> adalah kombinasi dari <strong>Development (Dev)</strong> dan <strong>Operations (Ops)</strong>. DevOps adalah praktik, filosofi, dan culture yang menggabungkan software development (pengembangan) dengan IT operations (operasional) untuk memperpendek SDLC dan menyediakan continuous delivery dengan high software quality.</p>
+      <br>
+      <p><strong>Goals DevOps:</strong></p>
+      <ul>
+        <li><span class="highlight">Speed</span> - Rilis fitur lebih cepat ke production</li>
+        <li><span class="highlight">Reliability</span> - Kualitas aplikasi tetap terjaga meski frequent releases</li>
+        <li><span class="highlight">Scale</span> - Operasional dan development dapat scale bersamaan</li>
+        <li><span class="highlight">Security</span> - Security integrated ke dalam pipeline (DevSecOps)</li>
+        <li><span class="highlight">Collaboration</span> - Menghilangkan silo antara tim dev dan ops</li>
+      </ul>
+      <br>
+      <div class="diagram">
+        <div style="display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap">
+          <div class="diagram-box" style="background:#dbeafe">Plan</div>
+          <span class="diagram-arrow">&#8594;</span>
+          <div class="diagram-box" style="background:#dbeafe">Code</div>
+          <span class="diagram-arrow">&#8594;</span>
+          <div class="diagram-box" style="background:#dbeafe">Build</div>
+          <span class="diagram-arrow">&#8594;</span>
+          <div class="diagram-box" style="background:#dbeafe">Test</div>
+          <span class="diagram-arrow">&#8594;</span>
+          <div class="diagram-box" style="background:#dbeafe">Release</div>
+          <span class="diagram-arrow">&#8594;</span>
+          <div class="diagram-box" style="background:#dbeafe">Deploy</div>
+          <span class="diagram-arrow">&#8594;</span>
+          <div class="diagram-box" style="background:#dbeafe">Operate</div>
+          <span class="diagram-arrow">&#8594;</span>
+          <div class="diagram-box" style="background:#dbeafe">Monitor</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                <div class="lab-step">
-                    <span class="lab-step-number">3</span>
-                    <span class="lab-step-title">Buat Deploy Token (GitHub Personal Access Token)</span>
-                    <div class="lab-step-content">
-                        <p><strong>GitHub Personal Access Token (PAT):</strong></p>
-                        <ol>
-                            <li>Buka GitHub -> Settings -> Developer settings -> Personal access tokens -> Tokens (classic)</li>
-                            <li>Klik <strong>"Generate new token (classic)"</strong></li>
-                            <li>Beri nama: <code>nextjs-deploy-token</code></li>
-                            <li>Select scopes:
-                                <ul>
-                                    <li><code>repo</code> (full control of private repositories)</li>
-                                    <li><code>workflow</code> (update GitHub Action workflows)</li>
-                                    <li><code>write:packages</code> (upload packages to GitHub Package Registry)</li>
-                                </ul>
-                            </li>
-                            <li>Klik <strong>"Generate token"</strong></li>
-                            <li><strong>COPY TOKEN SEKARANG</strong> (tidak bisa dilihat lagi!)</li>
-                        </ol>
-                        <br>
-                        <p><strong>Simpan sebagai GitHub Secret:</strong></p>
-                        <ol>
-                            <li>Buka repository GitHub -> Settings -> Secrets and variables -> Actions</li>
-                            <li>Klik <strong>"New repository secret"</strong></li>
-                            <li>Name: <code>DEPLOY_TOKEN</code></li>
-                            <li>Value: Paste token yang tadi dibuat</li>
-                            <li>Klik <strong>"Add secret"</strong></li>
-                        </ol>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre># Alternatif: Gunakan GitHub CLI
-gh auth login
-gh secret set DEPLOY_TOKEN --body "ghp_xxxxxxxxxxxx"</pre>
-                        </div>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">2. SDLC (Software Development Life Cycle) <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>SDLC</strong> adalah framework yang mendefinisikan tasks yang dilakukan di setiap step dari software development process. Tujuannya: menghasilkan high-quality software dengan lowest cost dalam shortest time.</p>
+      <br>
+      <table class="comparison-table">
+        <tr><th>Phase</th><th>Kegiatan</th><th>Output</th><th>Tools</th></tr>
+        <tr>
+          <td><span class="badge badge-primary">Planning</span></td>
+          <td>Gather requirements, feasibility study, resource allocation, timeline</td>
+          <td>Project Plan, SRS (Software Requirements Specification)</td>
+          <td>Jira, Trello, Confluence</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-primary">Analysis</span></td>
+          <td>Analyze requirements, define system architecture, identify risks</td>
+          <td>System Requirements Document, Architecture Diagram</td>
+          <td>Lucidchart, Draw.io</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Design</span></td>
+          <td>UI/UX design, database schema, API design, system design</td>
+          <td>Wireframes, ERD, API Specs (OpenAPI/Swagger)</td>
+          <td>Figma, Sketch, Swagger</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">Implementation</span></td>
+          <td>Actual coding, unit testing, code review</td>
+          <td>Source Code, Unit Test Results</td>
+          <td>VS Code, Git, ESLint</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Testing</span></td>
+          <td>Integration testing, system testing, UAT, security testing</td>
+          <td>Test Reports, Bug Reports, QA Sign-off</td>
+          <td>Selenium, Jest, Postman</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-primary">Deployment</span></td>
+          <td>Release to production, configuration, data migration</td>
+          <td>Live Application, Deployment Logs</td>
+          <td>Docker, Kubernetes, Jenkins</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-danger">Maintenance</span></td>
+          <td>Bug fixes, performance tuning, security patches, feature updates</td>
+          <td>Patch Releases, Updated Documentation</td>
+          <td>Prometheus, Grafana, Sentry</td>
+        </tr>
+      </table>
+    </div>
+  </div>
 
-                <div class="lab-step">
-                    <span class="lab-step-number">4</span>
-                    <span class="lab-step-title">Setup Vercel (Deployment Target)</span>
-                    <div class="lab-step-content">
-                        <p><strong>Install Vercel CLI:</strong></p>
-                        <div class="terminal">
-                            <div class="terminal-line" style="animation-delay: 0.1s;"><span class="terminal-prompt">$</span> <span class="terminal-command">npm i -g vercel</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.3s;"><span class="terminal-prompt">$</span> <span class="terminal-command">vercel login</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.5s;"><span class="terminal-output">Vercel CLI 33.x.x
-? Log in to Vercel (Use arrow keys)
-&gt; Continue with Email 
-  Continue with GitHub 
-  Continue with GitLab 
-  Continue with Bitbucket</span></div>
-                        </div>
-                        <br>
-                        <p><strong>Generate Vercel Token:</strong></p>
-                        <ol>
-                            <li>Buka <a href="https://vercel.com/account/tokens" target="_blank">vercel.com/account/tokens</a></li>
-                            <li>Klik <strong>"Create Token"</strong></li>
-                            <li>Beri nama: <code>github-actions-deploy</code></li>
-                            <li>Scope: Pilih team/personal scope</li>
-                            <li>Klik <strong>"Create"</strong> dan copy token</li>
-                        </ol>
-                        <br>
-                        <p><strong>Simpan Vercel Token sebagai GitHub Secret:</strong></p>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre># Secret Name: VERCEL_TOKEN
-# Secret Value: vercel_token_anda_disini
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">3. Continuous Integration (CI) <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> CI adalah praktik mengintegrasikan code changes dari multiple developers ke shared mainline (main/master branch) secara frequent (biasanya multiple times per day). Setiap integrasi di-verify oleh automated build dan automated tests.</p>
+      <br>
+      <p><strong>Goals CI:</strong></p>
+      <ul>
+        <li>Detect integration errors as quickly as possible</li>
+        <li>Prevent "integration hell" di akhir development cycle</li>
+        <li>Automated testing setiap kali ada code push</li>
+        <li>Fast feedback loop untuk developers</li>
+      </ul>
+      <br>
+      <p><strong>CI Pipeline Steps:</strong></p>
+      <ol>
+        <li><strong>Code Commit</strong> - Developer push code ke repository</li>
+        <li><strong>Checkout</strong> - CI server checkout latest code</li>
+        <li><strong>Build</strong> - Compile code, bundle assets, create artifacts</li>
+        <li><strong>Unit Test</strong> - Jalankan unit tests untuk verify individual components</li>
+        <li><strong>Static Analysis</strong> - Code linting, security scanning (SAST)</li>
+        <li><strong>Integration Test</strong> - Test interaction antar components</li>
+        <li><strong>Artifact Storage</strong> - Simpan build artifact (Docker image, zip, dll)</li>
+      </ol>
+      <br>
+      <p><strong>Popular CI Tools:</strong> Jenkins, GitHub Actions, GitLab CI, CircleCI, Travis CI, Azure DevOps, Bamboo.</p>
+    </div>
+  </div>
 
-# Juga tambahkan:
-# VERCEL_ORG_ID (dari .vercel/project.json setelah vercel link)
-# VERCEL_PROJECT_ID (dari .vercel/project.json)</pre>
-                        </div>
-                        <p>Atau gunakan command:</p>
-                        <div class="terminal">
-                            <div class="terminal-line"><span class="terminal-prompt">$</span> <span class="terminal-command">vercel link</span></div>
-                            <div class="terminal-line"><span class="terminal-output">? Set up "~/project"? [Y/n] y
-? Which scope? [Your Username]
-? Link to existing project? [y/N] n
-? What is your project name? [nextjs-todo-list]</span></div>
-                        </div>
-                        <p>Setelah <code>vercel link</code>, file <code>.vercel/project.json</code> akan berisi <code>orgId</code> dan <code>projectId</code>.</p>
-                    </div>
-                </div>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">4. Continuous Delivery (CD) vs Continuous Deployment <span>&#9660;</span></div>
+    <div class="content">
+      <table class="comparison-table">
+        <tr><th>Aspek</th><th>Continuous Delivery</th><th>Continuous Deployment</th></tr>
+        <tr>
+          <td><span class="badge badge-primary">Definisi</span></td>
+          <td>Code changes secara otomatis built, tested, dan prepared untuk production release. Tapi deployment ke production memerlukan manual approval.</td>
+          <td>Code changes secara otomatis built, tested, DAN deployed ke production tanpa manual intervention.</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-success">Manual Step</span></td>
+          <td>Yes - someone must click "Deploy to Production"</td>
+          <td>No - fully automated end-to-end</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-warning">Risk</span></td>
+          <td>Lower risk karena ada human gatekeeper</td>
+          <td>Higher risk, memerlukan very mature testing suite</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-danger">Use Case</span></td>
+          <td>Enterprise apps, regulated industries, apps requiring compliance sign-off</td>
+          <td>Web apps, SaaS, consumer apps dengan mature automated testing</td>
+        </tr>
+      </table>
+      <br>
+      <p><strong>CD Pipeline Steps (setelah CI):</strong></p>
+      <ol>
+        <li><strong>Staging Deployment</strong> - Deploy ke staging environment yang mirror production</li>
+        <li><strong>Smoke Test</strong> - Quick test untuk verify deployment berhasil</li>
+        <li><strong>UAT / E2E Test</strong> - End-to-end testing di staging</li>
+        <li><strong>Performance Test</strong> - Load testing, stress testing</li>
+        <li><strong>Security Scan</strong> - DAST (Dynamic Application Security Testing)</li>
+        <li><strong>Approval Gate</strong> - Manual approval untuk production (hanya Continuous Delivery)</li>
+        <li><strong>Production Deployment</strong> - Deploy ke production servers</li>
+        <li><strong>Post-Deploy Verification</strong> - Health checks, monitoring alerts</li>
+      </ol>
+    </div>
+  </div>
 
-                <div class="lab-step">
-                    <span class="lab-step-number">5</span>
-                    <span class="lab-step-title">Buat GitHub Actions Workflow</span>
-                    <div class="lab-step-content">
-                        <p>Buat file <code>.github/workflows/ci-cd.yml</code>:</p>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre>name: CI/CD Pipeline - Next.js Todo App
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">5. Infrastructure as Code (IaC) <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Definisi:</strong> IaC adalah praktik managing dan provisioning infrastructure (servers, networks, databases) melalui code files, rather than manual configuration. Ini memungkinkan infrastructure di-version, di-test, dan di-deploy seperti application code.</p>
+      <br>
+      <p><strong>Benefits IaC:</strong></p>
+      <ul>
+        <li><strong>Consistency:</strong> Eliminates configuration drift (server A dikonfigurasi beda dengan server B)</li>
+        <li><strong>Speed:</strong> Spin up entire environments dalam minutes, not days</li>
+        <li><strong>Version Control:</strong> Infrastructure changes tracked di Git</li>
+        <li><strong>Reusability:</strong> Templates dapat digunakan berulang kali</li>
+        <li><strong>Disaster Recovery:</strong> Rebuild entire infrastructure dari code dalam hours</li>
+      </ul>
+      <br>
+      <p><strong>IaC Tools:</strong></p>
+      <table class="comparison-table">
+        <tr><th>Tool</th><th>Type</th><th>Cloud Support</th><th>Language</th></tr>
+        <tr><td>Terraform</td><td>Declarative</td><td>Multi-cloud (AWS, Azure, GCP, etc.)</td><td>HCL (HashiCorp Configuration Language)</td></tr>
+        <tr><td>AWS CloudFormation</td><td>Declarative</td><td>AWS only</td><td>YAML/JSON</td></tr>
+        <tr><td>Azure Resource Manager</td><td>Declarative</td><td>Azure only</td><td>JSON (ARM Templates)</td></tr>
+        <tr><td>Ansible</td><td>Procedural/Imperative</td><td>Multi-cloud</td><td>YAML (Playbooks)</td></tr>
+        <tr><td>Puppet</td><td>Declarative</td><td>Multi-cloud</td><td>Puppet DSL</td></tr>
+        <tr><td>Chef</td><td>Procedural</td><td>Multi-cloud</td><td>Ruby</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">6. Containerization & Orchestration <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Containerization:</strong> Teknologi untuk packaging aplikasi beserta dependencies-nya (libraries, runtime, config files) ke dalam lightweight, portable container. Container berbagi OS kernel dengan host, making them more efficient than VMs.</p>
+      <br>
+      <p><strong>Docker:</strong> Platform paling populer untuk containerization.</p>
+      <ul>
+        <li><strong>Docker Image:</strong> Read-only template yang berisi application + dependencies</li>
+        <li><strong>Docker Container:</strong> Running instance dari Docker image</li>
+        <li><strong>Dockerfile:</strong> Script untuk membangun Docker image</li>
+        <li><strong>Docker Hub:</strong> Registry untuk menyimpan dan distribusi Docker images</li>
+      </ul>
+      <br>
+      <p><strong>Orchestration:</strong> Mengelola lifecycle containers: deployment, scaling, networking, load balancing, health checks, failover.</p>
+      <ul>
+        <li><strong>Kubernetes (K8s):</strong> De facto standard untuk container orchestration. Features: auto-scaling, self-healing, service discovery, rolling updates, secrets management.</li>
+        <li><strong>Docker Swarm:</strong> Native Docker orchestration, simpler than K8s tapi less features.</li>
+        <li><strong>Amazon ECS/EKS:</strong> Managed container orchestration di AWS.</li>
+      </ul>
+      <br>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Dockerfile Example
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install --production
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]
+
+# Build & Run
+$ docker build -t myapp:1.0 .
+$ docker run -d -p 3000:3000 --name myapp myapp:1.0</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="quiz-container">
+  <div class="quiz-question">Apa perbedaan utama Continuous Delivery dan Continuous Deployment?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Continuous Delivery tidak melakukan testing</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Continuous Delivery memerlukan manual approval untuk production, Continuous Deployment fully automated</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Continuous Deployment hanya untuk aplikasi kecil</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Continuous Delivery lebih cepat dari Continuous Deployment</div>
+  </div>
+  <div class="quiz-feedback" id="q6Feedback"></div>
+</div>
+</section>
+
+<!-- TAB 5: CI/CD Hands-On 2 Laptop -->
+<section id="cicd" class="content-section">
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon" style="background:linear-gradient(135deg,#10b981,#06b6d4)">CI</div>
+    <h2 class="card-title">CI/CD Hands-On: 2 Laptop (Developer + VPS Ubuntu)</h2>
+  </div>
+
+  <div class="note-box">
+    <strong>💡 Skenario:</strong> Anda punya 2 mesin: <strong>Laptop A (Developer)</strong> untuk coding dan <strong>Laptop B (VPS Ubuntu)</strong> sebagai production server. Kita akan membangun pipeline CI/CD sederhana menggunakan Git + GitHub Actions (atau manual script) untuk deploy aplikasi Node.js dari laptop developer ke VPS Ubuntu secara otomatis.
+  </div>
+
+  <div class="two-laptop">
+    <div class="laptop-box dev">
+      <div class="laptop-header">💻 Laptop A - Developer (Lokal)</div>
+      <ul>
+        <li>OS: Windows / macOS / Linux</li>
+        <li>Role: Coding, push ke Git, trigger build</li>
+        <li>Tools: Git, VS Code, Node.js, SSH Client</li>
+        <li>IP: 192.168.1.10 (lokal network)</li>
+      </ul>
+    </div>
+    <div class="laptop-box vps">
+      <div class="laptop-header">🖥️ Laptop B - VPS Ubuntu (Remote/Server)</div>
+      <ul>
+        <li>OS: Ubuntu Server 22.04 LTS</li>
+        <li>Role: Production server, menjalankan aplikasi</li>
+        <li>Tools: Node.js, PM2, Nginx, SSH Server, Git</li>
+        <li>IP: 203.0.113.50 (public IP / static)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="interactive-box" onclick="toggleBox(this)">
+    <div class="toggle">Step 0: Persiapan Awal Kedua Laptop <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>A. Install di Laptop A (Developer):</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Install Node.js (LTS) + Git + VS Code
+# Windows: Download dari https://nodejs.org dan https://git-scm.com
+# Ubuntu/Mac:
+$ sudo apt update && sudo apt install -y git curl
+$ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+$ sudo apt install -y nodejs
+
+# Verify
+$ node -v  # v20.x.x
+$ npm -v   # 10.x.x
+$ git --version  # 2.x.x</pre>
+      </div>
+
+      <p><strong>B. Install di Laptop B (VPS Ubuntu):</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># SSH ke VPS (dari laptop A)
+$ ssh user@203.0.113.50
+
+# Update system
+$ sudo apt update && sudo apt upgrade -y
+
+# Install Node.js 20
+$ curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+$ sudo apt install -y nodejs
+
+# Install PM2 (process manager untuk Node.js)
+$ sudo npm install -g pm2
+
+# Install Nginx (reverse proxy)
+$ sudo apt install -y nginx
+
+# Install Git
+$ sudo apt install -y git
+
+# Buat user deploy (opsional tapi recommended)
+$ sudo adduser deploy
+$ sudo usermod -aG sudo deploy
+
+# Setup SSH Key Authentication (dari laptop A ke VPS)
+# Di laptop A:
+$ ssh-keygen -t ed25519 -C "developer@company.com"
+$ ssh-copy-id deploy@203.0.113.50</pre>
+      </div>
+
+      <div class="warn-box">
+        <strong>⚠️ Penting:</strong> Pastikan port 22 (SSH), 80 (HTTP), dan 443 (HTTPS) terbuka di firewall VPS. Jika menggunakan cloud VPS (DigitalOcean, AWS, GCP), buka port di security group/firewall dashboard.
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 1: Setup Repository & Aplikasi Node.js <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Di Laptop A (Developer):</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Buat folder project
+$ mkdir ~/my-cloud-app && cd ~/my-cloud-app
+$ git init
+
+# Inisialisasi project Node.js
+$ npm init -y
+
+# Install Express
+$ npm install express
+
+# Buat file server.js
+$ cat > server.js << 'EOF'
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Hello from Cloud Computing App!',
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV || 'development',
+    server: 'VPS Ubuntu'
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'UP', uptime: process.uptime() });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
+EOF
+
+# Buat .gitignore
+$ cat > .gitignore << 'EOF'
+node_modules/
+.env
+*.log
+.DS_Store
+EOF
+
+# Commit awal
+$ git add .
+$ git commit -m "Initial commit: Express server with health check"</pre>
+      </div>
+
+      <p><strong>Test lokal:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre>$ node server.js
+# Buka browser: http://localhost:3000
+# Ctrl+C untuk stop</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 2: Setup GitHub Repository (Remote) <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Opsi A: GitHub (Cloud - Recommended)</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># 1. Buat repository baru di GitHub (tanpa README)
+#    https://github.com/new
+#    Nama: my-cloud-app
+
+# 2. Hubungkan repository lokal ke GitHub
+$ git remote add origin https://github.com/username/my-cloud-app.git
+
+# 3. Push code ke GitHub
+$ git branch -M main
+$ git push -u origin main
+
+# 4. Buat Personal Access Token (PAT) untuk VPS pull
+#    GitHub > Settings > Developer settings > Personal access tokens > Tokens (classic)
+#    Generate new token dengan scope: repo
+#    Simpan token dengan aman!</pre>
+      </div>
+
+      <p><strong>Opsi B: Git Server Lokal (Jika tidak ingin pakai GitHub)</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Di Laptop B (VPS) - Setup bare repository
+$ mkdir -p ~/git/my-cloud-app.git && cd ~/git/my-cloud-app.git
+$ git init --bare
+
+# Di Laptop A - Push ke VPS langsung
+$ git remote add vps deploy@203.0.113.50:~/git/my-cloud-app.git
+$ git push vps main</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 3: Setup VPS untuk Menerima Deploy <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Di Laptop B (VPS Ubuntu):</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Login sebagai user deploy
+$ ssh deploy@203.0.113.50
+
+# Buat struktur folder aplikasi
+$ mkdir -p ~/apps/my-cloud-app
+$ cd ~/apps/my-cloud-app
+
+# Clone repository (jika pakai GitHub)
+$ git clone https://github.com/username/my-cloud-app.git .
+# Atau jika pakai token:
+# $ git clone https://TOKEN@github.com/username/my-cloud-app.git .
+
+# Install dependencies
+$ npm install --production
+
+# Test jalankan dengan PM2
+$ pm2 start server.js --name "my-cloud-app"
+$ pm2 save
+$ pm2 startup systemd
+
+# Cek status
+$ pm2 status
+$ pm2 logs my-cloud-app</pre>
+      </div>
+
+      <p><strong>Setup Nginx sebagai Reverse Proxy:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Buat konfigurasi Nginx
+$ sudo nano /etc/nginx/sites-available/my-cloud-app
+
+# Isi dengan:
+server {
+    listen 80;
+    server_name 203.0.113.50;  # atau domain.com
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+# Aktifkan site
+$ sudo ln -s /etc/nginx/sites-available/my-cloud-app /etc/nginx/sites-enabled/
+$ sudo nginx -t
+$ sudo systemctl restart nginx
+
+# Cek di browser: http://203.0.113.50</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 4: Buat Deploy Script (Manual CI/CD) <span>&#9660;</span></div>
+    <div class="content">
+      <p>Kita akan membuat script deploy sederhana yang dijalankan dari <strong>Laptop A</strong> untuk meng-update aplikasi di <strong>VPS</strong> secara otomatis.</p>
+      <br>
+      <p><strong>A. Buat deploy script di Laptop A:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Buat file deploy.sh di project folder
+$ cat > deploy.sh << 'EOF'
+#!/bin/bash
+
+# Konfigurasi
+VPS_IP="203.0.113.50"
+VPS_USER="deploy"
+APP_DIR="~/apps/my-cloud-app"
+REPO_URL="https://github.com/username/my-cloud-app.git"
+
+echo "🚀 Starting deployment to VPS..."
+
+# 1. Push latest code ke GitHub
+echo "📤 Pushing code to GitHub..."
+git push origin main
+
+# 2. SSH ke VPS dan pull latest code
+echo "🖥️ Connecting to VPS and pulling updates..."
+ssh $VPS_USER@$VPS_IP << 'REMOTE'
+  cd ~/apps/my-cloud-app
+  echo "⬇️ Pulling latest code..."
+  git pull origin main
+
+  echo "📦 Installing dependencies..."
+  npm install --production
+
+  echo "🔄 Restarting application with PM2..."
+  pm2 reload my-cloud-app --update-env
+
+  echo "✅ Deployment completed!"
+REMOTE
+
+echo "🎉 Deploy finished successfully!"
+echo "🌐 Check: http://$VPS_IP"
+EOF
+
+# Beri permission execute
+$ chmod +x deploy.sh</pre>
+      </div>
+
+      <p><strong>B. Jalankan deploy:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Pastikan semua perubahan sudah di-commit
+$ git add .
+$ git commit -m "Update: new feature"
+
+# Jalankan deploy
+$ ./deploy.sh
+
+# Output yang diharapkan:
+# 🚀 Starting deployment to VPS...
+# 📤 Pushing code to GitHub...
+# 🖥️ Connecting to VPS and pulling updates...
+# ⬇️ Pulling latest code...
+# 📦 Installing dependencies...
+# 🔄 Restarting application with PM2...
+# ✅ Deployment completed!
+# 🎉 Deploy finished successfully!</pre>
+      </div>
+
+      <div class="note-box">
+        <strong>💡 Tips:</strong> Script ini adalah versi sederhana dari CI/CD. Setiap kali Anda jalankan <code>./deploy.sh</code>, code akan di-push ke GitHub lalu di-pull dan restart di VPS secara otomatis. Ini adalah dasar dari <strong>Continuous Delivery</strong> manual.
+      </div>
+    </div>
+  </div>
+
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 5: Setup GitHub Actions (Automated CI/CD) <span>&#9660;</span></div>
+    <div class="content">
+      <p>Jika ingin <strong>fully automated</strong> (push ke GitHub langsung deploy ke VPS tanpa jalankan script manual), gunakan GitHub Actions.</p>
+      <br>
+      <p><strong>A. Setup SSH Key di GitHub Secrets:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Di Laptop B (VPS), generate key untuk GitHub Actions
+$ ssh-keygen -t ed25519 -f ~/.ssh/github_actions -N ""
+
+# Copy public key ke authorized_keys
+$ cat ~/.ssh/github_actions.pub >> ~/.ssh/authorized_keys
+
+# Copy private key (tampilkan dan copy ke clipboard)
+$ cat ~/.ssh/github_actions
+# -----BEGIN OPENSSH PRIVATE KEY-----
+# ... (copy seluruh isi) ...
+# -----END OPENSSH PRIVATE KEY-----
+
+# Di GitHub Repository:
+# Settings > Secrets and variables > Actions > New repository secret
+# Name: VPS_SSH_KEY
+# Value: (paste private key di atas)
+
+# Tambahkan juga secret:
+# VPS_HOST = 203.0.113.50
+# VPS_USER = deploy
+# VPS_PATH = /home/deploy/apps/my-cloud-app</pre>
+      </div>
+
+      <p><strong>B. Buat GitHub Actions Workflow:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Buat folder dan file workflow
+$ mkdir -p .github/workflows
+$ cat > .github/workflows/deploy.yml << 'EOF'
+name: Deploy to VPS
 
 on:
   push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-
-env:
-  NODE_VERSION: '20'
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    branches: [ main ]
 
 jobs:
-  # --- Stage 1: Lint &amp; Type Check ---
-  lint:
-    name: Lint &amp; Type Check
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      - name: Install dependencies
-        run: npm ci
+    - name: Install dependencies
+      run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
+    - name: Run tests
+      run: npm test
+      continue-on-error: true
 
-      - name: Type check with TypeScript
-        run: npx tsc --noEmit
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          cd ${{ secrets.VPS_PATH }}
+          git pull origin main
+          npm install --production
+          pm2 reload my-cloud-app --update-env
+          echo "Deployment completed at $(date)"
+EOF
 
-  # --- Stage 2: Unit Tests ---
-  test:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+# Push workflow ke GitHub
+$ git add .
+$ git commit -m "Add GitHub Actions CI/CD pipeline"
+$ git push origin main</pre>
+      </div>
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests with coverage
-        run: npm run test
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: coverage-report
-          path: coverage/
-          retention-days: 7
-
-  # --- Stage 3: Build ---
-  build:
-    name: Build Application
-    runs-on: ubuntu-latest
-    needs: [lint, test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Next.js app
-        run: npm run build
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: .next/
-          retention-days: 1
-
-  # --- Stage 4: Deploy to Vercel (Production) ---
-  deploy-production:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [lint, test, build]
-    if: github.ref == 'refs/heads/main' &amp;&amp; github.event_name == 'push'
-    environment:
-      name: production
-      url: ${{ steps.deploy.outputs.url }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Project Artifacts to Vercel
-        id: deploy
-        run: |
-          url=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
-          echo "url=$url" &gt;&gt; $GITHUB_OUTPUT
-          echo "Deployed to: $url"
-
-      - name: Comment Deployment URL
-        if: success()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { data: comment } = await github.rest.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: `**Production Deployed Successfully!**\n\nURL: ${{ steps.deploy.outputs.url }}`
-            })
-
-  # --- Stage 5: Deploy Preview (Pull Requests) ---
-  deploy-preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    needs: [lint, test, build]
-    if: github.event_name == 'pull_request'
-    environment:
-      name: preview
-      url: ${{ steps.deploy-preview.outputs.url }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Preview
-        id: deploy-preview
-        run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
-          echo "url=$url" &gt;&gt; $GITHUB_OUTPUT
-
-      - name: Comment Preview URL on PR
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: `**Preview deployed:** ${{ steps.deploy-preview.outputs.url }}`
-            })</pre>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lab-step">
-                    <span class="lab-step-number">6</span>
-                    <span class="lab-step-title">Setup GitHub Secrets</span>
-                    <div class="lab-step-content">
-                        <p>Buka repository GitHub -> Settings -> Secrets and variables -> Actions -> New repository secret</p>
-                        <br>
-                        <table class="comparison-table">
-                            <tr><th>Secret Name</th><th>Value</th><th>How to Get</th></tr>
-                            <tr><td><code>VERCEL_TOKEN</code></td><td>Vercel personal token</td><td>vercel.com/account/tokens</td></tr>
-                            <tr><td><code>VERCEL_ORG_ID</code></td><td>Organization ID</td><td><code>.vercel/project.json</code> setelah <code>vercel link</code></td></tr>
-                            <tr><td><code>VERCEL_PROJECT_ID</code></td><td>Project ID</td><td><code>.vercel/project.json</code> setelah <code>vercel link</code></td></tr>
-                        </table>
-                        <br>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre># Cek nilai orgId dan projectId
-cat .vercel/project.json
-# Output:
-# {
-#   "orgId": "team_xxxxxxxxxxxxxxxx",
-#   "projectId": "prj_xxxxxxxxxxxxxxxx"
-# }</pre>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lab-step">
-                    <span class="lab-step-number">7</span>
-                    <span class="lab-step-title">Commit &amp; Push Workflow</span>
-                    <div class="lab-step-content">
-                        <div class="terminal">
-                            <div class="terminal-line" style="animation-delay: 0.1s;"><span class="terminal-prompt">$</span> <span class="terminal-command">mkdir -p .github/workflows</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.2s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git add .github/workflows/ci-cd.yml</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.3s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git commit -m "feat: add CI/CD pipeline with GitHub Actions"</span></div>
-                            <div class="terminal-line" style="animation-delay: 0.5s;"><span class="terminal-prompt">$</span> <span class="terminal-command">git push origin main</span></div>
-                        </div>
-                        <p>Setelah push, buka tab <strong>Actions</strong> di repository GitHub untuk melihat pipeline berjalan!</p>
-                    </div>
-                </div>
-
-                <div class="lab-step">
-                    <span class="lab-step-number">8</span>
-                    <span class="lab-step-title">Verifikasi Pipeline</span>
-                    <div class="lab-step-content">
-                        <p><strong>Checklist Verifikasi:</strong></p>
-                        <ul class="checklist" id="cicdChecklist">
-                            <li onclick="toggleCheck(this)">Repository di-fork ke akun pribadi</li>
-                            <li onclick="toggleCheck(this)">GitHub Secrets (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID) sudah di-set</li>
-                            <li onclick="toggleCheck(this)">File <code>.github/workflows/ci-cd.yml</code> sudah dibuat</li>
-                            <li onclick="toggleCheck(this)">Push ke branch <code>main</code> berhasil</li>
-                            <li onclick="toggleCheck(this)">Tab Actions menunjukkan workflow berjalan</li>
-                            <li onclick="toggleCheck(this)">Job "Lint &amp; Type Check" pass (hijau)</li>
-                            <li onclick="toggleCheck(this)">Job "Unit Tests" pass dengan coverage report</li>
-                            <li onclick="toggleCheck(this)">Job "Build Application" pass</li>
-                            <li onclick="toggleCheck(this)">Job "Deploy to Production" berhasil deploy ke Vercel</li>
-                            <li onclick="toggleCheck(this)">URL deployment bisa diakses di browser</li>
-                        </ul>
-                        <br>
-                        <p><strong>Troubleshooting:</strong></p>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre># Jika build gagal, cek logs:
-# 1. Buka GitHub -> repository -> Actions -> failed workflow
-# 2. Klik job yang failed untuk melihat detail error
-# 3. Common issues:
-#    - Missing secrets: pastikan VERCEL_TOKEN dll sudah di-set
-#    - Node version mismatch: pastikan package.json compatible
-#    - Missing test script: tambahkan "test": "jest" di package.json
-
-# Test locally sebelum push:
-npm ci
-npm run lint
-npm run test
-npm run build</pre>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lab-step">
-                    <span class="lab-step-number">9</span>
-                    <span class="lab-step-title">GitLab CI/CD Alternative (Opsional)</span>
-                    <div class="lab-step-content">
-                        <p>Jika menggunakan GitLab, buat file <code>.gitlab-ci.yml</code>:</p>
-                        <div class="code-block">
-                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-                            <pre>stages:
-  - build
-  - test
-  - deploy
-
-variables:
-  NODE_VERSION: "20"
-  VERCEL_TOKEN: $VERCEL_TOKEN
-  VERCEL_ORG_ID: $VERCEL_ORG_ID
-  VERCEL_PROJECT_ID: $VERCEL_PROJECT_ID
-
-# Cache node_modules
-cache:
-  paths:
-    - node_modules/
-
-build:
-  stage: build
-  image: node:20-alpine
-  script:
-    - npm ci
-    - npm run build
-  artifacts:
-    paths:
-      - .next/
-    expire_in: 1 hour
-
-test:
-  stage: test
-  image: node:20-alpine
-  script:
-    - npm ci
-    - npm run lint
-    - npm run test
-  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
-
-deploy:
-  stage: deploy
-  image: node:20-alpine
-  script:
-    - npm install -g vercel
-    - vercel pull --yes --environment=production --token=$VERCEL_TOKEN
-    - vercel build --prod --token=$VERCEL_TOKEN
-    - vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
-  only:
-    - main</pre>
-                        </div>
-                        <p><strong>Setup GitLab CI/CD Variables:</strong></p>
-                        <ol>
-                            <li>Buka GitLab -> Project -> Settings -> CI/CD -> Variables</li>
-                            <li>Add variables: <code>VERCEL_TOKEN</code>, <code>VERCEL_ORG_ID</code>, <code>VERCEL_PROJECT_ID</code></li>
-                            <li>Protect variables jika hanya untuk protected branches</li>
-                            <li>Mask variables untuk keamanan</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quiz-container">
-                <div class="quiz-question">Apa yang terjadi jika job "lint" gagal di GitHub Actions?</div>
-                <div class="quiz-options">
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">A. Pipeline tetap berjalan ke deployment</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, true)">B. Job "test" dan "build" tidak akan dijalankan (blocked by needs)</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">C. Hanya job "build" yang di-skip</div>
-                    <div class="quiz-option" onclick="checkAnswer(this, false)">D. Pipeline akan retry otomatis</div>
-                </div>
-                <div class="quiz-feedback" id="cicdQuizFeedback"></div>
-            </div>
-        </section>
-
-        <!-- TAB 5: Quiz -->
-        <section id="quiz" class="content-section">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">QZ</div>
-                    <h2 class="card-title">Quiz Komprehensif Cloud Computing</h2>
-                </div>
-
-                <div class="quiz-container">
-                    <div class="quiz-question">1. Apa keuntungan utama dari Horizontal Scaling dibandingkan Vertical Scaling?</div>
-                    <div class="quiz-options">
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Tidak memerlukan load balancer</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, true)">B. Meningkatkan high availability dan mengurangi downtime</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">C. Lebih murah karena tidak perlu hardware baru</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Tidak perlu mengubah kode aplikasi</div>
-                    </div>
-                    <div class="quiz-feedback" id="q1Feedback"></div>
-                </div>
-
-                <div class="quiz-container" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
-                    <div class="quiz-question">2. Dalam Multi-Tenancy SaaS, bagaimana data antar tenant diisolasi?</div>
-                    <div class="quiz-options">
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Menggunakan database terpisah untuk setiap tenant</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">B. Menggunakan server fisik terpisah</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, true)">C. Logical separation dengan consumer IDs pada database yang sama</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Menggunakan enkripsi end-to-end saja</div>
-                    </div>
-                    <div class="quiz-feedback" id="q2Feedback"></div>
-                </div>
-
-                <div class="quiz-container" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
-                    <div class="quiz-question">3. Apa tujuan dari Service Level Agreement (SLA) dalam cloud computing?</div>
-                    <div class="quiz-options">
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Menentukan harga fixed untuk semua layanan</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, true)">B. Menetapkan expected capacity, availability, dan performance metrics</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">C. Mengatur hak paten teknologi cloud</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Menentukan lokasi fisik data center</div>
-                    </div>
-                    <div class="quiz-feedback" id="q3Feedback"></div>
-                </div>
-
-                <div class="quiz-container" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
-                    <div class="quiz-question">4. Dalam DevOps Lifecycle, phase apa yang berulang secara terus-menerus?</div>
-                    <div class="quiz-options">
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Planning -> Coding -> Building</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, true)">B. Monitoring -> Operations -> Testing -> Releasing -> Deployment -> Building -> Coding -> Planning</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">C. Requirements -> Planning -> Design</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Hanya Testing dan Deployment</div>
-                    </div>
-                    <div class="quiz-feedback" id="q4Feedback"></div>
-                </div>
-
-                <div class="quiz-container" style="background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);">
-                    <div class="quiz-question">5. Apa fungsi dari <code>needs: [lint, test]</code> dalam GitHub Actions workflow?</div>
-                    <div class="quiz-options">
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">A. Menjalankan job secara parallel</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, true)">B. Menentukan dependency - job ini hanya berjalan jika lint dan test pass</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">C. Menggabungkan output dari lint dan test</div>
-                        <div class="quiz-option" onclick="checkAnswer(this, false)">D. Membuat artifact dari lint dan test</div>
-                    </div>
-                    <div class="quiz-feedback" id="q5Feedback"></div>
-                </div>
-
-                <div style="text-align: center; margin-top: 30px;">
-                    <div id="scoreDisplay" style="font-size: 1.5rem; font-weight: bold; color: var(--primary); display: none;"></div>
-                    <button onclick="calculateScore()" style="padding: 15px 30px; font-size: 1.1rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: var(--shadow-lg); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                        Hitung Skor
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer style="text-align: center; padding: 40px 20px; color: white; opacity: 0.8;">
-            <p>Materi ini mencakup: Resource Pooling/Sharing/Provisioning, Scaling &amp; Load Balancing, High Availability, DevOps, SDLC, dan CI/CD Hands-On</p>
-            <p style="margin-top: 10px;">Telkom University - Cloud Computing - Bachelor of Telecommunication Engineering</p>
-        </footer>
+      <p><strong>C. Hasil:</strong> Setiap kali Anda push ke branch <code>main</code>, GitHub Actions akan:</p>
+      <ol>
+        <li>Checkout code</li>
+        <li>Install dependencies</li>
+        <li>Run tests (opsional)</li>
+        <li>SSH ke VPS dan jalankan deploy script</li>
+      </ol>
+      <br>
+      <p>Monitor status di tab <strong>Actions</strong> di repository GitHub Anda.</p>
     </div>
+  </div>
 
-    <button class="fab" onclick="scrollToTop()" title="Back to Top">&#8593;</button>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 6: Setup PM2 + Environment Variables <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Environment Variables (.env):</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Di VPS, buat file .env
+$ nano ~/apps/my-cloud-app/.env
 
-    <script>
-        // Tab Navigation
-        function showTab(tabId) {
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
-            updateProgress();
-        }
+# Isi:
+NODE_ENV=production
+PORT=3000
+DB_HOST=localhost
+DB_USER=myuser
+DB_PASS=mypassword
+JWT_SECRET=your-secret-key-here
 
-        // Toggle Interactive Boxes
-        function toggleBox(element) {
-            element.classList.toggle('collapsed');
-            updateProgress();
-        }
+# Update server.js untuk membaca .env
+# Install dotenv jika belum
+$ npm install dotenv
 
-        // Copy Code
-        function copyCode(btn) {
-            const codeBlock = btn.nextElementSibling;
-            const text = codeBlock.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                btn.textContent = 'Copied!';
-                setTimeout(() => btn.textContent = 'Copy', 2000);
-            });
-        }
+# Update server.js:
+require('dotenv').config();
+const express = require('express');
+// ... rest of code</pre>
+      </div>
 
-        // Checklist Toggle
-        function toggleCheck(item) {
-            item.classList.toggle('checked');
-            updateProgress();
-        }
+      <p><strong>PM2 Ecosystem File (ecosystem.config.js):</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre>$ cat > ecosystem.config.js << 'EOF'
+module.exports = {
+  apps: [{
+    name: 'my-cloud-app',
+    script: './server.js',
+    instances: 1,  // atau 'max' untuk cluster mode
+    exec_mode: 'fork',
+    env: {
+      NODE_ENV: 'development',
+      PORT: 3000
+    },
+    env_production: {
+      NODE_ENV: 'production',
+      PORT: 3000
+    },
+    error_file: './logs/err.log',
+    out_file: './logs/out.log',
+    log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+    merge_logs: true,
+    autorestart: true,
+    max_restarts: 10,
+    min_uptime: '10s',
+    watch: false,
+    max_memory_restart: '500M'
+  }]
+};
+EOF
 
-        // Quiz Answer Check
-        function checkAnswer(element, isCorrect) {
-            const container = element.parentElement;
-            const feedback = container.nextElementSibling;
+# Jalankan dengan ecosystem file
+$ pm2 start ecosystem.config.js --env production
+$ pm2 save
 
-            container.querySelectorAll('.quiz-option').forEach(opt => {
-                opt.classList.remove('correct', 'wrong');
-                opt.style.pointerEvents = 'none';
-            });
+# PM2 commands berguna:
+$ pm2 status              # Lihat status semua app
+$ pm2 logs my-cloud-app   # Lihat logs real-time
+$ pm2 reload my-cloud-app # Zero-downtime reload
+$ pm2 restart my-cloud-app # Hard restart
+$ pm2 stop my-cloud-app   # Stop app
+$ pm2 delete my-cloud-app # Hapus dari PM2 list</pre>
+      </div>
+    </div>
+  </div>
 
-            if (isCorrect) {
-                element.classList.add('correct');
-                feedback.innerHTML = '<strong>Benar!</strong> ' + getExplanation(element);
-                feedback.style.background = '#d1fae5';
-            } else {
-                element.classList.add('wrong');
-                feedback.innerHTML = '<strong>Salah.</strong> ' + getExplanation(element);
-                feedback.style.background = '#fee2e2';
-            }
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 7: SSL dengan Let's Encrypt (HTTPS) <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Di VPS Ubuntu:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Install Certbot
+$ sudo apt install -y certbot python3-certbot-nginx
 
-            feedback.classList.add('show');
-            feedback.style.borderRadius = '8px';
-        }
+# Dapatkan SSL certificate (ganti domain.com dengan domain Anda)
+$ sudo certbot --nginx -d domain.com -d www.domain.com
 
-        function getExplanation(element) {
-            const text = element.textContent;
-            if (text.includes('Dynamic Resource Provisioning')) {
-                return 'Dynamic provisioning memungkinkan penyesuaian resource secara real-time sesuai demand, berbeda dengan static yang fixed.';
-            } else if (text.includes('Sticky Round Robin')) {
-                return 'Sticky Round Robin memastikan subsequent requests dari user yang sama selalu ke server yang sama untuk session persistence.';
-            } else if (text.includes('Continuous Delivery')) {
-                return 'Continuous Delivery memerlukan manual approval sebelum deploy ke production, sedangkan Continuous Deployment fully automated.';
-            } else if (text.includes('job "lint" gagal')) {
-                return 'GitHub Actions menggunakan keyword "needs" untuk mendefinisikan dependency. Jika prerequisite job gagal, dependent job tidak dijalankan.';
-            } else if (text.includes('Horizontal Scaling')) {
-                return 'Horizontal scaling menambah server instances, sehingga jika satu gagal, server lain masih bisa handle request (high availability).';
-            } else if (text.includes('Multi-Tenancy SaaS')) {
-                return 'Dalam SaaS multi-tenancy, tenant berbagi application code base dan database, dengan logical separation menggunakan consumer IDs.';
-            } else if (text.includes('Service Level Agreement')) {
-                return 'SLA mendefinisikan expected capacity, availability guarantees, performance metrics, dan penalties untuk breach.';
-            } else if (text.includes('DevOps Lifecycle')) {
-                return 'DevOps lifecycle adalah infinite loop: Planning -> Coding -> Building -> Deployment -> Releasing -> Testing -> Operations -> Monitoring -> (back to Planning).';
-            } else if (text.includes('needs: [lint, test]')) {
-                return 'Keyword "needs" mendefinisikan job dependencies. Job hanya berjalan jika semua prerequisite jobs berhasil (success).';
-            }
-            return '';
-        }
+# Ikuti wizard:
+# 1. Masukkan email
+# 2. Setuju Terms of Service
+# 3. Pilih whether to redirect HTTP to HTTPS (pilih Yes)
 
-        // Calculate Score
-        function calculateScore() {
-            const correctAnswers = document.querySelectorAll('.quiz-option.correct').length;
-            const totalQuestions = 5;
-            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+# Auto-renewal test
+$ sudo certbot renew --dry-run
 
-            const scoreDisplay = document.getElementById('scoreDisplay');
-            scoreDisplay.style.display = 'block';
+# Nginx config akan otomatis di-update oleh Certbot
+# Cek konfigurasi:
+$ sudo cat /etc/nginx/sites-available/my-cloud-app</pre>
+      </div>
 
-            let message = '';
-            if (percentage >= 80) message = 'Excellent!';
-            else if (percentage >= 60) message = 'Good Job!';
-            else message = 'Keep Learning!';
+      <div class="note-box">
+        <strong>💡 Catatan:</strong> Let's Encrypt hanya berfungsi jika Anda punya domain name yang pointing ke IP VPS. Jika belum punya domain, Anda bisa gunakan layanan gratis seperti <strong>duckdns.org</strong> atau <strong>noip.com</strong>.
+      </div>
+    </div>
+  </div>
 
-            scoreDisplay.innerHTML = message + '<br>Skor: ' + correctAnswers + '/' + totalQuestions + ' (' + percentage + '%)';
-        }
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 8: Monitoring & Logging <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>A. PM2 Monitoring:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre># Dashboard real-time di terminal
+$ pm2 monit
 
-        // Progress Bar
-        function updateProgress() {
-            const totalBoxes = document.querySelectorAll('.interactive-box').length;
-            const openedBoxes = document.querySelectorAll('.interactive-box:not(.collapsed)').length;
-            const checkedItems = document.querySelectorAll('.checklist li.checked').length;
-            const totalChecklist = document.querySelectorAll('.checklist li').length;
+# Web-based monitoring (PM2 Plus)
+$ pm2 plus
+# Buka https://app.pm2.io untuk melihat metrics web</pre>
+      </div>
 
-            const progress = ((openedBoxes + checkedItems) / (totalBoxes + totalChecklist)) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-        }
+      <p><strong>B. Setup Logrotate (supaya log tidak memenuhi disk):</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre>$ sudo nano /etc/logrotate.d/my-cloud-app
 
-        // Scroll to Top
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+# Isi:
+/home/deploy/apps/my-cloud-app/logs/*.log {
+    daily
+    missingok
+    rotate 14
+    compress
+    delaycompress
+    notifempty
+    create 0644 deploy deploy
+    sharedscripts
+    postrotate
+        pm2 reloadLogs
+    endscript
+}</pre>
+      </div>
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            updateProgress();
+      <p><strong>C. Setup UFW Firewall:</strong></p>
+      <div class="code-block">
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre>$ sudo ufw default deny incoming
+$ sudo ufw default allow outgoing
+$ sudo ufw allow ssh
+$ sudo ufw allow http
+$ sudo ufw allow https
+$ sudo ufw enable
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.querySelectorAll('.terminal-line').forEach((line, index) => {
-                            setTimeout(() => {
-                                line.style.opacity = '1';
-                            }, index * 200);
-                        });
-                    }
-                });
-            });
+# Cek status
+$ sudo ufw status verbose</pre>
+      </div>
+    </div>
+  </div>
 
-            document.querySelectorAll('.terminal').forEach(terminal => {
-                observer.observe(terminal);
-            });
-        });
-    </script>
+  <div class="interactive-box collapsed" onclick="toggleBox(this)">
+    <div class="toggle">Step 9: Checklist & Troubleshooting <span>&#9660;</span></div>
+    <div class="content">
+      <p><strong>Checklist Deploy:</strong></p>
+      <ul class="checklist">
+        <li onclick="this.classList.toggle('checked')">Node.js terinstall di kedua laptop</li>
+        <li onclick="this.classList.toggle('checked')">Git repository tersedia (GitHub atau bare repo)</li>
+        <li onclick="this.classList.toggle('checked')">SSH key authentication berfungsi (laptop A ke VPS)</li>
+        <li onclick="this.classList.toggle('checked')">Aplikasi berjalan dengan PM2 di VPS</li>
+        <li onclick="this.classList.toggle('checked')">Nginx reverse proxy aktif</li>
+        <li onclick="this.classList.toggle('checked')">Port 80 (dan 443) terbuka di firewall</li>
+        <li onclick="this.classList.toggle('checked')">Environment variables diatur (.env)</li>
+        <li onclick="this.classList.toggle('checked')">SSL certificate terpasang (opsional)</li>
+        <li onclick="this.classList.toggle('checked')">PM2 startup configured (auto-run saat reboot)</li>
+        <li onclick="this.classList.toggle('checked')">Logrotate configured</li>
+      </ul>
+
+      <p style="margin-top:20px"><strong>Troubleshooting Umum:</strong></p>
+      <table class="comparison-table">
+        <tr><th>Masalah</th><th>Penyebab</th><th>Solusi</th></tr>
+        <tr>
+          <td>Cannot SSH ke VPS</td>
+          <td>Firewall block port 22, SSH service down, wrong key</td>
+          <td>Cek UFW: <code>sudo ufw allow ssh</code>. Cek SSH service: <code>sudo systemctl status ssh</code></td>
+        </tr>
+        <tr>
+          <td>502 Bad Gateway (Nginx)</td>
+          <td>App tidak berjalan, salah port proxy, app crash</td>
+          <td>Cek PM2: <code>pm2 status</code>. Cek logs: <code>pm2 logs</code>. Verifikasi proxy_pass port</td>
+        </tr>
+        <tr>
+          <td>Permission denied saat git pull</td>
+          <td>SSH key tidak terpasang, repo private tanpa token</td>
+          <td>Pastikan SSH key di <code>~/.ssh/authorized_keys</code>. Untuk GitHub, gunakan PAT token</td>
+        </tr>
+        <tr>
+          <td>App tidak auto-start saat reboot</td>
+          <td>PM2 startup belum di-setup</td>
+          <td>Jalankan: <code>pm2 startup systemd</code> lalu <code>pm2 save</code></td>
+        </tr>
+        <tr>
+          <td>Port 3000 tidak accessible dari luar</td>
+          <td>App bind ke localhost saja</td>
+          <td>Pastikan app listen ke <code>0.0.0.0</code>: <code>app.listen(3000, '0.0.0.0')</code></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">AR</div>
+    <h2 class="card-title">Arsitektur Akhir (Diagram)</h2>
+  </div>
+  <div class="diagram">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:15px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="diagram-box" style="background:#dbeafe">💻 Developer<br><small>Laptop A</small></div>
+        <span class="diagram-arrow">&#8594;</span>
+        <div class="diagram-box" style="background:#fef3c7">Git Push<br><small>GitHub</small></div>
+        <span class="diagram-arrow">&#8594;</span>
+        <div class="diagram-box" style="background:#dbeafe">🖥️ VPS Ubuntu<br><small>Laptop B</small></div>
+      </div>
+      <div style="font-size:1.5rem">&#8595;</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="diagram-box" style="background:#fee2e2">Internet<br><small>Users</small></div>
+        <span class="diagram-arrow">&#8594;</span>
+        <div class="diagram-box" style="background:#f59e0b;color:white">Nginx<br><small>Reverse Proxy<br>Port 80/443</small></div>
+        <span class="diagram-arrow">&#8594;</span>
+        <div class="diagram-box" style="background:#10b981;color:white">PM2 + Node.js<br><small>Port 3000</small></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- TAB 6: Quiz -->
+<section id="quiz" class="content-section">
+<div class="card">
+  <div class="card-header">
+    <div class="card-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">QZ</div>
+    <h2 class="card-title">Quiz Cloud Computing Lengkap</h2>
+  </div>
+  <p style="margin-bottom:20px">Jawab semua pertanyaan untuk menguji pemahaman Anda tentang Resource Management, Scaling, Load Balancing, High Availability, DevOps, dan CI/CD.</p>
+</div>
+
+<div class="quiz-container">
+  <div class="quiz-question">1. Apa keuntungan utama Dynamic Resource Provisioning dibandingkan Static?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Lebih sederhana dan tidak memerlukan monitoring</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Dapat menyesuaikan resource secara real-time sesuai demand dan mendukung pay-per-usage</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Fixed cost yang lebih predictable untuk budgeting</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Tidak ada runtime overhead sama sekali</div>
+  </div>
+  <div class="quiz-feedback" id="q1Feedback"></div>
+</div>
+
+<div class="quiz-container" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)">
+  <div class="quiz-question">2. Dalam arsitektur multi-tenancy SaaS, bagaimana data antar tenant diisolasi?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Menggunakan database fisik terpisah untuk setiap tenant</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">B. Setiap tenant mendapat dedicated server fisik</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">C. Logical separation menggunakan consumer/tenant IDs pada shared database dan application instance</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Menggunakan enkripsi end-to-end tanpa logical separation</div>
+  </div>
+  <div class="quiz-feedback" id="q2Feedback"></div>
+</div>
+
+<div class="quiz-container">
+  <div class="quiz-question">3. Algoritma mana yang mengirim request dari user yang sama ke server yang sama?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Round Robin</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Sticky Round Robin</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Least Connection</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. IP Hash</div>
+  </div>
+  <div class="quiz-feedback" id="q3Feedback"></div>
+</div>
+
+<div class="quiz-container" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)">
+  <div class="quiz-question">4. Apa keuntungan utama Horizontal Scaling dibandingkan Vertical Scaling?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Tidak memerlukan load balancer</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Meningkatkan high availability dan mengurangi downtime</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Lebih murah karena tidak perlu hardware baru</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Tidak perlu mengubah kode aplikasi</div>
+  </div>
+  <div class="quiz-feedback" id="q4Feedback"></div>
+</div>
+
+<div class="quiz-container">
+  <div class="quiz-question">5. Berapa downtime maksimum per tahun untuk sistem dengan availability 99.99% (Four Nines)?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. 8.76 jam</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. 52.56 menit</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. 5.26 menit</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. 3.65 hari</div>
+  </div>
+  <div class="quiz-feedback" id="q5Feedback"></div>
+</div>
+
+<div class="quiz-container" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)">
+  <div class="quiz-question">6. Apa perbedaan utama Continuous Delivery dan Continuous Deployment?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Continuous Delivery tidak melakukan testing</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Continuous Delivery memerlukan manual approval untuk production, Continuous Deployment fully automated</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Continuous Deployment hanya untuk aplikasi kecil</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Continuous Delivery lebih cepat dari Continuous Deployment</div>
+  </div>
+  <div class="quiz-feedback" id="q6Feedback"></div>
+</div>
+
+<div class="quiz-container">
+  <div class="quiz-question">7. Dalam konteks 2-laptop CI/CD, apa fungsi PM2 di VPS Ubuntu?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,false)">A. Database server</div>
+    <div class="quiz-option" onclick="checkAnswer(this,true)">B. Process manager untuk menjalankan dan mengelola aplikasi Node.js (auto-restart, logging, clustering)</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Load balancer utama</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Git repository server</div>
+  </div>
+  <div class="quiz-feedback" id="q7Feedback"></div>
+</div>
+
+<div class="quiz-container" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)">
+  <div class="quiz-question">8. Mengapa Nginx diperlukan di VPS jika aplikasi Node.js sudah berjalan di port 3000?</div>
+  <div class="quiz-options">
+    <div class="quiz-option" onclick="checkAnswer(this,true)">A. Sebagai reverse proxy untuk port 80/443, SSL termination, static file serving, dan load balancing</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">B. Nginx menggantikan fungsi Node.js</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">C. Node.js tidak bisa listen ke port 3000 tanpa Nginx</div>
+    <div class="quiz-option" onclick="checkAnswer(this,false)">D. Hanya untuk tampilan website saja</div>
+  </div>
+  <div class="quiz-feedback" id="q8Feedback"></div>
+</div>
+</section>
+
+</div>
+
+<script>
+function showTab(tabId) {
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+  updateProgress();
+}
+
+function toggleBox(box) {
+  box.classList.toggle('collapsed');
+}
+
+function copyCode(btn) {
+  const pre = btn.nextElementSibling;
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.innerText = 'Copied!';
+    setTimeout(() => btn.innerText = 'Copy', 2000);
+  });
+}
+
+function checkAnswer(el, isCorrect) {
+  const parent = el.parentElement;
+  const feedback = parent.nextElementSibling;
+  parent.querySelectorAll('.quiz-option').forEach(opt => {
+    opt.style.pointerEvents = 'none';
+    if(opt === el) {
+      opt.classList.add(isCorrect ? 'correct' : 'wrong');
+    }
+  });
+  feedback.classList.add('show');
+  feedback.style.background = isCorrect ? '#d1fae5' : '#fee2e2';
+  feedback.style.color = isCorrect ? '#065f46' : '#991b1b';
+  feedback.innerHTML = isCorrect 
+    ? '✅ Benar! ' + (feedback.id === 'q1Feedback' ? 'Dynamic provisioning memungkinkan penyesuaian real-time dan model pay-per-usage.' : feedback.id === 'q2Feedback' ? 'SaaS menggunakan logical separation via tenant IDs pada shared infrastructure.' : feedback.id === 'q3Feedback' ? 'Sticky Round Robin memastikan session persistence dengan mengirim user ke server yang sama.' : feedback.id === 'q4Feedback' ? 'Horizontal scaling menambah jumlah server sehingga jika satu fail, yang lain masih berjalan.' : feedback.id === 'q5Feedback' ? '99.99% = 52.56 menit downtime per tahun.' : feedback.id === 'q6Feedback' ? 'Continuous Delivery memerlukan approval manual untuk production, sedangkan Continuous Deployment fully automated.' : feedback.id === 'q7Feedback' ? 'PM2 adalah process manager untuk Node.js yang menangani auto-restart, logging, dan clustering.' : 'Nginx berfungsi sebagai reverse proxy, SSL termination, dan static file server.') 
+    : '❌ Salah. Coba pelajari kembali materi di tab yang relevan.';
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = document.querySelectorAll('.quiz-option.correct').length;
+  const max = 8;
+  document.getElementById('progressBar').style.width = (total / max * 100) + '%';
+}
+
+// Auto-open first interactive box in each section
+document.querySelectorAll('.content-section').forEach(section => {
+  const first = section.querySelector('.interactive-box');
+  if(first) first.classList.remove('collapsed');
+});
+</script>
 </body>
 </html>
