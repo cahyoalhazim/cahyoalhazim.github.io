@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugas Supervised Learning — AI & Big Data</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-muted: #f1f5f9;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --accent: #3b82f6;
+            --accent-soft: #dbeafe;
+            --accent-purple: #8b5cf6;
+            --accent-purple-soft: #ede9fe;
+            --accent-emerald: #10b981;
+            --accent-emerald-soft: #d1fae5;
+            --accent-amber: #f59e0b;
+            --accent-amber-soft: #fef3c7;
+            --accent-rose: #f43f5e;
+            --accent-rose-soft: #ffe4e6;
+            --accent-cyan: #06b6d4;
+            --accent-cyan-soft: #cffafe;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 48px 24px;
+            text-align: center;
+        }
+
+        .header-inner {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 7px 18px;
+            border-radius: 999px;
+            margin-bottom: 20px;
+        }
+
+        .badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .header h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+
+        .header p {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* Main */
+        .main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+        }
+
+        /* Section divider */
+        .section-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 40px 0 24px;
+        }
+
+        .section-divider .tag {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: var(--bg-muted);
+            padding: 5px 14px;
+            border-radius: 6px;
+        }
+
+        .section-divider .line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-topbar {
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-purple));
+        }
+
+        .card-body {
+            padding: 32px;
+        }
+
+        /* Task header */
+        .task-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+
+        .task-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+            min-width: 52px;
+        }
+
+        .task-meta {
+            flex: 1;
+        }
+
+        .domain {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 6px;
+        }
+
+        .task-meta h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .task-source {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+        }
+
+        .task-source strong {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Tags */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+
+        .tag-item {
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 6px;
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .tag-item.purple {
+            background: var(--accent-purple-soft);
+            color: var(--accent-purple);
+        }
+
+        .tag-item.emerald {
+            background: var(--accent-emerald-soft);
+            color: var(--accent-emerald);
+        }
+
+        .tag-item.amber {
+            background: var(--accent-amber-soft);
+            color: var(--accent-amber);
+        }
+
+        .tag-item.rose {
+            background: var(--accent-rose-soft);
+            color: var(--accent-rose);
+        }
+
+        .tag-item.cyan {
+            background: var(--accent-cyan-soft);
+            color: var(--accent-cyan);
+        }
+
+        /* Description */
+        .desc {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        /* Collapsible sections */
+        .collapsible {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            background: var(--bg-muted);
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .collapsible-header:hover {
+            background: #e8eef4;
+        }
+
+        .collapsible-header i {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+
+        .collapsible-header.active i {
+            transform: rotate(90deg);
+        }
+
+        .collapsible-header h3 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .collapsible-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-body.open {
+            max-height: 2000px;
+        }
+
+        .collapsible-inner {
+            padding: 18px;
+        }
+
+        /* Dataset items */
+        .ds-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .ds-row:last-child {
+            border-bottom: none;
+        }
+
+        .ds-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        .ds-info h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .ds-info a {
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .ds-info a:hover {
+            text-decoration: underline;
+        }
+
+        /* Step list */
+        .step-list {
+            list-style: none;
+        }
+
+        .step-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .step-list li:last-child {
+            border-bottom: none;
+        }
+
+        .step-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding: 3px 9px;
+            border-radius: 5px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Hint list */
+        .hint-list {
+            list-style: none;
+        }
+
+        .hint-list li {
+            position: relative;
+            padding-left: 22px;
+            margin-bottom: 10px;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .hint-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--accent-purple);
+            font-weight: 700;
+        }
+
+        .hint-list li code {
+            background: var(--bg-muted);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.82rem;
+            color: var(--accent);
+        }
+
+        /* Question items */
+        .q-row {
+            display: flex;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .q-row:last-child {
+            border-bottom: none;
+        }
+
+        .q-badge {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--accent-rose);
+            background: var(--accent-rose-soft);
+            padding: 5px 11px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            height: fit-content;
+        }
+
+        .q-row p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .q-row p strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 24px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer-line {
+            width: 48px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-purple));
+            border-radius: 3px;
+            margin: 0 auto 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header h1 {
+                font-size: 1.9rem;
+            }
+            .card-body {
+                padding: 22px;
+            }
+            .task-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .task-num {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <div class="badge">
+                <div class="dot"></div>
+                Tugas Akhir — AI & Big Data
+            </div>
+            <h1>Supervised Learning<br>Case Studies</h1>
+            <p>Lima kasus analisis end-to-end menggunakan model supervised learning pada dataset nyata dari Kaggle. Setiap kasus mencakup EDA, preprocessing, modeling, evaluasi, dan interpretasi bisnis.</p>
+        </div>
+    </header>
+
+    <main class="main">
+
+        <!-- T — 01 -->
+        <div class="section-divider">
+            <span class="tag">T — 01</span>
+            <span class="line"></span>
+        </div>
+
+        <article class="card">
+            <div class="card-topbar"></div>
+            <div class="card-body">
+                <div class="task-header">
+                    <div class="task-num">01</div>
+                    <div class="task-meta">
+                        <div class="domain"><i class="fas fa-heartbeat"></i> Kesehatan</div>
+                        <h2>Prediksi risiko penyakit jantung berdasarkan profil pasien</h2>
+                        <p class="task-source">Sumber data — <strong>UCI Heart Disease · Kaggle Heart Failure Prediction</strong></p>
+                    </div>
+                </div>
+
+                <div class="tags">
+                    <span class="tag-item">Logistic Regression</span>
+                    <span class="tag-item purple">Random Forest</span>
+                    <span class="tag-item rose">XGBoost</span>
+                    <span class="tag-item emerald">SVM</span>
+                    <span class="tag-item amber">ROC-AUC</span>
+                    <span class="tag-item">SHAP</span>
+                    <span class="tag-item purple">Confusion Matrix</span>
+                </div>
+
+                <p class="desc">Analisis data medis pasien untuk memprediksi risiko penyakit jantung menggunakan model klasifikasi. Bandingkan performa model linear (Logistic Regression) dengan model tree-based (Random Forest, XGBoost) dan kernel-based (SVM). Gunakan SHAP untuk menjelaskan faktor risiko utama secara medis.</p>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-database" style="margin-right:6px;"></i>Dataset</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="ds-row">
+                                <div class="ds-icon"><i class="fas fa-hospital"></i></div>
+                                <div class="ds-info">
+                                    <h4>UCI Heart Disease</h4>
+                                    <a href="https://www.kaggle.com/datasets/uciml/heart-disease-dataset" target="_blank">kaggle.com/datasets/uciml/heart-disease-dataset</a>
+                                </div>
+                            </div>
+                            <div class="ds-row">
+                                <div class="ds-icon"><i class="fas fa-heartbeat"></i></div>
+                                <div class="ds-info">
+                                    <h4>Heart Failure Prediction</h4>
+                                    <a href="https://www.kaggle.com/datasets/fedesoriano/heart-failure-prediction" target="_blank">kaggle.com/datasets/fedesoriano/heart-failure-prediction</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-list-ol" style="margin-right:6px;"></i>Langkah pengerjaan</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ol class="step-list">
+                                <li><span class="step-num">01</span>Load data, identifikasi missing value, encode variabel kategorikal (ChestPainType, RestingECG, ST_Slope)</li>
+                                <li><span class="step-num">02</span>EDA: distribusi target, korelasi fitur, outlier detection pada Cholesterol dan MaxHR</li>
+                                <li><span class="step-num">03</span>Split data (stratified), scaling dengan StandardScaler, handle class imbalance dengan SMOTE</li>
+                                <li><span class="step-num">04</span>Training 4 model: Logistic Regression, Random Forest, XGBoost, SVM — gunakan 5-fold CV</li>
+                                <li><span class="step-num">05</span>Hyperparameter tuning (GridSearchCV) untuk 2 model terbaik, analisis ROC-AUC dan Precision-Recall</li>
+                                <li><span class="step-num">06</span>SHAP summary plot untuk interpretasi feature importance secara medis</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-lightbulb" style="margin-right:6px;"></i>Hint teknis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ul class="hint-list">
+                                <li>Fitur <code>Cholesterol</code> memiliki nilai 0 yang merupakan missing value terselubung — ganti dengan median</li>
+                                <li>Gunakan <code>StratifiedKFold</code> agar proporsi target tetap seimbang di setiap fold</li>
+                                <li>Bandingkan <code>ROC-AUC</code> dengan <code>Average Precision</code> — untuk data imbalance, AP lebih informatif</li>
+                                <li>SHAP <code>waterfall plot</code> untuk 1 sampel pasien sangat powerful untuk menjelaskan prediksi ke dokter</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-question-circle" style="margin-right:6px;"></i>Pertanyaan analisis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="q-row">
+                                <span class="q-badge">Q1</span>
+                                <p><strong>Model manakah yang paling optimal untuk prediksi risiko jantung?</strong> Bandingkan ROC-AUC, Precision, Recall, dan F1-Score. Jelaskan trade-off antara sensitivity dan specificity.</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q2</span>
+                                <p><strong>Fitur apa saja yang paling berpengaruh terhadap risiko penyakit jantung?</strong> Gunakan SHAP values untuk mengidentifikasi top 5 fitur. Jelaskan hubungannya secara medis.</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q3</span>
+                                <p><strong>Bagaimana model ini bisa digunakan dalam praktik klinis?</strong> Berapa threshold optimal untuk meminimalkan pasien sakit yang terlewat? Berapa biaya false positive vs false negative?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q4</span>
+                                <p><strong>Apakah ada bias gender atau usia dalam prediksi model?</strong> Analisis performa model per kelompok demografi. Apakah model lebih akurat untuk pria dibanding wanita?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q5</span>
+                                <p><strong>Rekomendasi screening apa yang dapat disimpulkan?</strong> Berdasarkan feature importance dan threshold optimal, siapa yang harus diprioritaskan untuk pemeriksaan jantung preventif?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- T — 02 -->
+        <div class="section-divider">
+            <span class="tag">T — 02</span>
+            <span class="line"></span>
+        </div>
+
+        <article class="card">
+            <div class="card-topbar"></div>
+            <div class="card-body">
+                <div class="task-header">
+                    <div class="task-num">02</div>
+                    <div class="task-meta">
+                        <div class="domain"><i class="fas fa-home"></i> Properti</div>
+                        <h2>Prediksi harga rumah berdasarkan karakteristik properti</h2>
+                        <p class="task-source">Sumber data — <strong>Kaggle House Prices: Advanced Regression Techniques</strong></p>
+                    </div>
+                </div>
+
+                <div class="tags">
+                    <span class="tag-item">Linear Regression</span>
+                    <span class="tag-item purple">Ridge / Lasso</span>
+                    <span class="tag-item rose">Random Forest Regressor</span>
+                    <span class="tag-item emerald">XGBoost Regressor</span>
+                    <span class="tag-item amber">RMSE / R²</span>
+                    <span class="tag-item">Feature Engineering</span>
+                    <span class="tag-item purple">Cross-Validation</span>
+                </div>
+
+                <p class="desc">Analisis data properti Ames, Iowa untuk memprediksi harga jual rumah menggunakan model regresi. Lakukan feature engineering intensif — buat fitur baru dari kombinasi fitur eksisting. Bandingkan model linear regularized dengan ensemble methods. Evaluasi dengan RMSE dan R².</p>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-database" style="margin-right:6px;"></i>Dataset</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="ds-row">
+                                <div class="ds-icon"><i class="fas fa-house-chimney"></i></div>
+                                <div class="ds-info">
+                                    <h4>House Prices: Advanced Regression</h4>
+                                    <a href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques/data" target="_blank">kaggle.com/c/house-prices-advanced-regression-techniques/data</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-list-ol" style="margin-right:6px;"></i>Langkah pengerjaan</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ol class="step-list">
+                                <li><span class="step-num">01</span>Load data train+test, analisis missing value pattern, identifikasi fitur kategorikal vs numerik</li>
+                                <li><span class="step-num">02</span>Feature engineering: TotalSF, HouseAge, RemodAge, TotalBath, HasPool, Has2ndFloor</li>
+                                <li><span class="step-num">03</span>Imputasi missing value, encoding, log-transform target (SalePrice)</li>
+                                <li><span class="step-num">04</span>Training 4 model: Linear Regression, Ridge, Lasso, Random Forest, XGBoost Regressor</li>
+                                <li><span class="step-num">05</span>Hyperparameter tuning: alpha untuk Ridge/Lasso, n_estimators + max_depth untuk tree-based</li>
+                                <li><span class="step-num">06</span>Analisis residual plot, identifikasi overfitting, feature importance dari model terbaik</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-lightbulb" style="margin-right:6px;"></i>Hint teknis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ul class="hint-list">
+                                <li><code>SalePrice</code> sangat right-skewed — gunakan <code>np.log1p()</code> sebelum training, inverse transform saat evaluasi</li>
+                                <li>Lasso Regression bisa digunakan untuk <em>feature selection</em> — fitur dengan coef = 0 bisa di-drop</li>
+                                <li>Buat <code>interaction feature</code> seperti <code>OverallQual × GrLivArea</code> — kualitas dan ukuran saling memperkuat</li>
+                                <li>Residual plot harus menunjukkan pola acak; jika ada pola berarti model masih miss sesuatu</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-question-circle" style="margin-right:6px;"></i>Pertanyaan analisis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="q-row">
+                                <span class="q-badge">Q1</span>
+                                <p><strong>Model regresi manakah yang paling akurat memprediksi harga rumah?</strong> Bandingkan RMSE, MAE, dan R². Jelaskan mengapa model tertentu unggul.</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q2</span>
+                                <p><strong>Fitur buatan (engineered) mana yang paling meningkatkan performa model?</strong> Bandingkan skor sebelum dan sesudah feature engineering.</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q3</span>
+                                <p><strong>Apakah regularization (Ridge/Lasso) membantu mengurangi overfitting?</strong> Bandingkan train score vs test score. Berapa alpha optimal?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q4</span>
+                                <p><strong>Di neighborhood mana rumah paling overpriced/underpriced?</strong> Analisis residual per neighborhood — rumah mana yang model prediksi terlalu rendah/tinggi?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q5</span>
+                                <p><strong>Rekomendasi investasi properti berbasis model?</strong> Jika Anda memiliki budget $200,000, neighborhood dan karakteristik rumah seperti apa yang memberikan value terbaik?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- T — 03 -->
+        <div class="section-divider">
+            <span class="tag">T — 03</span>
+            <span class="line"></span>
+        </div>
+
+        <article class="card">
+            <div class="card-topbar"></div>
+            <div class="card-body">
+                <div class="task-header">
+                    <div class="task-num">03</div>
+                    <div class="task-meta">
+                        <div class="domain"><i class="fas fa-wine-glass"></i> Industri</div>
+                        <h2>Klasifikasi kualitas anggur merah berdasarkan sifat kimiawi</h2>
+                        <p class="task-source">Sumber data — <strong>UCI Wine Quality · Kaggle Red Wine Quality</strong></p>
+                    </div>
+                </div>
+
+                <div class="tags">
+                    <span class="tag-item">Logistic Regression</span>
+                    <span class="tag-item purple">Decision Tree</span>
+                    <span class="tag-item rose">Random Forest</span>
+                    <span class="tag-item emerald">Gradient Boosting</span>
+                    <span class="tag-item amber">KNN</span>
+                    <span class="tag-item">SMOTE</span>
+                    <span class="tag-item purple">Classification Report</span>
+                </div>
+
+                <p class="desc">Analisis data kimiawi anggur merah untuk mengklasifikasikan kualitasnya (3–8) atau binary (good/bad). Dataset relatif bersih dengan 11 fitur numerik, cocok untuk memahami trade-off antar model secara mendalam. Eksplorasi multi-class vs binary classification.</p>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-database" style="margin-right:6px;"></i>Dataset</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="ds-row">
+                                <div class="ds-icon"><i class="fas fa-wine-bottle"></i></div>
+                                <div class="ds-info">
+                                    <h4>Red Wine Quality</h4>
+                                    <a href="https://www.kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009" target="_blank">kaggle.com/datasets/uciml/red-wine-quality-cortez-et-al-2009</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-list-ol" style="margin-right:6px;"></i>Langkah pengerjaan</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ol class="step-list">
+                                <li><span class="step-num">01</span>Load data, cek duplikat, analisis distribusi target (quality) — identifikasi class imbalance</li>
+                                <li><span class="step-num">02</span>EDA: korelasi antar fitur kimiawi, scatter plot (alcohol vs quality, volatile acidity vs quality)</li>
+                                <li><span class="step-num">03</span>Buat 2 target: (a) multi-class (quality 3–8), (b) binary (quality ≥ 7 = good, < 7 = bad)</li>
+                                <li><span class="step-num">04</span>Training 5 model: Logistic Regression, Decision Tree, Random Forest, Gradient Boosting, KNN</li>
+                                <li><span class="step-num">05</span>Evaluasi per target: accuracy, precision, recall, F1 per kelas — bandingkan multi-class vs binary</li>
+                                <li><span class="step-num">06</span>Feature importance analysis: alcohol, volatile acidity, sulphates — validasi dengan domain knowledge</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-lightbulb" style="margin-right:6px;"></i>Hint teknis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ul class="hint-list">
+                                <li>Dataset kecil (1,599 baris) — gunakan <code>StratifiedKFold</code> dengan k=10 untuk estimasi performa yang lebih stabil</li>
+                                <li><code>volatile acidity</code> dan <code>alcohol</code> adalah 2 fitur paling prediktif — pastikan EDA menyorot keduanya</li>
+                                <li>Untuk multi-class, perhatikan kelas 3, 4, dan 8 yang sangat jarang — SMOTE atau class weight bisa membantu</li>
+                                <li><code>Decision Tree</code> tanpa pruning akan overfit — bandingkan dengan <code>max_depth</code> yang dibatasi</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-question-circle" style="margin-right:6px;"></i>Pertanyaan analisis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="q-row">
+                                <span class="q-badge">Q1</span>
+                                <p><strong>Apakah klasifikasi binary lebih akurat daripada multi-class?</strong> Bandingkan F1-Score macro untuk kedua pendekatan. Jelaskan mengapa satu pendekatan lebih baik dari segi praktis.</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q2</span>
+                                <p><strong>Fitur kimiawi mana yang paling membedakan anggur berkualitas tinggi vs rendah?</strong> Gunakan feature importance dan analisis statistik. Apakah hasilnya sesuai dengan pengetahuan enologi?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q3</span>
+                                <p><strong>Model mana yang paling robust terhadap class imbalance?</strong> Bandingkan performa model dengan dan tanpa SMOTE/class weights. Model mana yang paling tidak terpengaruh imbalance?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q4</span>
+                                <p><strong>Apakah ada fitur yang berkorelasi tinggi sehingga redundant?</strong> Analisis multicollinearity — apakah semua 11 fitur perlu digunakan?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q5</span>
+                                <p><strong>Rekomendasi untuk pabrik anggur?</strong> Berdasarkan model, sifat kimiawi seperti apa yang harus dioptimalkan untuk meningkatkan kualitas anggur?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- T — 04 -->
+        <div class="section-divider">
+            <span class="tag">T — 04</span>
+            <span class="line"></span>
+        </div>
+
+        <article class="card">
+            <div class="card-topbar"></div>
+            <div class="card-body">
+                <div class="task-header">
+                    <div class="task-num">04</div>
+                    <div class="task-meta">
+                        <div class="domain"><i class="fas fa-users"></i> Telekomunikasi</div>
+                        <h2>Prediksi churn pelanggan telekomunikasi</h2>
+                        <p class="task-source">Sumber data — <strong>Kaggle Telco Customer Churn</strong></p>
+                    </div>
+                </div>
+
+                <div class="tags">
+                    <span class="tag-item">Logistic Regression</span>
+                    <span class="tag-item purple">Decision Tree</span>
+                    <span class="tag-item rose">Random Forest</span>
+                    <span class="tag-item emerald">XGBoost</span>
+                    <span class="tag-item amber">SMOTE</span>
+                    <span class="tag-item">Threshold Tuning</span>
+                    <span class="tag-item purple">Cost-Benefit Analysis</span>
+                </div>
+
+                <p class="desc">Analisis data pelanggan layanan telekomunikasi untuk memprediksi churn (berhenti berlangganan). Fokus pada data imbalance (churn ~27%), feature engineering dari tenure, dan cost-benefit analysis untuk menentukan threshold prediksi yang optimal secara bisnis.</p>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-database" style="margin-right:6px;"></i>Dataset</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="ds-row">
+                                <div class="ds-icon"><i class="fas fa-mobile-screen"></i></div>
+                                <div class="ds-info">
+                                    <h4>Telco Customer Churn</h4>
+                                    <a href="https://www.kaggle.com/datasets/blastchar/telco-customer-churn" target="_blank">kaggle.com/datasets/blastchar/telco-customer-churn</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-list-ol" style="margin-right:6px;"></i>Langkah pengerjaan</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ol class="step-list">
+                                <li><span class="step-num">01</span>Load data, konversi <code>TotalCharges</code> ke numerik (ada string kosong), handle missing value</li>
+                                <li><span class="step-num">02</span>EDA: churn rate per kategori (SeniorCitizen, Contract, InternetService), tenure distribution</li>
+                                <li><span class="step-num">03</span>Feature engineering: tenure_group, avg_monthly_charge, num_services, is_new_customer</li>
+                                <li><span class="step-num">04</span>Encoding kategorikal, scaling numerik, handle imbalance dengan SMOTE atau class_weight</li>
+                                <li><span class="step-num">05</span>Training 4 model: Logistic Regression, Decision Tree, Random Forest, XGBoost — 5-fold CV</li>
+                                <li><span class="step-num">06</span>Threshold tuning: cari threshold yang memaksimalkan profit (cost of retention vs cost of losing customer)</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-lightbulb" style="margin-right:6px;"></i>Hint teknis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ul class="hint-list">
+                                <li><code>Tenure</code> adalah fitur paling prediktif — pelanggan baru (< 12 bulan) churn rate jauh lebih tinggi</li>
+                                <li><code>Contract</code> Month-to-Month memiliki churn rate ~40% vs Two-Year < 5% — fitur krusial</li>
+                                <li>Gunakan <code>Precision-Recall Curve</code> untuk memilih threshold optimal, bukan hanya default 0.5</li>
+                                <li>Cost-benefit: asumsikan biaya retention = $50, revenue loss churn = $500 — hitung expected profit per threshold</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-question-circle" style="margin-right:6px;"></i>Pertanyaan analisis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="q-row">
+                                <span class="q-badge">Q1</span>
+                                <p><strong>Model mana yang paling baik untuk meminimalkan churn yang terlewat?</strong> Fokus pada Recall untuk kelas churn. Berapa threshold optimal jika biaya kehilangan pelanggan 10x lebih mahal dari biaya retention?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q2</span>
+                                <p><strong>Profil pelanggan mana yang paling berisiko churn?</strong> Identifikasi segmen berdasarkan kombinasi fitur (tenure, contract, monthly charges). Buat persona pelanggan berisiko tinggi.</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q3</span>
+                                <p><strong>Apakah fitur engineered (tenure_group, avg_monthly_charge) meningkatkan performa?</strong> Bandingkan skor model dengan dan tanpa fitur buatan. Fitur mana yang paling berdampak?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q4</span>
+                                <p><strong>Bagaimana hasil model berubah jika tidak menggunakan SMOTE?</strong> Analisis dampak class imbalance handling pada precision dan recall. Apakah SMOTE selalu membantu?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q5</span>
+                                <p><strong>Rekomendasi strategi retensi berbasis model?</strong> Jika perusahaan memiliki budget $10,000 untuk program retensi, pelanggan mana yang harus diprioritaskan? Hitung expected ROI.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- T — 05 -->
+        <div class="section-divider">
+            <span class="tag">T — 05</span>
+            <span class="line"></span>
+        </div>
+
+        <article class="card">
+            <div class="card-topbar"></div>
+            <div class="card-body">
+                <div class="task-header">
+                    <div class="task-num">05</div>
+                    <div class="task-meta">
+                        <div class="domain"><i class="fas fa-graduation-cap"></i> Pendidikan</div>
+                        <h2>Prediksi kelulusan mahasiswa berdasarkan data akademik</h2>
+                        <p class="task-source">Sumber data — <strong>Kaggle Predict Students' Dropout and Academic Success</strong></p>
+                    </div>
+                </div>
+
+                <div class="tags">
+                    <span class="tag-item">Logistic Regression</span>
+                    <span class="tag-item purple">SVM</span>
+                    <span class="tag-item rose">Random Forest</span>
+                    <span class="tag-item emerald">XGBoost</span>
+                    <span class="tag-item amber">Neural Network (MLP)</span>
+                    <span class="tag-item">Feature Selection</span>
+                    <span class="tag-item purple">Learning Curve</span>
+                </div>
+
+                <p class="desc">Analisis data akademik mahasiswa untuk memprediksi apakah mereka akan dropout, graduate, atau masih enrolled. Tantangan utama adalah multi-class classification dengan class imbalance dan fitur yang sangat banyak (36 fitur). Fokus pada early warning system untuk intervensi akademik.</p>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-database" style="margin-right:6px;"></i>Dataset</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="ds-row">
+                                <div class="ds-icon"><i class="fas fa-user-graduate"></i></div>
+                                <div class="ds-info">
+                                    <h4>Predict Students' Dropout and Academic Success</h4>
+                                    <a href="https://www.kaggle.com/datasets/thedevastator/higher-education-predictors-of-student-retention" target="_blank">kaggle.com/datasets/thedevastator/higher-education-predictors-of-student-retention</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-list-ol" style="margin-right:6px;"></i>Langkah pengerjaan</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ol class="step-list">
+                                <li><span class="step-num">01</span>Load data, cek missing value, analisis distribusi 3 kelas target (Graduate, Dropout, Enrolled)</li>
+                                <li><span class="step-num">02</span>EDA: churn rate per fakultas, per semester, korelasi antara GPA semester awal dan outcome akhir</li>
+                                <li><span class="step-num">03</span>Feature selection: gunakan mutual information atau RFE untuk mengurangi 36 fitur ke 15-20 fitur paling penting</li>
+                                <li><span class="step-num">04</span>Training 5 model: Logistic Regression, SVM, Random Forest, XGBoost, MLP (Neural Network)</li>
+                                <li><span class="step-num">05</span>Evaluasi multi-class: accuracy, F1-macro, F1-weighted, confusion matrix per kelas</li>
+                                <li><span class="step-num">06</span>Learning curve analysis: apakah model underfit atau overfit? Butuh lebih banyak data atau lebih sedikit fitur?</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-lightbulb" style="margin-right:6px;"></i>Hint teknis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <ul class="hint-list">
+                                <li><code>Curricular units 1st sem (approved)</code> dan <code>2nd sem (approved)</code> adalah fitur paling prediktif — GPA semester awal sangat menentukan</li>
+                                <li>Kelas <code>Enrolled</code> bisa di-exclude untuk binary classification (Graduate vs Dropout) jika terlalu sulit</li>
+                                <li>Gunakan <code>learning_curve</code> dari sklearn untuk memvisualisasikan apakah model masih bisa improve dengan lebih banyak data</li>
+                                <li><code>MLPClassifier</code> dengan 1-2 hidden layer cukup — jangan terlalu dalam karena dataset hanya ~4,000 baris</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="collapsible">
+                    <div class="collapsible-header" onclick="toggle(this)">
+                        <i class="fas fa-chevron-right"></i>
+                        <h3><i class="fas fa-question-circle" style="margin-right:6px;"></i>Pertanyaan analisis</h3>
+                    </div>
+                    <div class="collapsible-body">
+                        <div class="collapsible-inner">
+                            <div class="q-row">
+                                <span class="q-badge">Q1</span>
+                                <p><strong>Model mana yang paling akurat memprediksi dropout mahasiswa?</strong> Bandingkan F1-Score untuk kelas Dropout secara spesifik. Mengapa kelas ini paling penting untuk diprediksi dengan benar?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q2</span>
+                                <p><strong>Fitur akademik semester ke-1 mana yang paling menentukan kelulusan?</strong> Analisis feature importance semester demi semester. Kapan intervensi paling efektif dilakukan?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q3</span>
+                                <p><strong>Apakah Neural Network (MLP) lebih baik dari model tradisional untuk dataset ini?</strong> Bandingkan performa dan waktu training. Apakah kompleksitas tambahan sepadan?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q4</span>
+                                <p><strong>Bagaimana performa model jika hanya menggunakan data semester 1?</strong> Simulasikan early warning system — apakah model cukup akurat untuk mendeteksi dropout sejak semester awal?</p>
+                            </div>
+                            <div class="q-row">
+                                <span class="q-badge">Q5</span>
+                                <p><strong>Rekomendasi sistem early warning untuk universitas?</strong> Berdasarkan model, buat dashboard kriteria mahasiswa berisiko dropout. Program bimbingan seperti apa yang paling efektif untuk setiap segmen risiko?</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <footer class="footer">
+            <div class="footer-line"></div>
+            <p>Supervised Learning Case Studies — AI & Big Data</p>
+            <p style="margin-top:6px; font-size:0.78rem;">Format terinspirasi dari cahyoalhazim.github.io · Disesuaikan untuk Supervised Learning</p>
+        </footer>
+    </main>
+
+    <script>
+        function toggle(el) {
+            const body = el.nextElementSibling;
+            const isOpen = body.classList.contains('open');
+
+            // Close all others in same card
+            const card = el.closest('.card');
+            card.querySelectorAll('.collapsible-body').forEach(b => b.classList.remove('open'));
+            card.querySelectorAll('.collapsible-header').forEach(h => h.classList.remove('active'));
+
+            if (!isOpen) {
+                body.classList.add('open');
+                el.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
