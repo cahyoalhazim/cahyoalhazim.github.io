@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tugas Besar Microservices - Laravel & Ubuntu Server</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        accent: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 300: '#f0abfc', 400: '#e879f9', 500: '#d946ef', 600: '#c026d3', 700: '#a21caf', 800: '#86198f', 900: '#701a75' },
+                        dark: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        .gradient-text { background: linear-gradient(135deg, #2563eb, #d946ef); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); }
+        .service-card { position: relative; overflow: hidden; }
+        .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #2563eb, #d946ef); transform: scaleX(0); transition: transform 0.3s ease; }
+        .service-card:hover::before { transform: scaleX(1); }
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp 0.6s ease forwards; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4; z-index: 0; }
+        .theme-icon { transition: transform 0.3s ease; }
+        .theme-card:hover .theme-icon { transform: scale(1.15) rotate(5deg); }
+        .sticky-nav { transition: all 0.3s ease; }
+        .sticky-nav.scrolled { background: rgba(255,255,255,0.95); backdrop-filter: blur(20px); box-shadow: 0 1px 20px rgba(0,0,0,0.05); }
+        .tech-badge { transition: all 0.2s ease; }
+        .tech-badge:hover { transform: scale(1.05); }
+        .counter { font-variant-numeric: tabular-nums; }
+        .grid-bg { background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px); background-size: 24px 24px; }
+    </style>
+<base target="_blank">
+</head>
+<body class="font-sans text-dark-700 bg-dark-50 antialiased">
+
+    <!-- Navigation -->
+    <nav class="sticky-nav fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-dark-200/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold text-sm">TB</div>
+                    <span class="font-bold text-dark-900 text-lg">TugasBesar<span class="gradient-text">.io</span></span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#overview" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Overview</a>
+                    <a href="#arsitektur" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Arsitektur</a>
+                    <a href="#penilaian" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Penilaian</a>
+                    <a href="#tema" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">10 Tema Baru</a>
+                    <a href="#tech" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Tech Stack</a>
+                </div>
+                <a href="#tema" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-600 to-accent-600 text-white text-sm font-semibold rounded-lg hover:shadow-lg hover:shadow-primary-500/25 transition-all">
+                    <i class="fas fa-rocket"></i> Pilih Tema
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16">
+        <div class="blob w-96 h-96 bg-primary-300 top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="blob w-80 h-80 bg-accent-300 bottom-0 right-0 translate-x-1/3 translate-y-1/3"></div>
+        <div class="blob w-64 h-64 bg-emerald-300 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 border border-primary-200 text-primary-700 text-xs font-semibold mb-6 fade-in">
+                <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
+                Laravel Microservices & Ubuntu Deployment 2026
+            </div>
+
+            <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-dark-900 leading-tight mb-6 fade-in delay-1">
+                Bangun Aplikasi <br>
+                <span class="gradient-text">Microservices</span> dengan Laravel
+            </h1>
+
+            <p class="text-lg sm:text-xl text-dark-500 max-w-2xl mx-auto mb-10 fade-in delay-2 leading-relaxed">
+                Tugas besar arsitektur microservices lengkap dengan JWT Auth, Docker Containerization, 
+                Role-Based Access Control, dan Deployment ke <strong>Ubuntu Server</strong>.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 fade-in delay-3">
+                <a href="#tema" class="px-8 py-3.5 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-primary-500/20 transition-all flex items-center gap-2">
+                    <i class="fas fa-compass"></i> Jelajahi 10 Tema
+                </a>
+                <a href="#arsitektur" class="px-8 py-3.5 bg-white text-dark-700 font-semibold rounded-xl border border-dark-200 hover:border-primary-300 hover:shadow-lg transition-all flex items-center gap-2">
+                    <i class="fas fa-layer-group"></i> Lihat Arsitektur
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-3xl mx-auto fade-in delay-4">
+                <div class="bg-white/60 backdrop-blur rounded-2xl p-5 border border-dark-200/50">
+                    <div class="text-3xl font-extrabold gradient-text counter" data-target="3">0</div>
+                    <div class="text-xs font-medium text-dark-500 mt-1">Service Terpisah</div>
+                </div>
+                <div class="bg-white/60 backdrop-blur rounded-2xl p-5 border border-dark-200/50">
+                    <div class="text-3xl font-extrabold gradient-text counter" data-target="2">0</div>
+                    <div class="text-xs font-medium text-dark-500 mt-1">Database Terpisah</div>
+                </div>
+                <div class="bg-white/60 backdrop-blur rounded-2xl p-5 border border-dark-200/50">
+                    <div class="text-3xl font-extrabold gradient-text counter" data-target="10">0</div>
+                    <div class="text-xs font-medium text-dark-500 mt-1">Tema Pilihan</div>
+                </div>
+                <div class="bg-white/60 backdrop-blur rounded-2xl p-5 border border-dark-200/50">
+                    <div class="text-3xl font-extrabold gradient-text counter" data-target="100">0</div>
+                    <div class="text-xs font-medium text-dark-500 mt-1">Total Poin</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Overview Section -->
+    <section id="overview" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-primary-600 font-semibold text-sm tracking-wider uppercase">Ringkasan Tugas</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-dark-900 mt-3">Apa yang Harus Dibangun?</h2>
+                <p class="text-dark-500 mt-4 max-w-2xl mx-auto">Tugas besar ini mensimulasikan pengembangan aplikasi enterprise-grade dengan arsitektur modern.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl p-8 border border-dark-200/60 card-hover shadow-sm">
+                    <div class="w-14 h-14 rounded-2xl bg-primary-50 flex items-center justify-center mb-6">
+                        <i class="fas fa-cubes text-2xl text-primary-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark-900 mb-3">3 Service Terpisah</h3>
+                    <p class="text-dark-500 text-sm leading-relaxed mb-4">Auth Service, Main/Project Service, dan Gateway/Frontend Service berjalan dalam container Docker terpisah yang saling berkomunikasi via Docker network.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2.5 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-md">Auth Service</span>
+                        <span class="px-2.5 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-md">Project Service</span>
+                        <span class="px-2.5 py-1 bg-primary-50 text-primary-700 text-xs font-medium rounded-md">Gateway</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 border border-dark-200/60 card-hover shadow-sm">
+                    <div class="w-14 h-14 rounded-2xl bg-accent-50 flex items-center justify-center mb-6">
+                        <i class="fas fa-database text-2xl text-accent-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark-900 mb-3">2 Database Terpisah</h3>
+                    <p class="text-dark-500 text-sm leading-relaxed mb-4">User Database untuk akun & role, dan Project Database untuk data bisnis. Kredensial tidak boleh hard-coded, gunakan environment variables.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2.5 py-1 bg-accent-50 text-accent-700 text-xs font-medium rounded-md">User DB</span>
+                        <span class="px-2.5 py-1 bg-accent-50 text-accent-700 text-xs font-medium rounded-md">Project DB</span>
+                        <span class="px-2.5 py-1 bg-accent-50 text-accent-700 text-xs font-medium rounded-md">Env Variables</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 border border-dark-200/60 card-hover shadow-sm">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6">
+                        <i class="fas fa-cloud text-2xl text-emerald-600"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-dark-900 mb-3">Deploy ke Azure</h3>
+                    <p class="text-dark-500 text-sm leading-relaxed mb-4">Deployment final ke Ubuntu Server menggunakan App Service for Containers, Azure Container Apps, atau AKS dengan URL publik aktif.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-md">Azure</span>
+                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-md">Docker</span>
+                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-md">Cloud</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section id="arsitektur" class="py-24 bg-dark-900 relative overflow-hidden">
+        <div class="absolute inset-0 grid-bg opacity-20"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <span class="text-primary-400 font-semibold text-sm tracking-wider uppercase">Arsitektur Sistem</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3">Diagram Arsitektur Microservices</h2>
+                <p class="text-dark-400 mt-4 max-w-2xl mx-auto">Setiap service berjalan dalam container terpisah dengan tanggung jawab yang jelas.</p>
+            </div>
+
+            <div class="bg-dark-800/80 backdrop-blur rounded-3xl p-8 md:p-12 border border-dark-700">
+                <div class="flex flex-col lg:flex-row items-center justify-center gap-6">
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                            <i class="fas fa-globe text-white text-xl"></i>
+                        </div>
+                        <span class="text-white text-sm font-semibold mt-3">Client Browser</span>
+                        <span class="text-dark-500 text-xs">HTTP Request</span>
+                    </div>
+
+                    <i class="fas fa-arrow-right text-dark-600 text-xl hidden lg:block"></i>
+                    <i class="fas fa-arrow-down text-dark-600 text-xl lg:hidden"></i>
+
+                    <div class="service-card bg-gradient-to-br from-primary-900/50 to-primary-800/30 rounded-2xl p-6 border border-primary-700/50 w-64 text-center">
+                        <div class="w-12 h-12 rounded-xl bg-primary-600 flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-network-wired text-white"></i>
+                        </div>
+                        <h4 class="text-white font-bold">Gateway / Frontend</h4>
+                        <p class="text-primary-300 text-xs mt-1">Laravel Blade + Tailwind</p>
+                        <p class="text-dark-500 text-xs mt-2">API Routing, Load Balancing, UI</p>
+                        <div class="mt-3 flex justify-center gap-2">
+                            <span class="px-2 py-0.5 bg-primary-900/50 text-primary-300 text-[10px] rounded">Port 80</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        <i class="fas fa-arrow-right text-dark-600 text-xl hidden lg:block"></i>
+                        <i class="fas fa-arrow-down text-dark-600 text-xl lg:hidden"></i>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+                        <div class="service-card bg-gradient-to-br from-emerald-900/50 to-emerald-800/30 rounded-2xl p-6 border border-emerald-700/50 w-64 text-center">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-shield-alt text-white"></i>
+                            </div>
+                            <h4 class="text-white font-bold">Auth Service</h4>
+                            <p class="text-emerald-300 text-xs mt-1">Laravel + JWT</p>
+                            <p class="text-dark-500 text-xs mt-2">Login, Register, Token JWT, Role</p>
+                            <div class="mt-3 flex justify-center gap-2">
+                                <span class="px-2 py-0.5 bg-emerald-900/50 text-emerald-300 text-[10px] rounded">Port 8001</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-center">
+                            <i class="fas fa-arrow-down text-dark-600 text-xl"></i>
+                        </div>
+
+                        <div class="bg-dark-900/80 rounded-xl p-4 border border-emerald-800/30 text-center">
+                            <i class="fas fa-database text-emerald-500 text-lg mb-1"></i>
+                            <p class="text-white text-xs font-semibold">User Database</p>
+                            <p class="text-dark-500 text-[10px]">PostgreSQL / MySQL</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-4">
+                        <i class="fas fa-arrow-right text-dark-600 text-xl hidden lg:block"></i>
+                        <i class="fas fa-arrow-down text-dark-600 text-xl lg:hidden"></i>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+                        <div class="service-card bg-gradient-to-br from-accent-900/50 to-accent-800/30 rounded-2xl p-6 border border-accent-700/50 w-64 text-center">
+                            <div class="w-12 h-12 rounded-xl bg-accent-600 flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-server text-white"></i>
+                            </div>
+                            <h4 class="text-white font-bold">Project Service</h4>
+                            <p class="text-accent-300 text-xs mt-1">Laravel API</p>
+                            <p class="text-dark-500 text-xs mt-2">CRUD Data Bisnis, Validasi</p>
+                            <div class="mt-3 flex justify-center gap-2">
+                                <span class="px-2 py-0.5 bg-accent-900/50 text-accent-300 text-[10px] rounded">Port 8002</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-center">
+                            <i class="fas fa-arrow-down text-dark-600 text-xl"></i>
+                        </div>
+
+                        <div class="bg-dark-900/80 rounded-xl p-4 border border-accent-800/30 text-center">
+                            <i class="fas fa-database text-accent-500 text-lg mb-1"></i>
+                            <p class="text-white text-xs font-semibold">Project Database</p>
+                            <p class="text-dark-500 text-[10px]">MySQL / PostgreSQL / MongoDB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-10 text-center">
+                    <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-dark-900/80 border border-dark-700">
+                        <i class="fab fa-docker text-blue-400 text-xl"></i>
+                        <span class="text-dark-300 text-sm font-medium">Semua service terhubung melalui <span class="text-blue-400 font-semibold">Docker Network</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 grid md:grid-cols-2 gap-8">
+                <div class="bg-dark-800/50 rounded-2xl p-6 border border-dark-700">
+                    <h4 class="text-white font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-key text-primary-400"></i> Alur Autentikasi JWT
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-primary-900 text-primary-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+                            <p class="text-dark-400 text-sm">User login/register via Gateway, Gateway forward ke Auth Service</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-primary-900 text-primary-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+                            <p class="text-dark-400 text-sm">Auth Service validasi & generate JWT token</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-primary-900 text-primary-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+                            <p class="text-dark-400 text-sm">Token dikembalikan ke client, disimpan di cookie HttpOnly</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-primary-900 text-primary-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+                            <p class="text-dark-400 text-sm">Setiap request ke Project Service membawa JWT untuk validasi role</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-dark-800/50 rounded-2xl p-6 border border-dark-700">
+                    <h4 class="text-white font-bold mb-4 flex items-center gap-2">
+                        <i class="fas fa-user-shield text-accent-400"></i> Role-Based Access Control
+                    </h4>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 p-4 bg-dark-900/50 rounded-xl border border-emerald-800/30">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-900/50 flex items-center justify-center">
+                                <i class="fas fa-crown text-emerald-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-white font-semibold text-sm">Admin</p>
+                                <p class="text-dark-500 text-xs">Full CRUD pada SEMUA data (Create, Read, Update, Delete)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 p-4 bg-dark-900/50 rounded-xl border border-primary-800/30">
+                            <div class="w-10 h-10 rounded-lg bg-primary-900/50 flex items-center justify-center">
+                                <i class="fas fa-user text-primary-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-white font-semibold text-sm">User</p>
+                                <p class="text-dark-500 text-xs">Read & Update hanya pada data milik sendiri</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Penilaian Section -->
+    <section id="penilaian" class="py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-primary-600 font-semibold text-sm tracking-wider uppercase">Rubric Penilaian</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-dark-900 mt-3">Aspek & Bobot Penilaian</h2>
+                <p class="text-dark-500 mt-4 max-w-2xl mx-auto">Total 100 poin yang harus dipenuhi untuk mendapatkan nilai maksimal.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center">
+                            <i class="fas fa-cogs text-primary-600"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold gradient-text">25%</span>
+                    </div>
+                    <h4 class="font-bold text-dark-900 mb-2">Fungsionalitas & Arsitektur</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">Aplikasi berfungsi lengkap (CRUD, login, role) dengan arsitektur microservices yang benar.</p>
+                    <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 25%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                            <i class="fas fa-cloud-upload-alt text-emerald-600"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold gradient-text">15%</span>
+                    </div>
+                    <h4 class="font-bold text-dark-900 mb-2">Deployment ke Azure</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">Semua service berjalan di Azure, URL publik aktif, konfigurasi environment & secrets aman.</p>
+                    <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 15%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                            <i class="fas fa-lock text-red-600"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold gradient-text">10%</span>
+                    </div>
+                    <h4 class="font-bold text-dark-900 mb-2">Security & Authorization</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">Implementasi JWT, role-based access, validasi input, dan proteksi endpoint sudah tepat.</p>
+                    <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold gradient-text">10%</span>
+                    </div>
+                    <h4 class="font-bold text-dark-900 mb-2">Error Handling & Logging</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">Penanganan error konsisten, kode HTTP sesuai, pesan error informatif, logging tersedia.</p>
+                    <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                            <i class="fas fa-paint-brush text-purple-600"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold gradient-text">10%</span>
+                    </div>
+                    <h4 class="font-bold text-dark-900 mb-2">UI/UX</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">Tampilan menarik, navigasi jelas, validasi input, pesan responsif.</p>
+                    <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-50 flex items-center justify-center">
+                            <i class="fas fa-code text-cyan-600"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold gradient-text">10%</span>
+                    </div>
+                    <h4 class="font-bold text-dark-900 mb-2">Kualitas Kode & Struktur</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">Struktur rapi, modular, komentar jelas, repo tertata, dokumentasi build lengkap.</p>
+                    <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
+                            <i class="fas fa-book text-rose-600"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold gradient-text">10%</span>
+                    </div>
+                    <h4 class="font-bold text-dark-900 mb-2">Dokumentasi & Laporan</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">README, diagram arsitektur, penjelasan endpoint, dan langkah deploy lengkap.</p>
+                    <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+                            <i class="fas fa-chalkboard-teacher text-indigo-600"></i>
+                        </div>
+                        <span class="text-2xl font-extrabold gradient-text">10%</span>
+                    </div>
+                    <h4 class="font-bold text-dark-900 mb-2">Presentasi & Demo</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">Demo berjalan lancar, penjelasan teknis jelas, mampu menjawab pertanyaan dengan baik.</p>
+                    <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 10%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10 Tema Baru Section -->
+    <section id="tema" class="py-24 bg-dark-900 relative overflow-hidden">
+        <div class="absolute inset-0 grid-bg opacity-10"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <span class="text-accent-400 font-semibold text-sm tracking-wider uppercase">Pilihan Tema 2026</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3">10 Tema Baru untuk Laravel</h2>
+                <p class="text-dark-400 mt-4 max-w-2xl mx-auto">Tema-tema fresh yang relevan dengan tren industri saat ini, dirancang khusus untuk arsitektur microservices Laravel.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <a href="event-komunitas-tech.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-primary-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">
+                            <i class="fas fa-calendar-check text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-blue-900/50 text-blue-300 text-[10px] font-bold rounded">Community</span>
+                                <span class="px-2 py-0.5 bg-primary-900/50 text-primary-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-primary-400 transition-colors">1. Sistem Manajemen Event Komunitas Tech</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Platform terpusat untuk meetup, workshop, dan hackathon. Fitur pendaftaran, check-in QR code, sertifikat otomatis, dan rekap kehadiran.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">QR Check-in</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Sertifikat Otomatis</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Rekap Kehadiran</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="carbon-footprint.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-emerald-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+                            <i class="fas fa-leaf text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-emerald-900/50 text-emerald-300 text-[10px] font-bold rounded">Sustainability</span>
+                                <span class="px-2 py-0.5 bg-emerald-900/50 text-emerald-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-emerald-400 transition-colors">2. Sistem Tracking Carbon Footprint Personal</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Aplikasi tracking jejak karbon harian. User input aktivitas, sistem hitung estimasi emisi CO2. Leaderboard, tips hemat karbon, laporan bulanan.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Kalkulasi Emisi</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Leaderboard</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Laporan Bulanan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="coworking-booking.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-orange-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20">
+                            <i class="fas fa-building text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-orange-900/50 text-orange-300 text-[10px] font-bold rounded">Hospitality</span>
+                                <span class="px-2 py-0.5 bg-orange-900/50 text-orange-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-orange-400 transition-colors">3. Sistem Co-Working Space Booking</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Platform booking ruang kerja dengan peta lantai interaktif, slot waktu, integrasi fasilitas (proyektor, whiteboard), dan riwayat booking.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Peta Lantai</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Slot Booking</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Fasilitas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="freelance-project.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-violet-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-400 flex items-center justify-center shrink-0 shadow-lg shadow-violet-500/20">
+                            <i class="fas fa-briefcase text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-violet-900/50 text-violet-300 text-[10px] font-bold rounded">Productivity</span>
+                                <span class="px-2 py-0.5 bg-violet-900/50 text-violet-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-violet-400 transition-colors">4. Sistem Manajemen Freelance Project</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Dashboard manajemen proyek freelance: tracking proyek per klien, milestone & deadline, status pembayaran, dan invoice generator.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Milestone</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Invoice</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Deadline</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="menu-resep-restoran.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-rose-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-400 flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/20">
+                            <i class="fas fa-utensils text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-rose-900/50 text-rose-300 text-[10px] font-bold rounded">F&B</span>
+                                <span class="px-2 py-0.5 bg-rose-900/50 text-rose-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-rose-400 transition-colors">5. Sistem Katalog Menu & Resep Restoran</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Katalog menu digital dengan kategori, harga dinamis, galeri foto, dan manajemen resep internal (bahan, takaran, cara masak).</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Resep Internal</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Harga Dinamis</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Galeri</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="esports-team.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-indigo-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-400 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20">
+                            <i class="fas fa-gamepad text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-indigo-900/50 text-indigo-300 text-[10px] font-bold rounded">Gaming</span>
+                                <span class="px-2 py-0.5 bg-indigo-900/50 text-indigo-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-indigo-400 transition-colors">6. Sistem Manajemen Komunitas Gaming</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Platform manajemen tim esports: roster pemain, jadwal pertandingan, statistik win/loss/KDA, dan inventaris perangkat gaming.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Statistik KDA</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Roster</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Inventaris</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="subscription-box.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-amber-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                            <i class="fas fa-box-open text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 text-[10px] font-bold rounded">E-Commerce</span>
+                                <span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-amber-400 transition-colors">7. Sistem Subscription Box Management</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Manajemen subscription box bulanan: katalog box, pelanggan subscription, isi box per periode, dan tracking status pengiriman.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Periode Box</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Tracking</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Subscription</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="content-creator-cms.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-fuchsia-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-pink-400 flex items-center justify-center shrink-0 shadow-lg shadow-fuchsia-500/20">
+                            <i class="fas fa-video text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-fuchsia-900/50 text-fuchsia-300 text-[10px] font-bold rounded">Media</span>
+                                <span class="px-2 py-0.5 bg-fuchsia-900/50 text-fuchsia-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-fuchsia-400 transition-colors">8. Sistem Manajemen Konten Kreator</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">CMS khusus content creator: pipeline konten (ide ke scripting ke filming ke editing ke uploaded), jadwal multi-platform, tracking performa.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Pipeline</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Multi-Platform</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Analytics</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="digital-asset-management.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-cyan-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-400 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20">
+                            <i class="fas fa-images text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-cyan-900/50 text-cyan-300 text-[10px] font-bold rounded">Creative</span>
+                                <span class="px-2 py-0.5 bg-cyan-900/50 text-cyan-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-cyan-400 transition-colors">9. Sistem Manajemen Aset Digital (DAM)</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Digital Asset Management: upload file, tagging, kategori, versioning, preview thumbnail, dan generate link sharing ke klien.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Versioning</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Share Link</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Tagging</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="volunteer-management.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-teal-600/50 transition-all group block">
+                    <div class="flex items-start gap-4">
+                        <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-400 flex items-center justify-center shrink-0 shadow-lg shadow-teal-500/20">
+                            <i class="fas fa-hands-helping text-white text-xl"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-2 py-0.5 bg-teal-900/50 text-teal-300 text-[10px] font-bold rounded">Nonprofit</span>
+                                <span class="px-2 py-0.5 bg-teal-900/50 text-teal-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
+                            </div>
+                            <h3 class="text-white font-bold text-lg mb-2 group-hover:text-teal-400 transition-colors">10. Sistem Manajemen Volunteer & Relawan</h3>
+                            <p class="text-dark-400 text-sm leading-relaxed mb-3">Platform manajemen relawan: registrasi dengan skill, matching kegiatan berdasarkan skill & lokasi, absensi, dan rekap jam relawan.</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Skill Matching</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Rekap Jam</span>
+                                <span class="px-2 py-0.5 bg-dark-900 text-dark-400 text-[10px] rounded border border-dark-700">Sertifikat</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech" class="py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-primary-600 font-semibold text-sm tracking-wider uppercase">Rekomendasi Teknologi</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-dark-900 mt-3">Tech Stack untuk Laravel Microservices</h2>
+                <p class="text-dark-500 mt-4 max-w-2xl mx-auto">Pilihan teknologi yang direkomendasikan untuk setiap layer aplikasi.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center">
+                            <i class="fab fa-laravel text-2xl text-red-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-dark-900">Backend Framework</h4>
+                            <p class="text-dark-500 text-xs">Core Framework</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-700 text-xs font-medium rounded-lg">
+                            <i class="fab fa-laravel"></i> Laravel 11 / 12
+                        </div>
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 text-xs font-medium rounded-lg">
+                            <i class="fab fa-php"></i> PHP 8.3+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                            <i class="fas fa-key text-2xl text-amber-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-dark-900">Authentication</h4>
+                            <p class="text-dark-500 text-xs">JWT & Session</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-amber-50 text-amber-700 text-xs font-medium rounded-lg">
+                            <i class="fas fa-shield-alt"></i> tymon/jwt-auth
+                        </div>
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg">
+                            <i class="fas fa-lock"></i> Laravel Sanctum
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                            <i class="fas fa-database text-2xl text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-dark-900">Database</h4>
+                            <p class="text-dark-500 text-xs">User & Project DB</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg">
+                            <i class="fas fa-database"></i> PostgreSQL
+                        </div>
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-700 text-xs font-medium rounded-lg">
+                            <i class="fas fa-database"></i> MySQL
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center">
+                            <i class="fab fa-docker text-2xl text-cyan-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-dark-900">Containerization</h4>
+                            <p class="text-dark-500 text-xs">Docker & Compose</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-50 text-cyan-700 text-xs font-medium rounded-lg">
+                            <i class="fab fa-docker"></i> Docker
+                        </div>
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg">
+                            <i class="fas fa-cubes"></i> Docker Compose
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center">
+                            <i class="fab fa-microsoft text-2xl text-sky-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-dark-900">Deployment Server</h4>
+                            <p class="text-dark-500 text-xs">Ubuntu Server</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-sky-50 text-sky-700 text-xs font-medium rounded-lg">
+                            <i class="fab fa-microsoft"></i> Azure App Service
+                        </div>
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-lg">
+                            <i class="fas fa-cloud"></i> Container Apps
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+                            <i class="fas fa-code text-2xl text-emerald-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-dark-900">Frontend & UI</h4>
+                            <p class="text-dark-500 text-xs">Gateway Layer</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-700 text-xs font-medium rounded-lg">
+                            <i class="fab fa-laravel"></i> Laravel Blade
+                        </div>
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-cyan-50 text-cyan-700 text-xs font-medium rounded-lg">
+                            <i class="fas fa-wind"></i> Tailwind CSS
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark-900 py-12 border-t border-dark-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold text-xs">TB</div>
+                    <span class="text-white font-bold">TugasBesar<span class="text-primary-400">.io</span></span>
+                </div>
+                <p class="text-dark-500 text-sm">Tugas Besar Arsitektur Microservices dengan Laravel & Ubuntu Server</p>
+                <div class="flex items-center gap-4">
+                    <span class="text-dark-600 text-xs">Laravel 11/12</span>
+                    <span class="text-dark-700">|</span>
+                    <span class="text-dark-600 text-xs">Docker</span>
+                    <span class="text-dark-700">|</span>
+                    <span class="text-dark-600 text-xs">Azure</span>
+                    <span class="text-dark-700">|</span>
+                    <span class="text-dark-600 text-xs">JWT</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const counters = document.querySelectorAll('.counter');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    const duration = 1500;
+                    const increment = target / (duration / 16);
+                    let current = 0;
+                    const updateCounter = () => {
+                        current += increment;
+                        if (current < target) {
+                            counter.textContent = Math.floor(current);
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target;
+                        }
+                    };
+                    updateCounter();
+                    observer.unobserve(counter);
+                }
+            });
+        }, { threshold: 0.5 });
+        counters.forEach(counter => observer.observe(counter));
+
+        const nav = document.querySelector('.sticky-nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
