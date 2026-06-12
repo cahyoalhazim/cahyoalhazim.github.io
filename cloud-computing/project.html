@@ -6,12 +6,12 @@
     <title>Tugas Besar Microservices - Laravel & Ubuntu Server</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['Fira Code', 'monospace'] },
                     colors: {
                         primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
                         accent: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 300: '#f0abfc', 400: '#e879f9', 500: '#d946ef', 600: '#c026d3', 700: '#a21caf', 800: '#86198f', 900: '#701a75' },
@@ -44,6 +44,22 @@
         .tech-badge:hover { transform: scale(1.05); }
         .counter { font-variant-numeric: tabular-nums; }
         .grid-bg { background-image: radial-gradient(circle, #e2e8f0 1px, transparent 1px); background-size: 24px 24px; }
+        .deploy-step { position: relative; padding-left: 2.5rem; }
+        .deploy-step::before { content: attr(data-step); position: absolute; left: 0; top: 0; width: 1.75rem; height: 1.75rem; background: linear-gradient(135deg, #2563eb, #d946ef); color: white; border-radius: 50%; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .code-block { background: #0f172a; border-radius: 0.75rem; padding: 1.25rem; font-family: 'Fira Code', 'Consolas', monospace; font-size: 0.8rem; line-height: 1.8; overflow-x: auto; border: 1px solid #1e293b; }
+        .code-block pre { margin: 0; white-space: pre; word-wrap: normal; }
+        .code-block .comment { color: #64748b; }
+        .code-block .command { color: #34d399; }
+        .code-block .string { color: #fbbf24; }
+        .code-block .keyword { color: #f472b6; }
+        .code-block .number { color: #60a5fa; }
+        .submission-card { border-left: 4px solid; }
+        .submission-card.report { border-color: #2563eb; }
+        .submission-card.video { border-color: #d946ef; }
+        .submission-card.code { border-color: #10b981; }
+        .checklist-item { display: flex; align-items: start; gap: 0.75rem; padding: 0.6rem; border-radius: 0.5rem; transition: all 0.2s; }
+        .checklist-item:hover { background: rgba(255,255,255,0.05); }
+        .checklist-item i { margin-top: 0.125rem; flex-shrink: 0; }
     </style>
 <base target="_blank">
 </head>
@@ -60,12 +76,13 @@
                 <div class="hidden md:flex items-center gap-8">
                     <a href="#overview" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Overview</a>
                     <a href="#arsitektur" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Arsitektur</a>
+                    <a href="#deploy" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Deploy Ubuntu</a>
+                    <a href="#pengumpulan" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Pengumpulan</a>
                     <a href="#penilaian" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Penilaian</a>
-                    <a href="#tema" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">10 Tema Baru</a>
-                    <a href="#tech" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">Tech Stack</a>
+                    <a href="#tema" class="text-sm font-medium text-dark-600 hover:text-primary-600 transition-colors">10 Tema</a>
                 </div>
-                <a href="#tema" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-600 to-accent-600 text-white text-sm font-semibold rounded-lg hover:shadow-lg hover:shadow-primary-500/25 transition-all">
-                    <i class="fas fa-rocket"></i> Pilih Tema
+                <a href="#deploy" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-600 to-accent-600 text-white text-sm font-semibold rounded-lg hover:shadow-lg hover:shadow-primary-500/25 transition-all">
+                    <i class="fab fa-ubuntu"></i> Deploy Guide
                 </a>
             </div>
         </div>
@@ -80,7 +97,7 @@
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-50 border border-primary-200 text-primary-700 text-xs font-semibold mb-6 fade-in">
                 <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
-                Laravel Microservices & Ubuntu Deployment 2026
+                Laravel Microservices & Ubuntu Server Deployment 2026
             </div>
 
             <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-dark-900 leading-tight mb-6 fade-in delay-1">
@@ -94,15 +111,14 @@
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 fade-in delay-3">
-                <a href="#tema" class="px-8 py-3.5 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-primary-500/20 transition-all flex items-center gap-2">
-                    <i class="fas fa-compass"></i> Jelajahi 10 Tema
+                <a href="#deploy" class="px-8 py-3.5 bg-gradient-to-r from-primary-600 to-accent-600 text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-primary-500/20 transition-all flex items-center gap-2">
+                    <i class="fab fa-ubuntu"></i> Panduan Deploy Ubuntu
                 </a>
-                <a href="#arsitektur" class="px-8 py-3.5 bg-white text-dark-700 font-semibold rounded-xl border border-dark-200 hover:border-primary-300 hover:shadow-lg transition-all flex items-center gap-2">
-                    <i class="fas fa-layer-group"></i> Lihat Arsitektur
+                <a href="#pengumpulan" class="px-8 py-3.5 bg-white text-dark-700 font-semibold rounded-xl border border-dark-200 hover:border-primary-300 hover:shadow-lg transition-all flex items-center gap-2">
+                    <i class="fas fa-file-alt"></i> Format Pengumpulan
                 </a>
             </div>
 
-            <!-- Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-3xl mx-auto fade-in delay-4">
                 <div class="bg-white/60 backdrop-blur rounded-2xl p-5 border border-dark-200/50">
                     <div class="text-3xl font-extrabold gradient-text counter" data-target="3">0</div>
@@ -162,14 +178,14 @@
 
                 <div class="bg-white rounded-2xl p-8 border border-dark-200/60 card-hover shadow-sm">
                     <div class="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6">
-                        <i class="fas fa-cloud text-2xl text-emerald-600"></i>
+                        <i class="fab fa-ubuntu text-2xl text-emerald-600"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-dark-900 mb-3">Deploy ke Azure</h3>
-                    <p class="text-dark-500 text-sm leading-relaxed mb-4">Deployment final ke Ubuntu Server menggunakan App Service for Containers, Azure Container Apps, atau AKS dengan URL publik aktif.</p>
+                    <h3 class="text-xl font-bold text-dark-900 mb-3">Deploy ke Ubuntu Server</h3>
+                    <p class="text-dark-500 text-sm leading-relaxed mb-4">Deployment final ke Ubuntu Server (VM/VPS) menggunakan Docker Compose. Wajib menyertakan laporan dan video demo sebagai bukti.</p>
                     <div class="flex flex-wrap gap-2">
-                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-md">Azure</span>
+                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-md">Ubuntu 22.04/24.04</span>
                         <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-md">Docker</span>
-                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-md">Cloud</span>
+                        <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-md">VPS/VM</span>
                     </div>
                 </div>
             </div>
@@ -332,6 +348,613 @@
         </div>
     </section>
 
+    <!-- Deployment Ubuntu Section -->
+    <section id="deploy" class="py-24 bg-gradient-to-b from-dark-50 to-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold mb-4">
+                    <i class="fab fa-ubuntu"></i>
+                    Ubuntu Server Deployment
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-bold text-dark-900 mt-3">Panduan Deploy ke Ubuntu Server</h2>
+                <p class="text-dark-500 mt-4 max-w-2xl mx-auto">Langkah-langkah lengkap deployment microservices ke Ubuntu Server menggunakan Docker Compose.</p>
+            </div>
+
+            <!-- Prerequisites -->
+            <div class="bg-white rounded-2xl p-8 border border-dark-200/60 shadow-sm mb-8">
+                <h3 class="text-xl font-bold text-dark-900 mb-6 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                        <i class="fas fa-server text-emerald-600"></i>
+                    </div>
+                    Prasyarat Server
+                </h3>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-4 bg-dark-50 rounded-xl border border-dark-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fab fa-ubuntu text-emerald-600 text-lg"></i>
+                            <span class="font-semibold text-dark-900">OS</span>
+                        </div>
+                        <p class="text-dark-500 text-sm">Ubuntu Server 22.04 LTS atau 24.04 LTS</p>
+                    </div>
+                    <div class="p-4 bg-dark-50 rounded-xl border border-dark-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-microchip text-emerald-600 text-lg"></i>
+                            <span class="font-semibold text-dark-900">Spesifikasi Minimum</span>
+                        </div>
+                        <p class="text-dark-500 text-sm">2 vCPU, 4GB RAM, 20GB Storage</p>
+                    </div>
+                    <div class="p-4 bg-dark-50 rounded-xl border border-dark-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-network-wired text-emerald-600 text-lg"></i>
+                            <span class="font-semibold text-dark-900">Akses</span>
+                        </div>
+                        <p class="text-dark-500 text-sm">SSH Key atau Password, Port 22 terbuka</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 1: Install Docker -->
+            <div class="bg-white rounded-2xl p-8 border border-dark-200/60 shadow-sm mb-6">
+                <div class="deploy-step" data-step="1">
+                    <h4 class="text-lg font-bold text-dark-900 mb-3">Install Docker & Docker Compose</h4>
+                    <p class="text-dark-500 text-sm mb-4">Update sistem dan install Docker beserta Docker Compose plugin.</p>
+                    <div class="code-block">
+<pre><span class="comment"># Update package index</span>
+<span class="command">sudo apt update && sudo apt upgrade -y</span>
+
+<span class="comment"># Install dependencies</span>
+<span class="command">sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release</span>
+
+<span class="comment"># Add Docker GPG key</span>
+<span class="command">curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg</span>
+
+<span class="comment"># Add Docker repository</span>
+<span class="command">echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null</span>
+
+<span class="comment"># Install Docker Engine</span>
+<span class="command">sudo apt update && sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin</span>
+
+<span class="comment"># Add user to docker group (logout & login ulang)</span>
+<span class="command">sudo usermod -aG docker $USER</span>
+
+<span class="comment"># Verify installation</span>
+<span class="command">docker --version && docker compose version</span></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Clone Repository -->
+            <div class="bg-white rounded-2xl p-8 border border-dark-200/60 shadow-sm mb-6">
+                <div class="deploy-step" data-step="2">
+                    <h4 class="text-lg font-bold text-dark-900 mb-3">Clone Repository ke Server</h4>
+                    <p class="text-dark-500 text-sm mb-4">Clone repository project dari GitHub/GitLab ke direktori server.</p>
+                    <div class="code-block">
+<pre><span class="comment"># Buat direktori project</span>
+<span class="command">mkdir -p ~/microservices && cd ~/microservices</span>
+
+<span class="comment"># Clone repository (ganti dengan URL repo kalian)</span>
+<span class="command">git clone https://github.com/username/tugas-besar-microservices.git .</span>
+
+<span class="comment"># Atau upload via SCP dari local</span>
+<span class="comment"># scp -r ./project user@server_ip:/home/user/microservices/</span></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Environment Variables -->
+            <div class="bg-white rounded-2xl p-8 border border-dark-200/60 shadow-sm mb-6">
+                <div class="deploy-step" data-step="3">
+                    <h4 class="text-lg font-bold text-dark-900 mb-3">Konfigurasi Environment Variables</h4>
+                    <p class="text-dark-500 text-sm mb-4">Buat file .env untuk setiap service. <strong>JANGAN</strong> hard-code credential!</p>
+                    <div class="code-block">
+<pre><span class="comment"># Auth Service .env</span>
+<span class="command">cd auth-service && cp .env.example .env</span>
+<span class="command">nano .env</span>
+
+<span class="comment"># Isi konfigurasi berikut:</span>
+APP_NAME=<span class="string">"AuthService"</span>
+APP_ENV=<span class="string">production</span>
+APP_KEY=<span class="string">base64:...</span>
+APP_DEBUG=<span class="keyword">false</span>
+
+DB_CONNECTION=mysql
+DB_HOST=<span class="string">user-db</span>
+DB_PORT=<span class="number">3306</span>
+DB_DATABASE=<span class="string">user_db</span>
+DB_USERNAME=<span class="string">db_user</span>
+DB_PASSWORD=<span class="string">strong_password_here</span>
+
+JWT_SECRET=<span class="string">your_jwt_secret_key</span>
+JWT_TTL=<span class="number">60</span></pre>
+                    </div>
+                    <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-exclamation-triangle text-amber-600 mt-0.5"></i>
+                            <div>
+                                <p class="text-amber-800 text-sm font-semibold">Penting!</p>
+                                <p class="text-amber-700 text-xs mt-1">Gunakan password yang kuat dan unik. Jangan pernah commit file .env ke repository. Tambahkan .env ke .gitignore.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Docker Compose -->
+            <div class="bg-white rounded-2xl p-8 border border-dark-200/60 shadow-sm mb-6">
+                <div class="deploy-step" data-step="4">
+                    <h4 class="text-lg font-bold text-dark-900 mb-3">Docker Compose Configuration</h4>
+                    <p class="text-dark-500 text-sm mb-4">Pastikan docker-compose.yml sudah terkonfigurasi dengan benar untuk production.</p>
+                    <div class="code-block">
+<pre><span class="keyword">version</span>: <span class="string">'3.8'</span>
+
+<span class="keyword">services</span>:
+  <span class="comment"># Gateway / Frontend</span>
+  <span class="command">gateway</span>:
+    <span class="keyword">build</span>: <span class="string">./gateway</span>
+    <span class="keyword">container_name</span>: <span class="string">gateway</span>
+    <span class="keyword">ports</span>:
+      - <span class="string">"80:80"</span>
+    <span class="keyword">depends_on</span>:
+      - <span class="command">auth-service</span>
+      - <span class="command">project-service</span>
+    <span class="keyword">networks</span>:
+      - <span class="command">microservices-network</span>
+
+  <span class="comment"># Auth Service</span>
+  <span class="command">auth-service</span>:
+    <span class="keyword">build</span>: <span class="string">./auth-service</span>
+    <span class="keyword">container_name</span>: <span class="string">auth-service</span>
+    <span class="keyword">ports</span>:
+      - <span class="string">"8001:8000"</span>
+    <span class="keyword">environment</span>:
+      - <span class="string">APP_ENV=production</span>
+    <span class="keyword">env_file</span>:
+      - <span class="string">./auth-service/.env</span>
+    <span class="keyword">depends_on</span>:
+      - <span class="command">user-db</span>
+    <span class="keyword">networks</span>:
+      - <span class="command">microservices-network</span>
+
+  <span class="comment"># Project Service</span>
+  <span class="command">project-service</span>:
+    <span class="keyword">build</span>: <span class="string">./project-service</span>
+    <span class="keyword">container_name</span>: <span class="string">project-service</span>
+    <span class="keyword">ports</span>:
+      - <span class="string">"8002:8000"</span>
+    <span class="keyword">environment</span>:
+      - <span class="string">APP_ENV=production</span>
+    <span class="keyword">env_file</span>:
+      - <span class="string">./project-service/.env</span>
+    <span class="keyword">depends_on</span>:
+      - <span class="command">project-db</span>
+    <span class="keyword">networks</span>:
+      - <span class="command">microservices-network</span>
+
+  <span class="comment"># User Database</span>
+  <span class="command">user-db</span>:
+    <span class="keyword">image</span>: <span class="string">mysql:8.0</span>
+    <span class="keyword">container_name</span>: <span class="string">user-db</span>
+    <span class="keyword">environment</span>:
+      <span class="keyword">MYSQL_ROOT_PASSWORD</span>: <span class="string">root_password</span>
+      <span class="keyword">MYSQL_DATABASE</span>: <span class="string">user_db</span>
+    <span class="keyword">volumes</span>:
+      - <span class="command">user-db-data</span>:<span class="string">/var/lib/mysql</span>
+    <span class="keyword">networks</span>:
+      - <span class="command">microservices-network</span>
+
+  <span class="comment"># Project Database</span>
+  <span class="command">project-db</span>:
+    <span class="keyword">image</span>: <span class="string">mysql:8.0</span>
+    <span class="keyword">container_name</span>: <span class="string">project-db</span>
+    <span class="keyword">environment</span>:
+      <span class="keyword">MYSQL_ROOT_PASSWORD</span>: <span class="string">root_password</span>
+      <span class="keyword">MYSQL_DATABASE</span>: <span class="string">project_db</span>
+    <span class="keyword">volumes</span>:
+      - <span class="command">project-db-data</span>:<span class="string">/var/lib/mysql</span>
+    <span class="keyword">networks</span>:
+      - <span class="command">microservices-network</span>
+
+<span class="keyword">volumes</span>:
+  <span class="command">user-db-data</span>:
+  <span class="command">project-db-data</span>:
+
+<span class="keyword">networks</span>:
+  <span class="command">microservices-network</span>:
+    <span class="keyword">driver</span>: <span class="string">bridge</span></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Build & Run -->
+            <div class="bg-white rounded-2xl p-8 border border-dark-200/60 shadow-sm mb-6">
+                <div class="deploy-step" data-step="5">
+                    <h4 class="text-lg font-bold text-dark-900 mb-3">Build & Run Containers</h4>
+                    <p class="text-dark-500 text-sm mb-4">Build image dan jalankan semua service dalam mode detached.</p>
+                    <div class="code-block">
+<pre><span class="comment"># Build dan jalankan semua service</span>
+<span class="command">docker compose up -d --build</span>
+
+<span class="comment"># Cek status container</span>
+<span class="command">docker compose ps</span>
+
+<span class="comment"># Cek logs jika ada error</span>
+<span class="command">docker compose logs -f [service_name]</span>
+
+<span class="comment"># Jalankan migration (jika belum)</span>
+<span class="command">docker compose exec auth-service php artisan migrate --force</span>
+<span class="command">docker compose exec project-service php artisan migrate --force</span>
+
+<span class="comment"># Generate JWT secret</span>
+<span class="command">docker compose exec auth-service php artisan jwt:secret</span>
+
+<span class="comment"># Seed data awal (opsional)</span>
+<span class="command">docker compose exec auth-service php artisan db:seed</span></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Firewall & Nginx -->
+            <div class="bg-white rounded-2xl p-8 border border-dark-200/60 shadow-sm mb-6">
+                <div class="deploy-step" data-step="6">
+                    <h4 class="text-lg font-bold text-dark-900 mb-3">Konfigurasi Firewall & Reverse Proxy</h4>
+                    <p class="text-dark-500 text-sm mb-4">Aktifkan UFW dan konfigurasi Nginx sebagai reverse proxy untuk production.</p>
+                    <div class="code-block">
+<pre><span class="comment"># Install UFW (Uncomplicated Firewall)</span>
+<span class="command">sudo apt install -y ufw</span>
+
+<span class="comment"># Allow SSH, HTTP, HTTPS</span>
+<span class="command">sudo ufw allow 22/tcp</span>
+<span class="command">sudo ufw allow 80/tcp</span>
+<span class="command">sudo ufw allow 443/tcp</span>
+
+<span class="comment"># Enable firewall</span>
+<span class="command">sudo ufw enable</span>
+
+<span class="comment"># Install Nginx sebagai reverse proxy</span>
+<span class="command">sudo apt install -y nginx</span>
+
+<span class="comment"># Konfigurasi Nginx (sederhana)</span>
+<span class="command">sudo nano /etc/nginx/sites-available/microservices</span></pre>
+                    </div>
+                    <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                        <p class="text-blue-800 text-sm font-semibold mb-2">Contoh Konfigurasi Nginx:</p>
+                        <div class="code-block">
+<pre><span class="keyword">server</span> {
+    <span class="keyword">listen</span> <span class="number">80</span>;
+    <span class="keyword">server_name</span> <span class="string">your-domain.com</span>;
+
+    <span class="keyword">location</span> / {
+        <span class="keyword">proxy_pass</span> <span class="string">http://localhost:80</span>;
+        <span class="keyword">proxy_set_header</span> Host <span class="string">$host</span>;
+        <span class="keyword">proxy_set_header</span> X-Real-IP <span class="string">$remote_addr</span>;
+    }
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Verification -->
+            <div class="bg-white rounded-2xl p-8 border border-dark-200/60 shadow-sm mb-6">
+                <div class="deploy-step" data-step="7">
+                    <h4 class="text-lg font-bold text-dark-900 mb-3">Verifikasi Deployment</h4>
+                    <p class="text-dark-500 text-sm mb-4">Pastikan semua service berjalan dengan benar dan bisa diakses.</p>
+                    <div class="code-block">
+<pre><span class="comment"># Cek container yang berjalan</span>
+<span class="command">docker compose ps</span>
+
+<span class="comment"># Test endpoint dari server</span>
+<span class="command">curl http://localhost:80</span>
+<span class="command">curl http://localhost:8001/api/health</span>
+<span class="command">curl http://localhost:8002/api/health</span>
+
+<span class="comment"># Cek IP publik server</span>
+<span class="command">curl ifconfig.me</span>
+
+<span class="comment"># Test dari browser/external</span>
+<span class="comment"># http://your-server-ip/</span>
+<span class="comment"># http://your-server-ip:8001/api/...</span></pre>
+                    </div>
+                    <div class="mt-4 grid md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                            <i class="fas fa-check-circle text-emerald-600 text-2xl mb-2"></i>
+                            <p class="text-emerald-800 text-sm font-semibold">Gateway</p>
+                            <p class="text-emerald-600 text-xs">Port 80</p>
+                        </div>
+                        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                            <i class="fas fa-check-circle text-emerald-600 text-2xl mb-2"></i>
+                            <p class="text-emerald-800 text-sm font-semibold">Auth Service</p>
+                            <p class="text-emerald-600 text-xs">Port 8001</p>
+                        </div>
+                        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center">
+                            <i class="fas fa-check-circle text-emerald-600 text-2xl mb-2"></i>
+                            <p class="text-emerald-800 text-sm font-semibold">Project Service</p>
+                            <p class="text-emerald-600 text-xs">Port 8002</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Troubleshooting -->
+            <div class="mt-8 bg-red-50 rounded-2xl p-8 border border-red-200">
+                <h3 class="text-lg font-bold text-red-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-bug"></i> Troubleshooting Umum
+                </h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-white rounded-xl border border-red-100">
+                        <p class="font-semibold text-red-800 text-sm">Permission Denied saat docker command</p>
+                        <p class="text-red-600 text-xs mt-1">Solusi: sudo usermod -aG docker $USER lalu logout & login ulang.</p>
+                    </div>
+                    <div class="p-4 bg-white rounded-xl border border-red-100">
+                        <p class="font-semibold text-red-800 text-sm">Port sudah digunakan</p>
+                        <p class="text-red-600 text-xs mt-1">Solusi: sudo lsof -i :80 lalu kill process atau ganti port di docker-compose.yml.</p>
+                    </div>
+                    <div class="p-4 bg-white rounded-xl border border-red-100">
+                        <p class="font-semibold text-red-800 text-sm">Database connection refused</p>
+                        <p class="text-red-600 text-xs mt-1">Solusi: Pastikan DB_HOST di .env menggunakan nama service container (bukan localhost).</p>
+                    </div>
+                    <div class="p-4 bg-white rounded-xl border border-red-100">
+                        <p class="font-semibold text-red-800 text-sm">JWT token invalid</p>
+                        <p class="text-red-600 text-xs mt-1">Solusi: Pastikan JWT_SECRET sama di semua service yang membutuhkan validasi token.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Submission Section -->
+    <section id="pengumpulan" class="py-24 bg-dark-900 relative overflow-hidden">
+        <div class="absolute inset-0 grid-bg opacity-10"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-900/50 border border-primary-700 text-primary-300 text-xs font-semibold mb-4">
+                    <i class="fas fa-clipboard-check"></i>
+                    Format Pengumpulan
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mt-3">Yang Wajib Dikumpulkan</h2>
+                <p class="text-dark-400 mt-4 max-w-2xl mx-auto">Tiga komponen utama yang harus disiapkan dan dikumpulkan sebagai bukti pengerjaan tugas besar.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Report Card -->
+                <div class="submission-card report bg-dark-800/60 backdrop-blur rounded-2xl p-8 border border-dark-700 hover:bg-dark-800/80 transition-all">
+                    <div class="w-14 h-14 rounded-2xl bg-blue-900/50 flex items-center justify-center mb-6">
+                        <i class="fas fa-file-alt text-2xl text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">1. Laporan Tugas</h3>
+                    <p class="text-dark-400 text-sm leading-relaxed mb-6">Dokumen PDF yang berisi penjelasan lengkap arsitektur, implementasi, dan hasil deployment.</p>
+
+                    <div class="space-y-3">
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Cover, Daftar Isi, dan Identitas Kelompok</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Penjelasan Arsitektur Microservices</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Diagram Arsitektur (gambar/draw.io)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Penjelasan Setiap Service</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Screenshot Hasil Deploy di Ubuntu</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Daftar Endpoint API (method & response)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Konfigurasi Docker & Docker Compose</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Langkah-langkah Deployment</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-blue-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Kesimpulan & Saran Pengembangan</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-blue-900/20 rounded-xl border border-blue-800/30">
+                        <p class="text-blue-300 text-xs font-semibold mb-1">Format File:</p>
+                        <p class="text-dark-400 text-xs">PDF, maksimal 50 halaman, font Times New Roman / Arial 12, spasi 1.5</p>
+                    </div>
+                </div>
+
+                <!-- Video Card -->
+                <div class="submission-card video bg-dark-800/60 backdrop-blur rounded-2xl p-8 border border-dark-700 hover:bg-dark-800/80 transition-all">
+                    <div class="w-14 h-14 rounded-2xl bg-fuchsia-900/50 flex items-center justify-center mb-6">
+                        <i class="fas fa-video text-2xl text-fuchsia-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">2. Video Demo</h3>
+                    <p class="text-dark-400 text-sm leading-relaxed mb-6">Rekaman layar yang menunjukkan aplikasi berjalan dan fitur-fitur utama yang diimplementasikan.</p>
+
+                    <div class="space-y-3">
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Durasi 10-15 menit</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Perkenalan Tim & Pembagian Tugas</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Demo Login & Register (JWT)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Demo CRUD Data (Admin vs User)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Demo Role-Based Access Control</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Tunjukkan Aplikasi Berjalan di Ubuntu</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Tunjukkan Docker Container Aktif</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Penjelasan Singkat Arsitektur</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-fuchsia-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Kesimpulan & Refleksi</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-fuchsia-900/20 rounded-xl border border-fuchsia-800/30">
+                        <p class="text-fuchsia-300 text-xs font-semibold mb-1">Format & Upload:</p>
+                        <p class="text-dark-400 text-xs">MP4, 1080p, upload ke YouTube (Unlisted) atau Google Drive. Sertakan link di laporan.</p>
+                    </div>
+                </div>
+
+                <!-- Code Card -->
+                <div class="submission-card code bg-dark-800/60 backdrop-blur rounded-2xl p-8 border border-dark-700 hover:bg-dark-800/80 transition-all">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-900/50 flex items-center justify-center mb-6">
+                        <i class="fas fa-code text-2xl text-emerald-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">3. Source Code</h3>
+                    <p class="text-dark-400 text-sm leading-relaxed mb-6">Repository lengkap dengan struktur folder yang rapi dan dokumentasi build.</p>
+
+                    <div class="space-y-3">
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Repository GitHub/GitLab (Public/Private)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">README.md Lengkap</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Dockerfile untuk Setiap Service</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">docker-compose.yml</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">.env.example (tanpa credential asli)</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Migration & Seeder</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Postman Collection / API Docs</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">.gitignore sudah benar</span>
+                        </div>
+                        <div class="checklist-item">
+                            <i class="fas fa-check-circle text-emerald-400 text-sm"></i>
+                            <span class="text-dark-300 text-sm">Commit history yang jelas</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-emerald-900/20 rounded-xl border border-emerald-800/30">
+                        <p class="text-emerald-300 text-xs font-semibold mb-1">Struktur Folder:</p>
+                        <div class="code-block mt-2">
+<pre><span class="keyword">tugas-besar-microservices/</span>
+├── <span class="string">README.md</span>
+├── <span class="string">docker-compose.yml</span>
+├── <span class="string">gateway/</span>
+│   ├── <span class="string">Dockerfile</span>
+│   └── <span class="string">...</span>
+├── <span class="string">auth-service/</span>
+│   ├── <span class="string">Dockerfile</span>
+│   ├── <span class="string">.env.example</span>
+│   └── <span class="string">...</span>
+└── <span class="string">project-service/</span>
+    ├── <span class="string">Dockerfile</span>
+    ├── <span class="string">.env.example</span>
+    └── <span class="string">...</span></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submission Timeline -->
+            <div class="mt-16 bg-dark-800/50 rounded-2xl p-8 border border-dark-700">
+                <h3 class="text-xl font-bold text-white mb-8 text-center">Timeline Pengumpulan</h3>
+                <div class="relative">
+                    <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gradient-to-b from-primary-500 to-accent-500 hidden md:block"></div>
+
+                    <div class="space-y-8">
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <div class="flex-1 md:text-right">
+                                <h4 class="text-white font-bold">Minggu 1-2</h4>
+                                <p class="text-dark-400 text-sm">Perencanaan & Setup Environment</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center shrink-0 z-10">
+                                <i class="fas fa-lightbulb text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-dark-500 text-sm">Pemilihan tema, desain database, setup Docker lokal</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <div class="flex-1 md:text-right">
+                                <p class="text-dark-500 text-sm">Implementasi Auth Service & Gateway</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-accent-600 flex items-center justify-center shrink-0 z-10">
+                                <i class="fas fa-code text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-white font-bold">Minggu 3-5</h4>
+                                <p class="text-dark-400 text-sm">Pengembangan Service</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <div class="flex-1 md:text-right">
+                                <h4 class="text-white font-bold">Minggu 6-7</h4>
+                                <p class="text-dark-400 text-sm">Deployment & Testing</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center shrink-0 z-10">
+                                <i class="fab fa-ubuntu text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-dark-500 text-sm">Deploy ke Ubuntu Server, testing end-to-end, dokumentasi</p>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center gap-6">
+                            <div class="flex-1 md:text-right">
+                                <p class="text-dark-500 text-sm">Kumpulkan laporan, video demo, dan link repository</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-rose-600 flex items-center justify-center shrink-0 z-10">
+                                <i class="fas fa-flag-checkered text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="text-white font-bold">Minggu 8</h4>
+                                <p class="text-dark-400 text-sm">Pengumpulan & Presentasi</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Penilaian Section -->
     <section id="penilaian" class="py-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -359,12 +982,12 @@
                 <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
                     <div class="flex items-center justify-between mb-4">
                         <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-                            <i class="fas fa-cloud-upload-alt text-emerald-600"></i>
+                            <i class="fab fa-ubuntu text-emerald-600"></i>
                         </div>
                         <span class="text-2xl font-extrabold gradient-text">15%</span>
                     </div>
-                    <h4 class="font-bold text-dark-900 mb-2">Deployment ke Azure</h4>
-                    <p class="text-dark-500 text-xs leading-relaxed">Semua service berjalan di Azure, URL publik aktif, konfigurasi environment & secrets aman.</p>
+                    <h4 class="font-bold text-dark-900 mb-2">Deployment ke Ubuntu</h4>
+                    <p class="text-dark-500 text-xs leading-relaxed">Semua service berjalan di Ubuntu Server, Docker container aktif, konfigurasi environment & secrets aman.</p>
                     <div class="mt-4 w-full bg-dark-100 rounded-full h-2">
                         <div class="bg-gradient-to-r from-primary-500 to-accent-500 h-2 rounded-full" style="width: 15%"></div>
                     </div>
@@ -468,7 +1091,7 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-6">
-                <a href="event-komunitas-tech.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-primary-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-primary-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/20">
                             <i class="fas fa-calendar-check text-white text-xl"></i>
@@ -476,7 +1099,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-blue-900/50 text-blue-300 text-[10px] font-bold rounded">Community</span>
-                                <span class="px-2 py-0.5 bg-primary-900/50 text-primary-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-primary-400 transition-colors">1. Sistem Manajemen Event Komunitas Tech</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Platform terpusat untuk meetup, workshop, dan hackathon. Fitur pendaftaran, check-in QR code, sertifikat otomatis, dan rekap kehadiran.</p>
@@ -489,7 +1111,7 @@
                     </div>
                 </div>
 
-                <a href="carbon-footprint.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-emerald-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-emerald-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
                             <i class="fas fa-leaf text-white text-xl"></i>
@@ -497,7 +1119,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-emerald-900/50 text-emerald-300 text-[10px] font-bold rounded">Sustainability</span>
-                                <span class="px-2 py-0.5 bg-emerald-900/50 text-emerald-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-emerald-400 transition-colors">2. Sistem Tracking Carbon Footprint Personal</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Aplikasi tracking jejak karbon harian. User input aktivitas, sistem hitung estimasi emisi CO2. Leaderboard, tips hemat karbon, laporan bulanan.</p>
@@ -510,7 +1131,7 @@
                     </div>
                 </div>
 
-                <a href="coworking-booking.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-orange-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-orange-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center shrink-0 shadow-lg shadow-orange-500/20">
                             <i class="fas fa-building text-white text-xl"></i>
@@ -518,7 +1139,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-orange-900/50 text-orange-300 text-[10px] font-bold rounded">Hospitality</span>
-                                <span class="px-2 py-0.5 bg-orange-900/50 text-orange-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-orange-400 transition-colors">3. Sistem Co-Working Space Booking</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Platform booking ruang kerja dengan peta lantai interaktif, slot waktu, integrasi fasilitas (proyektor, whiteboard), dan riwayat booking.</p>
@@ -531,7 +1151,7 @@
                     </div>
                 </div>
 
-                <a href="freelance-project.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-violet-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-violet-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-400 flex items-center justify-center shrink-0 shadow-lg shadow-violet-500/20">
                             <i class="fas fa-briefcase text-white text-xl"></i>
@@ -539,7 +1159,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-violet-900/50 text-violet-300 text-[10px] font-bold rounded">Productivity</span>
-                                <span class="px-2 py-0.5 bg-violet-900/50 text-violet-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-violet-400 transition-colors">4. Sistem Manajemen Freelance Project</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Dashboard manajemen proyek freelance: tracking proyek per klien, milestone & deadline, status pembayaran, dan invoice generator.</p>
@@ -552,7 +1171,7 @@
                     </div>
                 </div>
 
-                <a href="menu-resep-restoran.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-rose-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-rose-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-400 flex items-center justify-center shrink-0 shadow-lg shadow-rose-500/20">
                             <i class="fas fa-utensils text-white text-xl"></i>
@@ -560,7 +1179,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-rose-900/50 text-rose-300 text-[10px] font-bold rounded">F&B</span>
-                                <span class="px-2 py-0.5 bg-rose-900/50 text-rose-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-rose-400 transition-colors">5. Sistem Katalog Menu & Resep Restoran</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Katalog menu digital dengan kategori, harga dinamis, galeri foto, dan manajemen resep internal (bahan, takaran, cara masak).</p>
@@ -573,7 +1191,7 @@
                     </div>
                 </div>
 
-                <a href="esports-team.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-indigo-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-indigo-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-400 flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20">
                             <i class="fas fa-gamepad text-white text-xl"></i>
@@ -581,7 +1199,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-indigo-900/50 text-indigo-300 text-[10px] font-bold rounded">Gaming</span>
-                                <span class="px-2 py-0.5 bg-indigo-900/50 text-indigo-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-indigo-400 transition-colors">6. Sistem Manajemen Komunitas Gaming</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Platform manajemen tim esports: roster pemain, jadwal pertandingan, statistik win/loss/KDA, dan inventaris perangkat gaming.</p>
@@ -594,7 +1211,7 @@
                     </div>
                 </div>
 
-                <a href="subscription-box.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-amber-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-amber-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-yellow-400 flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
                             <i class="fas fa-box-open text-white text-xl"></i>
@@ -602,7 +1219,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 text-[10px] font-bold rounded">E-Commerce</span>
-                                <span class="px-2 py-0.5 bg-amber-900/50 text-amber-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-amber-400 transition-colors">7. Sistem Subscription Box Management</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Manajemen subscription box bulanan: katalog box, pelanggan subscription, isi box per periode, dan tracking status pengiriman.</p>
@@ -615,7 +1231,7 @@
                     </div>
                 </div>
 
-                <a href="content-creator-cms.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-fuchsia-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-fuchsia-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-pink-400 flex items-center justify-center shrink-0 shadow-lg shadow-fuchsia-500/20">
                             <i class="fas fa-video text-white text-xl"></i>
@@ -623,7 +1239,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-fuchsia-900/50 text-fuchsia-300 text-[10px] font-bold rounded">Media</span>
-                                <span class="px-2 py-0.5 bg-fuchsia-900/50 text-fuchsia-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-fuchsia-400 transition-colors">8. Sistem Manajemen Konten Kreator</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">CMS khusus content creator: pipeline konten (ide ke scripting ke filming ke editing ke uploaded), jadwal multi-platform, tracking performa.</p>
@@ -636,7 +1251,7 @@
                     </div>
                 </div>
 
-                <a href="digital-asset-management.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-cyan-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-cyan-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500 to-sky-400 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20">
                             <i class="fas fa-images text-white text-xl"></i>
@@ -644,7 +1259,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-cyan-900/50 text-cyan-300 text-[10px] font-bold rounded">Creative</span>
-                                <span class="px-2 py-0.5 bg-cyan-900/50 text-cyan-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-cyan-400 transition-colors">9. Sistem Manajemen Aset Digital (DAM)</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Digital Asset Management: upload file, tagging, kategori, versioning, preview thumbnail, dan generate link sharing ke klien.</p>
@@ -657,7 +1271,7 @@
                     </div>
                 </div>
 
-                <a href="volunteer-management.html" class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-teal-600/50 transition-all group block">
+                <div class="theme-card bg-dark-800/60 backdrop-blur rounded-2xl p-6 border border-dark-700 hover:border-teal-600/50 transition-all group">
                     <div class="flex items-start gap-4">
                         <div class="theme-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-400 flex items-center justify-center shrink-0 shadow-lg shadow-teal-500/20">
                             <i class="fas fa-hands-helping text-white text-xl"></i>
@@ -665,7 +1279,6 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-2 py-0.5 bg-teal-900/50 text-teal-300 text-[10px] font-bold rounded">Nonprofit</span>
-                                <span class="px-2 py-0.5 bg-teal-900/50 text-teal-300 text-[10px] font-bold rounded ml-auto"><i class="fas fa-external-link-alt mr-1"></i>Detail</span>
                             </div>
                             <h3 class="text-white font-bold text-lg mb-2 group-hover:text-teal-400 transition-colors">10. Sistem Manajemen Volunteer & Relawan</h3>
                             <p class="text-dark-400 text-sm leading-relaxed mb-3">Platform manajemen relawan: registrasi dengan skill, matching kegiatan berdasarkan skill & lokasi, absensi, dan rekap jam relawan.</p>
@@ -677,7 +1290,7 @@
                         </div>
                     </div>
                 </div>
-            </a>
+            </div>
         </div>
     </section>
 
@@ -773,8 +1386,8 @@
 
                 <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center">
-                            <i class="fab fa-microsoft text-2xl text-sky-600"></i>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+                            <i class="fab fa-ubuntu text-2xl text-emerald-600"></i>
                         </div>
                         <div>
                             <h4 class="font-bold text-dark-900">Deployment Server</h4>
@@ -782,19 +1395,19 @@
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-sky-50 text-sky-700 text-xs font-medium rounded-lg">
-                            <i class="fab fa-microsoft"></i> Azure App Service
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-lg">
+                            <i class="fab fa-ubuntu"></i> Ubuntu 22.04/24.04
                         </div>
-                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-lg">
-                            <i class="fas fa-cloud"></i> Container Apps
+                        <div class="tech-badge inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 text-orange-700 text-xs font-medium rounded-lg">
+                            <i class="fas fa-server"></i> VPS / VM
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white rounded-2xl p-6 border border-dark-200/60 shadow-sm card-hover">
                     <div class="flex items-center gap-4 mb-4">
-                        <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
-                            <i class="fas fa-code text-2xl text-emerald-600"></i>
+                        <div class="w-12 h-12 rounded-xl bg-sky-50 flex items-center justify-center">
+                            <i class="fas fa-code text-2xl text-sky-600"></i>
                         </div>
                         <div>
                             <h4 class="font-bold text-dark-900">Frontend & UI</h4>
@@ -828,7 +1441,7 @@
                     <span class="text-dark-700">|</span>
                     <span class="text-dark-600 text-xs">Docker</span>
                     <span class="text-dark-700">|</span>
-                    <span class="text-dark-600 text-xs">Azure</span>
+                    <span class="text-dark-600 text-xs">Ubuntu</span>
                     <span class="text-dark-700">|</span>
                     <span class="text-dark-600 text-xs">JWT</span>
                 </div>
