@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-Test: IT Change Management for Organizations</title>
+<style>
+:root{--p:#1a365d;--a:#2b6cb0;--bg:#f0f4f8;--card:#fff;--green:#38a169;--red:#e53e3e;--orange:#dd6b20;--border:#e2e8f0;--text:#2d3748}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.screen{display:none;max-width:800px;margin:0 auto;padding:20px}
+.screen.active{display:block}
+.logo-header{background:linear-gradient(135deg,var(--p),var(--a));color:#fff;padding:30px;border-radius:16px;text-align:center;margin-bottom:24px}
+.logo-header h1{font-size:1.6em;margin-bottom:6px}
+.logo-header p{opacity:.85;font-size:.95em}
+.card{background:var(--card);border-radius:14px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,.07);margin-bottom:20px;border:1px solid var(--border)}
+label{display:block;font-weight:600;margin-bottom:6px;font-size:.95em}
+input[type=text],input[type=email]{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:10px;font-size:1em;transition:.2s}
+input:focus{outline:none;border-color:var(--a)}
+.btn{display:inline-block;padding:14px 36px;border:none;border-radius:10px;font-size:1.05em;font-weight:700;cursor:pointer;transition:.2s}
+.btn-primary{background:var(--a);color:#fff}
+.btn-primary:hover{background:var(--p)}
+.btn-primary:disabled{background:#a0aec0;cursor:not-allowed}
+.btn-outline{background:transparent;border:2px solid var(--a);color:var(--a)}
+.error-msg{color:var(--red);font-size:.9em;margin-top:6px;display:none}
+.progress-bar{background:var(--border);border-radius:20px;height:10px;margin:16px 0;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,var(--a),var(--green));height:100%;border-radius:20px;transition:width .4s}
+.q-counter{text-align:center;font-weight:700;color:var(--a);font-size:1.1em;margin-bottom:10px}
+.q-text{font-size:1.15em;font-weight:600;margin-bottom:20px;line-height:1.5}
+.option{display:block;padding:14px 18px;border:2px solid var(--border);border-radius:10px;margin-bottom:10px;cursor:pointer;transition:.2s;font-size:.98em;position:relative;padding-left:50px}
+.option:hover{border-color:var(--a);background:#ebf8ff}
+.option.selected{border-color:var(--a);background:#ebf8ff;font-weight:600}
+.option .letter{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85em}
+.option.selected .letter{background:var(--a);color:#fff}
+.nav-buttons{display:flex;justify-content:space-between;margin-top:24px;gap:12px}
+.timer{text-align:center;font-size:1.1em;font-weight:600;color:var(--orange);margin-bottom:10px}
+.result-circle{width:180px;height:180px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:20px auto;font-size:2.4em;font-weight:800;border:8px solid}
+.result-circle.excellent{border-color:var(--green);color:var(--green);background:#f0fff4}
+.result-circle.good{border-color:var(--a);color:var(--a);background:#ebf8ff}
+.result-circle.avg{border-color:var(--orange);color:var(--orange);background:#fffaf0}
+.result-circle.low{border-color:var(--red);color:var(--red);background:#fff5f5}
+.result-circle small{font-size:.35em;font-weight:600}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}
+.stat-box{text-align:center;padding:16px;border-radius:10px;background:var(--bg)}
+.stat-box .num{font-size:1.8em;font-weight:800}
+.stat-box .lbl{font-size:.8em;color:#718096}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:none;align-items:center;justify-content:center;z-index:999;flex-direction:column}
+.loading-overlay.show{display:flex}
+.spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{margin-top:16px;font-weight:600;color:var(--a)}
+.rules-box{background:#fffaf0;border-left:4px solid var(--orange);padding:16px 18px;border-radius:0 10px 10px 0;margin:16px 0;font-size:.93em}
+.rules-box li{margin-bottom:4px}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr}.logo-header h1{font-size:1.2em}}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loader"><div class="spinner"></div><p id="loader-text">Memproses...</p></div>
+
+<!-- SCREEN 1: REGISTRATION -->
+<div class="screen active" id="screen-reg">
+<div class="logo-header">
+<h1>📝 PRE-TEST</h1>
+<p>IT Change Management for Organizations</p>
+</div>
+<div class="card">
+<h2 style="margin-bottom:16px">Registrasi Peserta</h2>
+<div style="margin-bottom:16px"><label for="nama">Nama Lengkap</label><input type="text" id="nama" placeholder="Masukkan nama lengkap Anda"></div>
+<div style="margin-bottom:16px"><label for="email">Email</label><input type="email" id="email" placeholder="contoh@perusahaan.com"></div>
+<p class="error-msg" id="reg-error"></p>
+<div class="rules-box"><strong>📋 Aturan Pre-Test:</strong><ul style="margin-top:8px;padding-left:18px">
+<li>Terdiri dari <strong>20 soal pilihan ganda</strong></li>
+<li>Waktu pengerjaan: <strong>30 menit</strong></li>
+<li>Urutan soal & jawaban <strong>diacak</strong> untuk setiap peserta</li>
+<li>Setiap peserta <strong>hanya bisa mengerjakan 1 kali</strong></li>
+<li>Score akan ditampilkan setelah submit</li>
+<li>Jawaban benar <strong>tidak</strong> ditampilkan selama pengerjaan</li>
+</ul></div>
+<div style="text-align:center;margin-top:20px"><button class="btn btn-primary" onclick="startQuiz()">Mulai Pre-Test →</button></div>
+</div>
+</div>
+
+<!-- SCREEN 2: QUIZ -->
+<div class="screen" id="screen-quiz">
+<div class="timer" id="timer">⏱ 30:00</div>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+<div class="q-counter" id="q-counter">Soal 1 / 20</div>
+<div class="card">
+<div class="q-text" id="q-text"></div>
+<div id="options-container"></div>
+</div>
+<div class="nav-buttons">
+<button class="btn btn-outline" id="btn-prev" onclick="navQ(-1)">← Sebelumnya</button>
+<button class="btn btn-primary" id="btn-next" onclick="navQ(1)">Selanjutnya →</button>
+</div>
+<div style="text-align:center;margin-top:12px"><span id="answered-count" style="font-size:.9em;color:#718096">0 dari 20 terjawab</span></div>
+</div>
+
+<!-- SCREEN 3: RESULTS -->
+<div class="screen" id="screen-result">
+<div class="logo-header"><h1>🎯 Hasil Pre-Test Anda</h1><p id="result-name"></p></div>
+<div class="card" style="text-align:center">
+<div class="result-circle" id="result-circle"><span id="result-score">0</span><small>dari 20</small></div>
+<p style="font-size:1.3em;font-weight:700;margin-bottom:4px" id="result-pct"></p>
+<p style="color:#718096" id="result-label"></p>
+<div class="stat-grid">
+<div class="stat-box"><div class="num" id="stat-correct" style="color:#38a169">0</div><div class="lbl">Benar</div></div>
+<div class="stat-box"><div class="num" id="stat-wrong" style="color:#e53e3e">0</div><div class="lbl">Salah</div></div>
+<div class="stat-box"><div class="num" id="stat-empty" style="color:#a0aec0">0</div><div class="lbl">Tidak Dijawab</div></div>
+</div>
+<div style="margin-top:20px;padding:16px;background:#f0f4f8;border-radius:10px">
+<p style="font-weight:600">📊 Data Anda telah tersimpan di database.</p>
+<p style="font-size:.9em;color:#718096;margin-top:4px">Score ini akan menjadi baseline untuk mengukur peningkatan setelah training.</p>
+</div>
+</div>
+</div>
+
+<script>
+// === CONFIG ===
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzC5AzHmnwd47EGsKUG2DbQpr00DEiz83AC32D6bEg-rtbOCD0pVRmSKC-lnBcnWrnv9w/exec';
+const TOTAL_TIME = 30 * 60;
+let timerInterval, timeLeft = TOTAL_TIME;
+let currentQ = 0, userAnswers = [], shuffledQuestions = [];
+
+// === 20 QUESTIONS: IT CHANGE MANAGEMENT ===
+const ALL_QUESTIONS = [
+{question:"Apa definisi IT Change Management menurut slide?",options:["Proses untuk menghapus sistem lama","Disiplin manajemen layanan IT yang mencakup proses terstruktur untuk merencanakan, mengevaluasi, menyetujui, menjadwalkan, mengimplementasikan, mendokumentasikan, dan meninjau setiap perubahan","Metode untuk mengganti semua hardware IT","Sistem otomatis untuk backup data"],correct:1},
+{question:"Manakah yang BUKAN termasuk dalam 9 langkah siklus perubahan yang terstruktur?",options:["Business Need","Request Change","Assess Risk & Impact","Hire New Staff"],correct:3},
+{question:"Apa perbedaan utama antara Technical Change Management dan Organizational Change Management?",options:["Technical fokus pada sistem, Organizational fokus pada manusia","Technical lebih mahal dari Organizational","Technical tidak memerlukan approval","Organizational hanya untuk perusahaan kecil"],correct:0},
+{question:"Dalam ITIL 4, Change Management berubah nama menjadi...",options:["Change Control","Change Enablement","Change Automation","Change Governance"],correct:1},
+{question:"Apa tujuan utama Change Enablement menurut ITIL 4?",options:["Membatasi semua perubahan IT","Memaksimalkan jumlah perubahan IT yang berhasil dengan risiko terkelola","Menghapus proses approval","Menggantikan semua staff IT dengan otomatisasi"],correct:1},
+{question:"Manakah yang termasuk Standard Change?",options:["Migrasi server produksi","Reset password user","Upgrade aplikasi major","Perubahan arsitektur jaringan"],correct:1},
+{question:"Normal Change memerlukan...",options:["Tidak perlu approval","Approval otomatis","Analisis dampak dan risiko, lalu approval CAB","Hanya notifikasi email"],correct:2},
+{question:"Emergency Change digunakan untuk...",options:["Update rutin mingguan","Insiden kritis atau security breach yang membutuhkan perubahan segera","Training staff baru","Pembelian hardware baru"],correct:1},
+{question:"Apa fungsi utama CAB (Change Advisory Board)?",options:["Memprogram software","Forum penilai kelayakan perubahan yang meninjau risiko dan dampak","Menjual layanan IT","Merekrut karyawan IT"],correct:1},
+{question:"ECAB (Emergency CAB) berbeda dari CAB reguler karena...",options:["ECAB bekerja 24/7 untuk keputusan darurat","ECAB tidak memerlukan dokumentasi","ECAB hanya untuk perubahan kecil","ECAB tidak perlu approval"],correct:0},
+{question:"Dalam framework ADKAR, huruf 'A' pertama berarti...",options:["Ability","Awareness","Action","Assessment"],correct:1},
+{question:"Urutan yang BENAR dalam model ADKAR adalah...",options:["Awareness → Desire → Knowledge → Ability → Reinforcement","Desire → Awareness → Knowledge → Ability → Reinforcement","Knowledge → Awareness → Desire → Ability → Reinforcement","Awareness → Knowledge → Desire → Ability → Reinforcement"],correct:0},
+{question:"Apa yang dimaksud dengan 'Desire' dalam ADKAR?",options:["Kemauan pribadi untuk mendukung dan berpartisipasi dalam perubahan","Keinginan untuk meninggalkan perusahaan","Desain sistem baru","Deskripsi pekerjaan baru"],correct:0},
+{question:"Dalam analisis akar masalah, 5 Whys digunakan untuk...",options:["Membuat 5 pertanyaan untuk interview","Menemukan akar masalah (root cause) dengan bertanya 'mengapa' berulang kali","Memvalidasi 5 asumsi berbeda","Membuat 5 versi laporan"],correct:1},
+{question:"Fishbone Analysis (Ishikawa) berguna untuk...",options:["Menghitung biaya proyek","Mengkategorikan penyebab masalah dalam change management","Membuat jadwal kerja","Mendesain logo perusahaan"],correct:1},
+{question:"Rollback Plan adalah...",options:["Rencana untuk kembali ke kondisi stabil sebelumnya jika perubahan gagal","Rencana untuk melanjutkan perubahan","Rencana untuk menghapus data lama","Rencana untuk merekrut staff baru"],correct:0},
+{question:"Trigger condition dalam rollback plan berfungsi untuk...",options:["Menentukan kapan rollback harus dijalankan","Menghitung biaya perubahan","Mengukur kepuasan pelanggan","Mendesain UI aplikasi"],correct:0},
+{question:"CMDB (Configuration Management Database) penting karena...",options:["Menyimpan data keuangan perusahaan","Menyimpan data konfigurasi IT dan relasinya untuk impact analysis yang akurat","Mengelola gaji karyawan","Mencatat meeting minutes"],correct:1},
+{question:"Menurut studi kasus Knight Capital (2012), akar masalah kegagalan adalah...",options:["Kurangnya budget IT","Kombinasi partial deployment, legacy code yang masih aktif, alert yang diabaikan, dan kontrol risiko yang tidak memadai","Terlalu banyak karyawan","Sistem terlalu baru"],correct:1},
+{question:"Integrasi Change Management dengan DevOps bertujuan untuk...",options:["Memperlambat deployment","Memastikan perubahan yang cepat tetap aman, terdokumentasi, dan terkontrol","Menghapus semua proses manual","Mengganti tim DevOps dengan tim Change Management"],correct:1}
+];
+
+// === SHUFFLE UTILITIES ===
+function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function prepareQuiz(){
+  shuffledQuestions = shuffle(ALL_QUESTIONS).map(q=>{
+    const opts = q.options.map((text,i)=>({text,idx:i}));
+    const shuffled = shuffle(opts);
+    return {...q, shuffledOpts: shuffled};
+  });
+  userAnswers = new Array(shuffledQuestions.length).fill(null);
+}
+
+// === REGISTRATION & EMAIL CHECK ===
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function showLoader(msg){document.getElementById('loader-text').textContent=msg||'Memproses...';document.getElementById('loader').classList.add('show')}
+function hideLoader(){document.getElementById('loader').classList.remove('show')}
+function showError(msg){const e=document.getElementById('reg-error');e.textContent=msg;e.style.display='block'}
+
+async function startQuiz(){
+  const nama=document.getElementById('nama').value.trim();
+  const email=document.getElementById('email').value.trim();
+  if(!nama||!email){showError('Nama dan email wajib diisi.');return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){showError('Format email tidak valid.');return}
+  if(SCRIPT_URL&&SCRIPT_URL!=='GOOGLE_APPS_SCRIPT_URL_HERE'){
+    showLoader('Memeriksa data peserta...');
+    try{
+      const res=await fetch(SCRIPT_URL+'?action=check&email='+encodeURIComponent(email));
+      const data=await res.json();
+      if(data.exists){hideLoader();showError('⚠️ Email ini sudah pernah mengerjakan pre-test. Setiap peserta hanya boleh mengerjakan 1 kali.');return}
+    }catch(e){console.warn('Sheet check skipped',e)}
+    hideLoader();
+  }
+  prepareQuiz();
+  showScreen('screen-quiz');
+  renderQuestion();
+  startTimer();
+}
+
+// === QUIZ RENDERING ===
+function renderQuestion(){
+  const q=shuffledQuestions[currentQ];
+  document.getElementById('q-counter').textContent=`Soal ${currentQ+1} / ${shuffledQuestions.length}`;
+  document.getElementById('progress').style.width=((currentQ+1)/shuffledQuestions.length*100)+'%';
+  document.getElementById('q-text').textContent=`${currentQ+1}. ${q.question}`;
+  const letters='ABCD';
+  const container=document.getElementById('options-container');
+  container.innerHTML='';
+  q.shuffledOpts.forEach((opt,i)=>{
+    const div=document.createElement('div');
+    div.className='option'+(userAnswers[currentQ]===opt.idx?' selected':'');
+    div.innerHTML=`<span class="letter">${letters[i]}</span>${opt.text}`;
+    div.onclick=()=>{userAnswers[currentQ]=opt.idx;renderQuestion()};
+    container.appendChild(div);
+  });
+  document.getElementById('btn-prev').style.visibility=currentQ===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent=currentQ===shuffledQuestions.length-1?'Submit ✓':'Selanjutnya →';
+  const answered=userAnswers.filter(a=>a!==null).length;
+  document.getElementById('answered-count').textContent=`${answered} dari ${shuffledQuestions.length} terjawab`;
+}
+
+function navQ(dir){
+  if(dir===1&&currentQ===shuffledQuestions.length-1){submitQuiz();return}
+  currentQ=Math.max(0,Math.min(shuffledQuestions.length-1,currentQ+dir));
+  renderQuestion();
+}
+
+// === TIMER ===
+function startTimer(){
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    if(timeLeft<=0){clearInterval(timerInterval);submitQuiz();return}
+    const m=Math.floor(timeLeft/60),s=timeLeft%60;
+    const el=document.getElementById('timer');
+    el.textContent=`⏱ ${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    if(timeLeft<=60)el.style.color='#e53e3e';
+    else if(timeLeft<=300)el.style.color='#dd6b20';
+  },1000);
+}
+
+// === CONFIRM MODAL ===
+function showConfirm(msg){
+  return new Promise(resolve=>{
+    const overlay=document.createElement('div');
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:9999';
+    const box=document.createElement('div');
+    box.style.cssText='background:#fff;border-radius:16px;padding:28px;max-width:400px;width:90%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.2)';
+    box.innerHTML=`<p style="font-size:1.1em;font-weight:600;margin-bottom:20px">${msg}</p><div style="display:flex;gap:12px;justify-content:center"><button id="cf-no" style="padding:10px 28px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-weight:600;cursor:pointer">Batal</button><button id="cf-yes" style="padding:10px 28px;border:none;border-radius:10px;background:#2b6cb0;color:#fff;font-weight:600;cursor:pointer">Ya, Submit</button></div>`;
+    overlay.appendChild(box);document.body.appendChild(overlay);
+    box.querySelector('#cf-yes').onclick=()=>{document.body.removeChild(overlay);resolve(true)};
+    box.querySelector('#cf-no').onclick=()=>{document.body.removeChild(overlay);resolve(false)};
+  });
+}
+
+// === SUBMIT & SCORING ===
+async function submitQuiz(){
+  const ok=await showConfirm('Yakin ingin submit? Anda tidak bisa mengerjakan ulang.');
+  if(!ok)return;
+  clearInterval(timerInterval);
+  showLoader('Menghitung score & menyimpan data...');
+  let correct=0,wrong=0,empty=0;
+  const details=[];
+  shuffledQuestions.forEach((q,i)=>{
+    const ans=userAnswers[i];
+    if(ans===null){empty++;details.push({q:q.question,status:'empty'})}
+    else if(ans===q.correct){correct++;details.push({q:q.question,status:'correct'})}
+    else{wrong++;details.push({q:q.question,status:'wrong'})}
+  });
+  const score=correct;
+  const pct=Math.round(correct/shuffledQuestions.length*100);
+  const nama=document.getElementById('nama').value.trim();
+  const email=document.getElementById('email').value.trim();
+  const timeUsed=TOTAL_TIME-timeLeft;
+  const mins=Math.floor(timeUsed/60),secs=timeUsed%60;
+  try{
+    await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'submit',nama,email,score,total:shuffledQuestions.length,pct,correct,wrong,empty,timeUsed:`${mins}m ${secs}s`,timestamp:new Date().toLocaleString('id-ID')})
+    });
+  }catch(e){console.error('Save error',e)}
+  hideLoader();
+  showScreen('screen-result');
+  document.getElementById('result-name').textContent=`${nama} (${email})`;
+  document.getElementById('result-score').textContent=score;
+  document.getElementById('result-pct').textContent=`${pct}%`;
+  document.getElementById('stat-correct').textContent=correct;
+  document.getElementById('stat-wrong').textContent=wrong;
+  document.getElementById('stat-empty').textContent=empty;
+  const circle=document.getElementById('result-circle');
+  let lbl='';
+  if(pct>=85){circle.className='result-circle excellent';lbl='Excellent! 🌟'}
+  else if(pct>=70){circle.className='result-circle good';lbl='Good 👍'}
+  else if(pct>=50){circle.className='result-circle avg';lbl='Cukup Baik'}
+  else{circle.className='result-circle low';lbl='Perlu Peningkatan'}
+  document.getElementById('result-label').textContent=lbl;
+}
+</script>
+</body>
+</html>
