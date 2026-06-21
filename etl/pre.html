@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-Test · Talend Data Integration Bootcamp</title>
+<style>
+/* ── Tokens ─────────────────────────────────────────────── */
+:root {
+  --navy:   #0D1B2A;
+  --navy2:  #1A2E45;
+  --blue:   #1D8CF8;
+  --blue2:  #1573d4;
+  --teal:   #00D4AA;
+  --orange: #FF6B35;
+  --green:  #2ECC71;
+  --red:    #E74C3C;
+  --yellow: #F59E0B;
+  --white:  #FFFFFF;
+  --bg:     #F0F5FB;
+  --card:   #FFFFFF;
+  --border: #D9E6F2;
+  --text:   #1A2E45;
+  --muted:  #6B7E95;
+  --radius: 14px;
+  --shadow: 0 2px 16px rgba(13,27,42,.10);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ── Screens ────────────────────────────────────────────── */
+.screen { display:none; max-width:760px; margin:0 auto; padding:24px 20px 48px; }
+.screen.active { display:block; }
+
+/* ── Brand header ───────────────────────────────────────── */
+.brand-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 100%);
+  border-radius: var(--radius);
+  padding: 28px 28px 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.brand-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: var(--teal);
+  opacity: .08;
+}
+.brand-header::after {
+  content: '';
+  position: absolute;
+  bottom: -30px; left: -20px;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: var(--blue);
+  opacity: .08;
+}
+.brand-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,212,170,.15);
+  color: var(--teal);
+  font-size: .75em;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(0,212,170,.3);
+  margin-bottom: 12px;
+}
+.brand-header h1 {
+  font-size: 1.55em;
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -.01em;
+  line-height: 1.2;
+}
+.brand-header p {
+  color: rgba(255,255,255,.65);
+  font-size: .9em;
+  margin-top: 6px;
+}
+
+/* ── Card ───────────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 26px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.card h2 { font-size: 1.1em; font-weight: 700; margin-bottom: 18px; }
+
+/* ── Form inputs ────────────────────────────────────────── */
+.field { margin-bottom: 16px; }
+.field label {
+  display: block;
+  font-size: .87em;
+  font-weight: 700;
+  color: var(--navy2);
+  margin-bottom: 6px;
+  letter-spacing: .01em;
+}
+.field input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  font-size: .98em;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color .2s, background .2s;
+  outline: none;
+}
+.field input:focus {
+  border-color: var(--blue);
+  background: var(--white);
+}
+.field input::placeholder { color: #AAB8CC; }
+
+/* ── Error ──────────────────────────────────────────────── */
+.err {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  color: var(--red);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: .88em;
+  font-weight: 600;
+  margin-top: 14px;
+}
+.err.show { display: flex; }
+
+/* ── Rules box ──────────────────────────────────────────── */
+.rules {
+  background: #F0F9FF;
+  border-left: 4px solid var(--blue);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 16px;
+  margin: 16px 0;
+  font-size: .88em;
+}
+.rules strong { display:block; margin-bottom: 6px; color: var(--navy); }
+.rules li { margin-left: 18px; margin-bottom: 3px; color: var(--navy2); }
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 32px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s;
+  letter-spacing: .01em;
+}
+.btn-primary { background: var(--blue); color: var(--white); }
+.btn-primary:hover { background: var(--blue2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29,140,248,.35); }
+.btn-primary:disabled { background: #9DB5CC; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-outline { background: transparent; border: 2px solid var(--blue); color: var(--blue); }
+.btn-outline:hover { background: #EBF5FF; }
+.btn-outline:disabled { border-color: #B0C4D8; color: #B0C4D8; cursor: not-allowed; }
+.btn-submit { background: linear-gradient(135deg, var(--teal), #00B894); color: var(--white); }
+.btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,212,170,.4); }
+.btn-submit:disabled { background: #9DB5CC; cursor: not-allowed; transform: none; }
+
+/* ── Progress ───────────────────────────────────────────── */
+.progress-wrap { margin-bottom: 16px; }
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .83em;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.progress-info span:last-child { color: var(--blue); }
+.progress-bar {
+  height: 7px;
+  background: var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--teal));
+  border-radius: 20px;
+  transition: width .4s ease;
+}
+
+/* ── Timer ──────────────────────────────────────────────── */
+.timer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+.timer-label { font-size: .82em; color: var(--muted); font-weight: 600; }
+.timer-val { font-size: 1.2em; font-weight: 800; color: var(--navy); letter-spacing: .04em; }
+.timer-val.warn { color: var(--orange); }
+.timer-val.danger { color: var(--red); animation: pulse .8s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+.answered-badge {
+  background: #EBF5FF;
+  color: var(--blue);
+  font-size: .8em;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(29,140,248,.25);
+}
+
+/* ── Question ───────────────────────────────────────────── */
+.q-card { padding: 26px 28px; }
+.q-number {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .8em;
+  font-weight: 700;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 12px;
+}
+.q-number-badge {
+  background: var(--blue);
+  color: var(--white);
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95em;
+}
+.q-text { font-size: 1.08em; font-weight: 600; line-height: 1.6; color: var(--text); }
+
+/* ── Options ────────────────────────────────────────────── */
+.options { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .18s;
+  background: var(--bg);
+}
+.option:hover { border-color: var(--blue); background: #EBF5FF; }
+.option.selected { border-color: var(--blue); background: #EBF5FF; }
+.opt-letter {
+  flex-shrink: 0;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: .82em; color: var(--muted);
+  transition: all .18s;
+}
+.option.selected .opt-letter { background: var(--blue); color: var(--white); }
+.opt-text { font-size: .95em; line-height: 1.45; }
+
+/* ── Navigation ─────────────────────────────────────────── */
+.nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* ── Question dots ──────────────────────────────────────── */
+.q-dots-wrap { overflow-x: auto; padding-bottom: 4px; }
+.q-dots {
+  display: flex;
+  gap: 6px;
+  padding: 4px 2px;
+  flex-wrap: wrap;
+}
+.q-dot {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  font-size: .75em; font-weight: 700;
+  color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all .15s;
+}
+.q-dot:hover { border-color: var(--blue); color: var(--blue); }
+.q-dot.answered { background: var(--blue); border-color: var(--blue); color: var(--white); }
+.q-dot.current { border-color: var(--navy); color: var(--navy); font-weight: 800; outline: 2px solid var(--navy); outline-offset: 2px; }
+.q-dot.answered.current { background: var(--navy); border-color: var(--navy); color: var(--white); }
+
+.dots-title { font-size: .8em; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+
+/* ── Result ─────────────────────────────────────────────── */
+.result-circle {
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 8px solid;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  margin: 24px auto 8px;
+}
+.result-circle .score-num { font-size: 2.2em; font-weight: 900; line-height: 1; }
+.result-circle .score-denom { font-size: .75em; font-weight: 600; color: var(--muted); }
+.result-circle.excellent { border-color: var(--green); color: var(--green); background: #EDFAF3; }
+.result-circle.good { border-color: var(--blue); color: var(--blue); background: #EBF5FF; }
+.result-circle.avg { border-color: var(--yellow); color: var(--yellow); background: #FFFBEB; }
+.result-circle.low { border-color: var(--red); color: var(--red); background: #FEF2F2; }
+
+.result-label { text-align:center; margin-bottom: 20px; }
+.result-label .pct { font-size: 1.4em; font-weight: 800; }
+.result-label .desc { color: var(--muted); font-size: .9em; margin-top: 4px; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+.stat-box {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+.stat-box .num { font-size: 1.8em; font-weight: 900; }
+.stat-box .lbl { font-size: .75em; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+.saved-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #F0FFF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: .88em;
+  color: #166534;
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+/* ── Loader overlay ─────────────────────────────────────── */
+.overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,.92);
+  z-index: 1000;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px;
+}
+.overlay.show { display: flex; }
+.spinner {
+  width: 44px; height: 44px;
+  border: 4px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin .75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.overlay-text { font-weight: 700; color: var(--blue); font-size: .95em; }
+.overlay-sub { font-size: .82em; color: var(--muted); }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .screen { padding: 16px 14px 40px; }
+  .brand-header h1 { font-size: 1.25em; }
+  .q-card { padding: 18px; }
+  .stat-grid { grid-template-columns: 1fr; }
+  .nav-row { flex-wrap: wrap; }
+  .nav-row .btn { flex: 1; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOADER ═══ -->
+<div class="overlay" id="overlay">
+  <div class="spinner"></div>
+  <div class="overlay-text" id="overlay-text">Memuat soal...</div>
+  <div class="overlay-sub" id="overlay-sub">Mengambil data dari Google Sheet</div>
+</div>
+
+<!-- ═══ SCREEN 1 : REGISTRASI ═══ -->
+<div class="screen active" id="s-reg">
+  <div class="brand-header">
+    <div class="brand-tag">📋 Pre-Test</div>
+    <h1>Talend Open Studio<br>Data Integration Bootcamp</h1>
+    <p>PT Omni Retail Indonesia · Multimatics</p>
+  </div>
+
+  <div class="card">
+    <h2>Registrasi Peserta</h2>
+    <div class="field">
+      <label for="inp-nama">Nama Lengkap</label>
+      <input type="text" id="inp-nama" placeholder="Masukkan nama lengkap Anda" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="inp-email">Email</label>
+      <input type="email" id="inp-email" placeholder="nama@perusahaan.com" autocomplete="email">
+    </div>
+    <div class="err" id="reg-err">
+      <span>⚠️</span>
+      <span id="reg-err-msg">Nama dan email wajib diisi.</span>
+    </div>
+
+    <div class="rules">
+      <strong>📋 Aturan Pre-Test</strong>
+      <ul>
+        <li>Terdiri dari <strong>30 soal pilihan ganda</strong></li>
+        <li>Waktu pengerjaan: <strong>45 menit</strong></li>
+        <li>Urutan soal &amp; pilihan jawaban diacak</li>
+        <li>Setiap peserta <strong>hanya boleh mengerjakan 1 kali</strong></li>
+        <li>Penilaian dilakukan oleh server — bukan di browser</li>
+        <li>Hasil score ditampilkan setelah submit</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center;margin-top:6px">
+      <button class="btn btn-primary" id="btn-start" onclick="handleStart()">
+        Mulai Pre-Test →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 2 : KUIS ═══ -->
+<div class="screen" id="s-quiz">
+  <!-- Timer + answered badge -->
+  <div class="timer-bar">
+    <div>
+      <div class="timer-label">Waktu Tersisa</div>
+      <div class="timer-val" id="timer-val">45:00</div>
+    </div>
+    <div class="answered-badge" id="answered-badge">0 / 30 dijawab</div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="q-label">Soal 1 dari 30</span>
+      <span id="q-pct">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:3%"></div>
+    </div>
+  </div>
+
+  <!-- Question card -->
+  <div class="card q-card">
+    <div class="q-number">
+      <div class="q-number-badge" id="q-num-badge">1</div>
+      <span id="q-num-label">Soal 1</span>
+    </div>
+    <div class="q-text" id="q-text">Memuat soal...</div>
+    <div class="options" id="options-wrap"></div>
+  </div>
+
+  <!-- Navigation -->
+  <div class="nav-row">
+    <button class="btn btn-outline" id="btn-prev" onclick="navQ(-1)">← Sebelumnya</button>
+    <button class="btn btn-primary" id="btn-next" onclick="navQ(1)">Selanjutnya →</button>
+  </div>
+
+  <!-- Question map -->
+  <div class="card" style="margin-top:14px;padding:18px 20px">
+    <div class="dots-title">Navigasi Soal</div>
+    <div class="q-dots-wrap">
+      <div class="q-dots" id="q-dots"></div>
+    </div>
+    <div style="margin-top:14px;text-align:center">
+      <button class="btn btn-submit" id="btn-submit" onclick="handleSubmit()" disabled>
+        ✓ Submit &amp; Lihat Hasil
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 3 : HASIL ═══ -->
+<div class="screen" id="s-result">
+  <div class="brand-header">
+    <div class="brand-tag">🎯 Hasil Pre-Test</div>
+    <h1 id="res-name">Selamat!</h1>
+    <p id="res-email-disp" style="color:rgba(255,255,255,.65);font-size:.88em"></p>
+  </div>
+
+  <div class="card" style="text-align:center;padding:30px 24px">
+    <div class="result-circle" id="res-circle">
+      <span class="score-num" id="res-score">0</span>
+      <span class="score-denom" id="res-denom">dari 30</span>
+    </div>
+    <div class="result-label">
+      <div class="pct" id="res-pct">0%</div>
+      <div class="desc" id="res-desc"></div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="num" id="stat-correct" style="color:var(--green)">0</div>
+        <div class="lbl">Benar</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="stat-wrong" style="color:var(--red)">0</div>
+        <div class="lbl">Salah</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="stat-skip" style="color:var(--muted)">0</div>
+        <div class="lbl">Tidak Dijawab</div>
+      </div>
+    </div>
+
+    <div class="saved-notice" id="saved-notice" style="display:none">
+      ✅ Jawaban dan score Anda telah tersimpan di database training.
+    </div>
+    <div class="err" id="res-err" style="margin-top:12px">
+      <span>⚠️</span>
+      <span id="res-err-msg">Gagal menyimpan hasil. Hubungi instruktur.</span>
+    </div>
+  </div>
+
+  <div style="padding:0 4px;font-size:.82em;color:var(--muted);text-align:center">
+    Score ini akan menjadi baseline untuk mengukur peningkatan Anda setelah 5 hari training.
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   CONFIG  — ganti dua nilai ini setelah deploy Apps Script
+   ════════════════════════════════════════════════════════════ */
+const SCRIPT_URL = 'GANTI_DENGAN_URL_APPS_SCRIPT_ANDA';
+// Contoh: 'https://script.google.com/macros/s/AKfyc.../exec'
+const TOTAL_SECONDS = 45 * 60;   // 45 menit
+/* ═══════════════════════════════════════════════════════════ */
+
+/* ── State ─────────────────────────────────────────────── */
+let peserta = { nama: '', email: '' };
+let allQ    = [];          // soal dari Sheet (sudah diacak)
+let answers = [];          // jawaban user: index opsi yang dipilih (null = belum)
+let curQ    = 0;
+let timerID = null;
+let secLeft = TOTAL_SECONDS;
+let submitted = false;
+
+/* ── Utilities ─────────────────────────────────────────── */
+const $  = id => document.getElementById(id);
+const show = id => { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); }
+const loader = (txt, sub) => { $('overlay-text').textContent = txt||'Memuat...'; $('overlay-sub').textContent = sub||''; $('overlay').classList.add('show'); }
+const hideLoader = () => $('overlay').classList.remove('show');
+const showErr = (id, msg) => { const e=$(id); const m=$(id+'-msg'); if(m) m.textContent=msg; e.classList.add('show'); }
+const hideErr = id => $(id).classList.remove('show');
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function fmtTime(sec) {
+  const m = String(Math.floor(sec/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+/* ── Registration ──────────────────────────────────────── */
+async function handleStart() {
+  hideErr('reg-err');
+  const nama  = $('inp-nama').value.trim();
+  const email = $('inp-email').value.trim();
+  if (!nama || !email) { showErr('reg-err','Nama dan email wajib diisi.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('reg-err','Format email tidak valid.'); return; }
+
+  peserta = { nama, email };
+
+  loader('Memeriksa pendaftaran...', 'Menghubungi server');
+  try {
+    // 1. Cek apakah email sudah pernah submit
+    const chk = await fetch(`${SCRIPT_URL}?action=check&email=${encodeURIComponent(email)}`);
+    const chkData = await chk.json();
+    if (chkData.exists) {
+      hideLoader();
+      showErr('reg-err', '⚠️ Email ini sudah pernah mengerjakan pre-test. Setiap peserta hanya 1 kali.');
+      return;
+    }
+
+    // 2. Ambil soal dari Sheet
+    $('overlay-text').textContent = 'Mengambil soal...';
+    $('overlay-sub').textContent  = 'Memuat 30 soal dari Google Sheet';
+    const qRes  = await fetch(`${SCRIPT_URL}?action=getQuestions`);
+    const qData = await qRes.json();
+    if (!qData.questions || qData.questions.length < 1) throw new Error('Soal kosong');
+
+    // 3. Acak soal & opsi
+    const raw = shuffle(qData.questions).slice(0, 30);
+    allQ = raw.map(q => {
+      // opsi dalam format: [{letter:'A',text:'...'}, ...]
+      const opts = shuffle([
+        { origLetter: 'A', text: q.option_a },
+        { origLetter: 'B', text: q.option_b },
+        { origLetter: 'C', text: q.option_c },
+        { origLetter: 'D', text: q.option_d },
+      ]);
+      return {
+        no: q.no,
+        question: q.question,
+        category: q.category || '',
+        opts,
+        correctLetter: q.correct_answer.toUpperCase(), // A/B/C/D dari Sheet
+      };
+    });
+
+    answers  = new Array(allQ.length).fill(null);
+    curQ     = 0;
+    hideLoader();
+    show('s-quiz');
+    buildDots();
+    renderQ();
+    startTimer();
+
+  } catch (e) {
+    hideLoader();
+    showErr('reg-err', `Gagal memuat soal: ${e.message}. Periksa koneksi atau hubungi instruktur.`);
+  }
+}
+
+/* ── Timer ─────────────────────────────────────────────── */
+function startTimer() {
+  secLeft = TOTAL_SECONDS;
+  timerID = setInterval(() => {
+    secLeft--;
+    const tv = $('timer-val');
+    tv.textContent = fmtTime(secLeft);
+    tv.className = 'timer-val' + (secLeft <= 300 ? (secLeft <= 60 ? ' danger' : ' warn') : '');
+    if (secLeft <= 0) { clearInterval(timerID); handleSubmit(); }
+  }, 1000);
+}
+
+/* ── Render question ───────────────────────────────────── */
+function renderQ() {
+  const q = allQ[curQ];
+  const total = allQ.length;
+
+  $('q-label').textContent  = `Soal ${curQ+1} dari ${total}`;
+  $('q-pct').textContent    = Math.round((curQ+1)/total*100) + '%';
+  $('progress-fill').style.width = ((curQ+1)/total*100) + '%';
+  $('q-num-badge').textContent = curQ+1;
+  $('q-num-label').textContent = `Soal ${curQ+1}`;
+  $('q-text').textContent   = q.question;
+
+  const letters = 'ABCD';
+  const wrap = $('options-wrap');
+  wrap.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option' + (answers[curQ] === i ? ' selected' : '');
+    div.innerHTML = `<div class="opt-letter">${letters[i]}</div><div class="opt-text">${opt.text}</div>`;
+    div.addEventListener('click', () => selectOpt(i));
+    wrap.appendChild(div);
+  });
+
+  // Nav button state
+  $('btn-prev').disabled = curQ === 0;
+  $('btn-next').style.display = curQ < total-1 ? '' : 'none';
+
+  // Submit button: enable kalau semua dijawab
+  const answeredCount = answers.filter(a => a !== null).length;
+  $('btn-submit').disabled = answeredCount < total;
+  $('answered-badge').textContent = `${answeredCount} / ${total} dijawab`;
+
+  updateDots();
+}
+
+function selectOpt(idx) {
+  if (submitted) return;
+  answers[curQ] = idx;
+  renderQ();
+}
+
+function navQ(dir) {
+  const next = curQ + dir;
+  if (next >= 0 && next < allQ.length) {
+    curQ = next;
+    renderQ();
+  }
+}
+
+/* ── Question dots ─────────────────────────────────────── */
+function buildDots() {
+  const wrap = $('q-dots');
+  wrap.innerHTML = '';
+  allQ.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'q-dot';
+    d.textContent = i+1;
+    d.addEventListener('click', () => { curQ = i; renderQ(); });
+    d.id = `dot-${i}`;
+    wrap.appendChild(d);
+  });
+}
+
+function updateDots() {
+  allQ.forEach((_, i) => {
+    const d = $(`dot-${i}`);
+    if (!d) return;
+    d.className = 'q-dot'
+      + (answers[i] !== null ? ' answered' : '')
+      + (i === curQ ? ' current' : '');
+  });
+}
+
+/* ── Submit ─────────────────────────────────────────────── */
+async function handleSubmit() {
+  if (submitted) return;
+  submitted = true;
+  clearInterval(timerID);
+
+  // Build payload: untuk setiap soal, kirim pilihan user (origLetter) dan jawaban benar
+  const payload = allQ.map((q, i) => {
+    const chosen = answers[i] !== null ? q.opts[answers[i]].origLetter : null;
+    return {
+      no:           q.no,
+      question:     q.question,
+      category:     q.category,
+      user_answer:  chosen,        // null jika tidak dijawab
+      correct:      q.correctLetter,
+    };
+  });
+
+  loader('Menghitung nilai...', 'Server sedang memproses jawaban Anda');
+
+  try {
+    const res = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action:  'submit',
+        nama:    peserta.nama,
+        email:   peserta.email,
+        answers: payload,
+        time_used: TOTAL_SECONDS - secLeft,
+      }),
+    });
+    const data = await res.json();
+    hideLoader();
+    showResult(data);
+  } catch (e) {
+    hideLoader();
+    // Hitung lokal sebagai fallback
+    let correct = 0;
+    allQ.forEach((q, i) => {
+      if (answers[i] !== null && q.opts[answers[i]].origLetter === q.correctLetter) correct++;
+    });
+    showResult({
+      success: false,
+      score:   correct,
+      total:   allQ.length,
+      correct,
+      wrong:   allQ.length - correct - answers.filter(a=>a===null).length,
+      skip:    answers.filter(a=>a===null).length,
+      error:   e.message,
+    });
+  }
+}
+
+/* ── Show result ───────────────────────────────────────── */
+function showResult(data) {
+  show('s-result');
+  $('res-name').textContent     = peserta.nama;
+  $('res-email-disp').textContent = peserta.email;
+
+  const score   = data.score   || 0;
+  const total   = data.total   || allQ.length;
+  const correct = data.correct || 0;
+  const wrong   = data.wrong   || 0;
+  const skip    = data.skip    || 0;
+  const pct     = Math.round(score / total * 100);
+
+  $('res-score').textContent   = score;
+  $('res-denom').textContent   = `dari ${total}`;
+  $('res-pct').textContent     = pct + '%';
+  $('stat-correct').textContent = correct;
+  $('stat-wrong').textContent   = wrong;
+  $('stat-skip').textContent    = skip;
+
+  let cls, desc;
+  if (pct >= 80) { cls='excellent'; desc='Luar biasa! Fondasi yang sangat kuat.'; }
+  else if (pct >= 60) { cls='good';      desc='Bagus! Ada ruang untuk berkembang.'; }
+  else if (pct >= 40) { cls='avg';       desc='Cukup. Training ini akan sangat membantu Anda.'; }
+  else               { cls='low';       desc='Masih banyak yang bisa dipelajari. Semangat!'; }
+
+  $('res-circle').className = `result-circle ${cls}`;
+  $('res-desc').textContent = desc;
+
+  if (data.success !== false) {
+    $('saved-notice').style.display = 'flex';
+  } else {
+    showErr('res-err', `Hasil tersimpan lokal saja. ${data.error || ''}`);
+  }
+}
+</script>
+</body>
+</html>
