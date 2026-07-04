@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TKA SD Champion 🦉 — Latihan Tes Kemampuan Akademik</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<!-- ============================================================
+     BAGIAN 1 : CSS
+     Gaya visual bergaya Duolingo: warna cerah, kartu membulat,
+     tombol 3D, font modern (Nunito), responsif penuh.
+============================================================ -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap');
+
+:root{
+  --hijau:#58cc02;        /* warna utama (benar / aksi) */
+  --hijau-gelap:#46a302;
+  --biru:#1cb0f6;
+  --biru-gelap:#1899d6;
+  --kuning:#ffc800;
+  --kuning-gelap:#e6a800;
+  --merah:#ff4b4b;
+  --merah-gelap:#d33131;
+  --ungu:#ce82ff;
+  --abu:#e5e5e5;
+  --abu-teks:#777777;
+  --teks:#3c3c3c;
+  --putih:#ffffff;
+  --latar:#f7f7f7;
+  --radius:16px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+body{
+  font-family:'Nunito',system-ui,sans-serif;
+  background:var(--latar);
+  color:var(--teks);
+  min-height:100vh;
+}
+
+.wadah{max-width:680px;margin:0 auto;padding:16px;}
+
+/* ---------- Header ---------- */
+header{
+  position:sticky;top:0;z-index:10;
+  background:var(--putih);
+  border-bottom:2px solid var(--abu);
+}
+.header-isi{
+  max-width:680px;margin:0 auto;padding:10px 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.logo{font-size:1.6rem;}
+.judul-app{font-weight:900;font-size:1.05rem;color:var(--hijau);flex:1;}
+.chip-timer{
+  background:#fff4d6;border:2px solid var(--kuning);
+  color:#946b00;font-weight:800;
+  padding:6px 12px;border-radius:999px;font-size:.95rem;
+  min-width:110px;text-align:center;
+}
+.chip-timer.bahaya{background:#ffe3e3;border-color:var(--merah);color:var(--merah-gelap);animation:kedip 1s infinite;}
+@keyframes kedip{50%{opacity:.55;}}
+
+/* ---------- Progress bar ---------- */
+.progres-luar{
+  height:16px;background:var(--abu);border-radius:999px;
+  overflow:hidden;margin:14px 0 6px;
+}
+.progres-dalam{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--hijau),#7be03a);
+  border-radius:999px;transition:width .35s ease;
+  position:relative;
+}
+.info-progres{
+  display:flex;justify-content:space-between;
+  font-size:.85rem;font-weight:800;color:var(--abu-teks);
+  margin-bottom:12px;
+}
+
+/* ---------- Kartu soal ---------- */
+.kartu{
+  background:var(--putih);
+  border:2px solid var(--abu);
+  border-radius:var(--radius);
+  padding:22px 20px;
+  animation:masuk .3s ease;
+}
+@keyframes masuk{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+.kartu.keluar{animation:keluar .2s ease forwards;}
+@keyframes keluar{to{opacity:0;transform:translateX(-30px);}}
+
+.badge-kategori{
+  display:inline-block;font-size:.75rem;font-weight:900;
+  padding:4px 12px;border-radius:999px;color:#fff;
+  letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;
+}
+.b-literasi{background:var(--biru);}
+.b-numerasi{background:var(--hijau);}
+.b-ipa{background:var(--ungu);}
+.b-ips{background:var(--kuning);color:#7a5b00;}
+.b-logika{background:var(--merah);}
+
+.teks-soal{font-size:1.12rem;font-weight:800;line-height:1.55;margin-bottom:18px;white-space:pre-line;}
+
+/* ---------- Pilihan jawaban ---------- */
+.daftar-pilihan{display:grid;gap:10px;}
+.pilihan{
+  display:flex;align-items:center;gap:12px;
+  background:var(--putih);
+  border:2px solid var(--abu);
+  border-bottom-width:4px;
+  border-radius:14px;
+  padding:12px 14px;
+  font:inherit;font-weight:700;font-size:1rem;text-align:left;
+  cursor:pointer;transition:transform .08s,background .15s,border-color .15s;
+  color:var(--teks);
+}
+.pilihan:hover{background:#f3fbff;border-color:#b8e4fb;}
+.pilihan:active{transform:translateY(2px);border-bottom-width:2px;}
+.pilihan.terpilih{background:#e6f7ff;border-color:var(--biru);color:var(--biru-gelap);}
+.pilihan.terpilih .huruf{background:var(--biru);color:#fff;border-color:var(--biru-gelap);}
+.huruf{
+  flex:0 0 34px;height:34px;display:grid;place-items:center;
+  border:2px solid var(--abu);border-radius:10px;
+  font-weight:900;color:var(--abu-teks);
+}
+
+/* ---------- Tombol ---------- */
+.baris-tombol{display:flex;gap:12px;margin-top:18px;}
+.tbl{
+  flex:1;border:none;cursor:pointer;
+  font:inherit;font-weight:900;font-size:1rem;letter-spacing:.5px;
+  padding:14px;border-radius:14px;color:#fff;text-transform:uppercase;
+  box-shadow:0 4px 0 rgba(0,0,0,.18);
+  transition:transform .08s,box-shadow .08s,opacity .2s;
+}
+.tbl:active{transform:translateY(4px);box-shadow:0 0 0 rgba(0,0,0,.18);}
+.tbl:disabled{opacity:.4;cursor:not-allowed;}
+.tbl-hijau{background:var(--hijau);box-shadow:0 4px 0 var(--hijau-gelap);}
+.tbl-biru{background:var(--biru);box-shadow:0 4px 0 var(--biru-gelap);}
+.tbl-abu{background:#fff;color:var(--abu-teks);border:2px solid var(--abu);box-shadow:0 4px 0 var(--abu);}
+.tbl-merah{background:var(--merah);box-shadow:0 4px 0 var(--merah-gelap);}
+
+/* ---------- Layar mulai ---------- */
+.layar-mulai{text-align:center;padding:36px 20px;}
+.maskot{font-size:4.5rem;display:inline-block;animation:loncat 2s ease-in-out infinite;}
+@keyframes loncat{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+.layar-mulai h1{font-size:1.7rem;font-weight:900;margin:12px 0 6px;color:var(--hijau);}
+.layar-mulai p{color:var(--abu-teks);font-weight:700;margin-bottom:8px;}
+.grid-info{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;margin:20px 0;
+}
+.kotak-info{
+  background:var(--putih);border:2px solid var(--abu);
+  border-radius:14px;padding:12px;font-weight:800;font-size:.9rem;
+}
+.kotak-info span{display:block;font-size:1.5rem;margin-bottom:4px;}
+
+/* ---------- Hasil ---------- */
+.hasil-atas{text-align:center;padding:10px 0 4px;}
+.lingkar-skor{
+  width:150px;height:150px;margin:14px auto;border-radius:50%;
+  display:grid;place-items:center;color:#fff;
+  animation:pop .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop{from{transform:scale(0);}to{transform:scale(1);}}
+.lingkar-skor .angka{font-size:2.8rem;font-weight:900;line-height:1;}
+.lingkar-skor .label{font-size:.8rem;font-weight:800;opacity:.9;}
+.grade-huruf{font-size:1.4rem;font-weight:900;margin-top:4px;}
+.motivasi{
+  background:#fff9e6;border:2px solid var(--kuning);
+  border-radius:14px;padding:14px;font-weight:700;margin:16px 0;
+}
+.grid-statistik{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+.stat{
+  background:var(--putih);border:2px solid var(--abu);border-radius:14px;
+  padding:12px;text-align:center;font-weight:800;
+}
+.stat .nilai{font-size:1.4rem;font-weight:900;}
+.stat.benar .nilai{color:var(--hijau);}
+.stat.salah .nilai{color:var(--merah);}
+.stat.persen .nilai{color:var(--biru);}
+
+.kartu-chart{margin:16px 0;}
+.kartu-chart h3,.analisis h3{font-weight:900;margin-bottom:10px;}
+.baris-analisis{
+  display:flex;align-items:center;gap:10px;margin-bottom:10px;font-weight:800;font-size:.92rem;
+}
+.baris-analisis .nama{flex:0 0 92px;}
+.bar-luar{flex:1;height:14px;background:var(--abu);border-radius:999px;overflow:hidden;}
+.bar-dalam{height:100%;border-radius:999px;transition:width .8s ease;}
+.baris-analisis .pct{flex:0 0 44px;text-align:right;color:var(--abu-teks);}
+
+/* ---------- Review ---------- */
+.item-review{margin-bottom:14px;}
+.kepala-review{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-weight:900;}
+.no-soal{
+  width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
+  color:#fff;font-weight:900;font-size:.9rem;
+}
+.no-benar{background:var(--hijau);}
+.no-salah{background:var(--merah);}
+.jawaban-baris{font-weight:700;font-size:.95rem;margin-top:8px;padding:8px 10px;border-radius:10px;}
+.j-user-benar{background:#e9f9db;color:#3f7d0b;}
+.j-user-salah{background:#ffe3e3;color:var(--merah-gelap);}
+.j-kunci{background:#e6f7ff;color:var(--biru-gelap);}
+.penjelasan{
+  margin-top:8px;padding:10px;border-left:4px solid var(--kuning);
+  background:#fffbee;border-radius:0 10px 10px 0;font-size:.92rem;font-weight:600;
+}
+.filter-review{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap;}
+.chip-filter{
+  border:2px solid var(--abu);background:#fff;border-radius:999px;
+  padding:6px 14px;font:inherit;font-weight:800;font-size:.85rem;
+  color:var(--abu-teks);cursor:pointer;
+}
+.chip-filter.aktif{background:var(--biru);border-color:var(--biru-gelap);color:#fff;}
+
+.tersembunyi{display:none!important;}
+
+/* ---------- Modal konfirmasi ---------- */
+.lapis-modal{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.45);
+  display:grid;place-items:center;padding:20px;
+  animation:pudar .2s ease;
+}
+@keyframes pudar{from{opacity:0;}to{opacity:1;}}
+.kotak-modal{
+  background:var(--putih);border-radius:20px;
+  padding:24px 20px;max-width:360px;width:100%;text-align:center;
+  border:2px solid var(--abu);
+  animation:pop .3s cubic-bezier(.34,1.56,.64,1);
+}
+.kotak-modal .ikon{font-size:2.6rem;}
+.kotak-modal p{font-weight:800;margin:12px 0 4px;font-size:1.05rem;line-height:1.45;}
+.kotak-modal .baris-tombol{margin-top:18px;}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%);
+  background:var(--teks);color:#fff;font-weight:800;
+  padding:14px 20px;border-radius:14px;z-index:110;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);max-width:90%;text-align:center;
+  animation:naikToast .3s ease;
+}
+@keyframes naikToast{from{opacity:0;transform:translate(-50%,20px);}to{opacity:1;transform:translate(-50%,0);}}
+
+/* ---------- Responsif ---------- */
+@media (max-width:480px){
+  .teks-soal{font-size:1.02rem;}
+  .grid-statistik{grid-template-columns:repeat(3,1fr);gap:6px;}
+  .stat{padding:8px 4px;font-size:.8rem;}
+  .stat .nilai{font-size:1.15rem;}
+  .baris-tombol{flex-wrap:wrap;}
+  .lingkar-skor{width:130px;height:130px;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     BAGIAN 2 : STRUKTUR HTML
+============================================================ -->
+<header>
+  <div class="header-isi">
+    <span class="logo">🦉</span>
+    <span class="judul-app">TKA SD Champion</span>
+    <span id="chipTimer" class="chip-timer tersembunyi">⏱️ 120:00</span>
+  </div>
+</header>
+
+<main class="wadah">
+
+  <!-- Layar Mulai -->
+  <section id="layarMulai" class="layar-mulai">
+    <span class="maskot">🦉</span>
+    <h1>Latihan TKA SD</h1>
+    <p>50 soal per sesi (dari 200 bank soal) • 120 menit • Semangat! 💪</p>
+    <div class="grid-info">
+      <div class="kotak-info"><span>📖</span>Literasi<br>18 soal</div>
+      <div class="kotak-info"><span>🔢</span>Numerasi<br>17 soal</div>
+      <div class="kotak-info"><span>🔬</span>IPA<br>7 soal</div>
+      <div class="kotak-info"><span>🌏</span>IPS<br>5 soal</div>
+      <div class="kotak-info"><span>🧩</span>Logika<br>3 soal</div>
+    </div>
+    <div class="baris-tombol">
+      <button id="tblMulai" class="tbl tbl-hijau">🚀 Mulai Quiz</button>
+    </div>
+    <div id="areaLanjut" class="baris-tombol tersembunyi">
+      <button id="tblLanjut" class="tbl tbl-biru">▶️ Lanjutkan Progress</button>
+    </div>
+  </section>
+
+  <!-- Layar Quiz -->
+  <section id="layarQuiz" class="tersembunyi">
+    <div class="progres-luar"><div id="progresBar" class="progres-dalam"></div></div>
+    <div class="info-progres">
+      <span id="infoNomor">Soal 1 / 100</span>
+      <span id="infoTerjawab">Terjawab: 0</span>
+    </div>
+
+    <div id="kartuSoal" class="kartu">
+      <span id="badgeKategori" class="badge-kategori"></span>
+      <p id="teksSoal" class="teks-soal"></p>
+      <div id="daftarPilihan" class="daftar-pilihan"></div>
+    </div>
+
+    <div class="baris-tombol">
+      <button id="tblPrev" class="tbl tbl-abu">⬅️ Sebelumnya</button>
+      <button id="tblNext" class="tbl tbl-biru">Berikutnya ➡️</button>
+    </div>
+    <div class="baris-tombol">
+      <button id="tblSubmit" class="tbl tbl-hijau">✅ Submit Jawaban</button>
+    </div>
+  </section>
+
+  <!-- Layar Hasil -->
+  <section id="layarHasil" class="tersembunyi">
+    <div class="hasil-atas">
+      <div id="lingkarSkor" class="lingkar-skor">
+        <div>
+          <div class="angka" id="angkaSkor">0</div>
+          <div class="label">SKOR</div>
+        </div>
+      </div>
+      <div class="grade-huruf" id="teksGrade"></div>
+    </div>
+
+    <div class="grid-statistik">
+      <div class="stat benar"><div class="nilai" id="statBenar">0</div>✅ Benar</div>
+      <div class="stat salah"><div class="nilai" id="statSalah">0</div>❌ Salah</div>
+      <div class="stat persen"><div class="nilai" id="statPersen">0%</div>📊 Persentase</div>
+    </div>
+
+    <div id="kotakMotivasi" class="motivasi"></div>
+
+    <div class="kartu kartu-chart">
+      <h3>📈 Radar Kemampuan</h3>
+      <canvas id="radarChart"></canvas>
+    </div>
+
+    <div class="kartu analisis">
+      <h3>🔍 Analisis per Kategori</h3>
+      <div id="daftarAnalisis"></div>
+    </div>
+
+    <div class="baris-tombol">
+      <button id="tblReview" class="tbl tbl-biru">📝 Review Soal</button>
+      <button id="tblUlang" class="tbl tbl-hijau">🔄 Coba Lagi</button>
+    </div>
+  </section>
+
+  <!-- Layar Review -->
+  <section id="layarReview" class="tersembunyi">
+    <h2 style="font-weight:900;margin:8px 0;">📝 Review Soal</h2>
+    <div class="filter-review">
+      <button class="chip-filter aktif" data-filter="semua">Semua</button>
+      <button class="chip-filter" data-filter="benar">✅ Benar</button>
+      <button class="chip-filter" data-filter="salah">❌ Salah</button>
+    </div>
+    <div id="wadahReview"></div>
+    <div class="baris-tombol">
+      <button id="tblKembaliHasil" class="tbl tbl-abu">⬅️ Kembali ke Hasil</button>
+      <button id="tblUlang2" class="tbl tbl-hijau">🔄 Coba Lagi</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+"use strict";
+
+/* ============================================================
+   BAGIAN 3 : QUESTION BANK (Bank Soal)
+   100 soal original setara TKA SD.
+   Struktur: { id, category, question, choices, answer, explanation }
+   answer = indeks jawaban benar pada array choices (sebelum diacak).
+============================================================ */
+const BANK_SOAL = [
+
+/* ---------- LITERASI BAHASA INDONESIA (35 soal) ---------- */
+{id:1,category:"literasi",question:"Bacalah paragraf berikut!\n\"Setiap pagi, Rani menyiram tanaman cabai di halaman rumahnya. Ia juga mencabut rumput liar yang tumbuh di sekitar pot. Berkat ketekunannya, tanaman cabai itu kini berbuah lebat.\"\n\nIde pokok paragraf tersebut adalah ...",choices:["Rani rajin merawat tanaman cabainya","Rumput liar tumbuh di sekitar pot","Tanaman cabai dijual ke pasar","Halaman rumah Rani sangat luas"],answer:0,explanation:"Seluruh kalimat menceritakan kegiatan Rani merawat tanaman cabai hingga berbuah lebat, sehingga ide pokoknya adalah kerajinan Rani merawat tanaman."},
+{id:2,category:"literasi",question:"Sinonim kata \"tekun\" adalah ...",choices:["Malas","Rajin","Lambat","Ceroboh"],answer:1,explanation:"Tekun berarti bersungguh-sungguh dan rajin dalam mengerjakan sesuatu."},
+{id:3,category:"literasi",question:"Antonim kata \"hemat\" adalah ...",choices:["Cermat","Irit","Boros","Teliti"],answer:2,explanation:"Hemat berarti tidak boros, sehingga lawan katanya adalah boros."},
+{id:4,category:"literasi",question:"Kalimat berikut yang menggunakan tanda baca dengan tepat adalah ...",choices:["Ibu membeli sayur, buah dan ikan.","Ibu membeli sayur, buah, dan ikan.","Ibu membeli, sayur buah dan ikan.","Ibu, membeli sayur buah, dan ikan."],answer:1,explanation:"Perincian tiga hal atau lebih dipisahkan tanda koma, termasuk sebelum kata \"dan\" pada rincian terakhir."},
+{id:5,category:"literasi",question:"Bacalah petunjuk acak berikut!\n(1) Tekan tombol power.\n(2) Colokkan kabel ke stopkontak.\n(3) Pilih program cuci.\n(4) Masukkan pakaian kotor ke dalam mesin.\n\nUrutan menggunakan mesin cuci yang benar adalah ...",choices:["2-4-1-3","4-2-3-1","2-1-4-3","4-1-2-3"],answer:0,explanation:"Langkah logis: colokkan kabel, masukkan pakaian, nyalakan mesin, lalu pilih program cuci."},
+{id:6,category:"literasi",question:"Bacalah teks berikut!\n\"Kancil terjebak di lubang yang dalam. Ia berpura-pura mendengar berita langit akan runtuh. Gajah yang penasaran ikut melompat ke lubang. Kancil segera naik ke punggung gajah lalu melompat keluar.\"\n\nWatak Kancil dalam cerita tersebut adalah ...",choices:["Penakut","Cerdik","Pemalas","Jujur"],answer:1,explanation:"Kancil menggunakan akal untuk keluar dari lubang, menunjukkan sifat cerdik."},
+{id:7,category:"literasi",question:"Kalimat yang merupakan kalimat efektif adalah ...",choices:["Para siswa-siswa berbaris di lapangan.","Banyak anak-anak bermain bola.","Semua siswa berbaris di lapangan.","Para banyak siswa berbaris rapi."],answer:2,explanation:"Kalimat efektif tidak boleh bermakna ganda atau berlebihan. \"Para siswa-siswa\" dan \"banyak anak-anak\" merupakan pemborosan kata."},
+{id:8,category:"literasi",question:"Bacalah pantun berikut!\n\"Jalan-jalan ke kota Blitar,\njangan lupa membeli sukun.\nJika kamu ingin pintar,\nbelajarlah dengan tekun.\"\n\nPesan pantun tersebut adalah ...",choices:["Rajin membeli sukun di Blitar","Belajar tekun agar menjadi pintar","Jalan-jalan membuat pintar","Kota Blitar penghasil sukun"],answer:1,explanation:"Isi pantun terletak pada baris ketiga dan keempat: belajar tekun membuat kita pintar."},
+{id:9,category:"literasi",question:"Penulisan judul karangan yang tepat adalah ...",choices:["Berlibur ke pantai Selatan","Berlibur Ke Pantai Selatan","Berlibur ke Pantai Selatan","berlibur ke pantai selatan"],answer:2,explanation:"Setiap kata pada judul diawali huruf kapital, kecuali kata tugas seperti \"ke\" yang tidak terletak di awal judul."},
+{id:10,category:"literasi",question:"Bacalah teks berikut!\n\"Sampah plastik sulit terurai di tanah. Butuh waktu ratusan tahun agar plastik hancur. Oleh karena itu, kita sebaiknya mengurangi pemakaian kantong plastik.\"\n\nSimpulan teks tersebut adalah ...",choices:["Plastik mudah hancur di tanah","Kita perlu mengurangi pemakaian plastik karena sulit terurai","Kantong plastik sangat murah harganya","Sampah plastik berwarna-warni"],answer:1,explanation:"Simpulan menggabungkan sebab (plastik sulit terurai) dan saran (mengurangi pemakaian plastik)."},
+{id:11,category:"literasi",question:"Kata dasar dari kata \"mempermainkan\" adalah ...",choices:["Permain","Mainkan","Main","Permainan"],answer:2,explanation:"Kata \"mempermainkan\" terbentuk dari imbuhan memper-kan dan kata dasar \"main\"."},
+{id:12,category:"literasi",question:"Kalimat berikut yang berisi ungkapan adalah ...",choices:["Dodi membeli tangan robot di toko.","Dodi menjadi tangan kanan pak lurah.","Tangan Dodi terluka saat bermain.","Dodi mencuci tangan sebelum makan."],answer:1,explanation:"\"Tangan kanan\" adalah ungkapan yang berarti orang kepercayaan."},
+{id:13,category:"literasi",question:"Bacalah pengumuman berikut!\n\"Diberitahukan kepada seluruh siswa kelas VI, latihan ujian akan dilaksanakan pada hari Senin, 6 Juli 2026, pukul 07.30 di ruang kelas masing-masing.\"\n\nInformasi yang TIDAK terdapat dalam pengumuman adalah ...",choices:["Waktu pelaksanaan","Tempat pelaksanaan","Peserta kegiatan","Biaya kegiatan"],answer:3,explanation:"Pengumuman memuat peserta, hari, tanggal, jam, dan tempat, tetapi tidak menyebutkan biaya."},
+{id:14,category:"literasi",question:"Peribahasa \"Sedikit demi sedikit, lama-lama menjadi bukit\" berarti ...",choices:["Menabung sedikit tidak berguna","Usaha kecil yang dilakukan terus-menerus akan membuahkan hasil besar","Bukit terbentuk dari pasir","Bekerja harus langsung besar"],answer:1,explanation:"Peribahasa ini mengajarkan bahwa sesuatu yang kecil jika dikumpulkan terus-menerus akan menjadi besar."},
+{id:15,category:"literasi",question:"Kalimat tanya yang tepat untuk jawaban \"Ayah pergi ke kantor naik kereta\" adalah ...",choices:["Kapan ayah pergi ke kantor?","Mengapa ayah pergi ke kantor?","Dengan apa ayah pergi ke kantor?","Siapa yang pergi ke kantor?"],answer:2,explanation:"Jawaban menekankan kendaraan (naik kereta), sehingga kata tanya yang sesuai adalah \"dengan apa\"."},
+{id:16,category:"literasi",question:"Bacalah paragraf berikut!\n\"Pohon bakau ditanam di sepanjang pantai desa Mekarsari. Akar bakau yang kuat mampu menahan ombak. Kini, abrasi di pantai desa itu jauh berkurang.\"\n\nMakna kata \"abrasi\" pada paragraf tersebut adalah ...",choices:["Pengikisan pantai oleh air laut","Penanaman pohon di pantai","Gelombang pasang air laut","Pencemaran air laut"],answer:0,explanation:"Abrasi adalah pengikisan daratan pantai yang disebabkan oleh gelombang air laut."},
+{id:17,category:"literasi",question:"Penggunaan huruf kapital yang benar terdapat pada kalimat ...",choices:["kami berlibur ke danau Toba.","Kami berlibur ke Danau Toba.","Kami berlibur ke danau toba.","Kami Berlibur ke Danau toba."],answer:1,explanation:"Huruf kapital dipakai di awal kalimat dan pada nama geografi seperti Danau Toba."},
+{id:18,category:"literasi",question:"Bacalah dialog berikut!\nSiti: \"Bagaimana keadaan nenekmu sekarang, Ban?\"\nBanu: \"Sudah membaik, Sit. Kemarin sudah boleh pulang dari rumah sakit.\"\n\nTopik percakapan tersebut adalah ...",choices:["Rencana menjenguk ke rumah sakit","Kesehatan nenek Banu","Kesehatan nenek Siti","Biaya rumah sakit"],answer:1,explanation:"Percakapan membahas kondisi kesehatan nenek Banu yang sudah membaik."},
+{id:19,category:"literasi",question:"Kalimat berikut yang merupakan kalimat majemuk setara adalah ...",choices:["Adik menangis karena jatuh dari sepeda.","Ibu memasak dan ayah membaca koran.","Jika hujan turun, kami tidak berangkat.","Rina belajar agar lulus ujian."],answer:1,explanation:"Kalimat majemuk setara menggabungkan dua kalimat sederajat dengan kata hubung \"dan\", \"atau\", atau \"tetapi\"."},
+{id:20,category:"literasi",question:"Bacalah teks berikut!\n\"Hari itu langit mendung. Andi tetap berangkat sekolah tanpa membawa payung. Di tengah jalan, hujan turun deras. Seragam Andi basah kuyup sampai di sekolah.\"\n\nHal yang seharusnya dilakukan Andi adalah ...",choices:["Tidak berangkat ke sekolah","Membawa payung karena langit mendung","Menunggu hujan reda seharian","Berlari agar tidak basah"],answer:1,explanation:"Langit mendung adalah tanda akan hujan, sehingga Andi seharusnya bersiap membawa payung."},
+{id:21,category:"literasi",question:"Kata baku yang benar adalah ...",choices:["Apotik","Nasehat","Ijin","Februari"],answer:3,explanation:"Bentuk baku yang benar: apotek, nasihat, izin, dan Februari."},
+{id:22,category:"literasi",question:"Bacalah puisi berikut!\n\"Engkau berdiri di depan kelas\nTak kenal lelah membagi ilmu\nJasamu bagai cahaya\nMenerangi jalan masa depanku\"\n\nPuisi tersebut menceritakan tentang ...",choices:["Jasa seorang guru","Cahaya lampu kelas","Perjuangan seorang dokter","Keindahan masa depan"],answer:0,explanation:"Larik \"berdiri di depan kelas\" dan \"membagi ilmu\" menggambarkan sosok guru."},
+{id:23,category:"literasi",question:"Kalimat iklan yang paling menarik dan santun adalah ...",choices:["Beli sepatu ini atau menyesal!","Sepatu Kilat: ringan, awet, harga bersahabat!","Sepatu lain jelek semua!","Jangan beli di toko sebelah!"],answer:1,explanation:"Iklan yang baik menonjolkan keunggulan produk tanpa menjelekkan pihak lain."},
+{id:24,category:"literasi",question:"Bagian surat yang berisi nama kota dan waktu penulisan surat disebut ...",choices:["Salam pembuka","Isi surat","Tanggal surat","Salam penutup"],answer:2,explanation:"Tanggal surat memuat tempat dan waktu surat ditulis, misalnya \"Bandung, 4 Juli 2026\"."},
+{id:25,category:"literasi",question:"Bacalah paragraf berikut!\n\"Ayam petelur milik Pak Karta bertelur setiap hari. Telur-telur itu dikumpulkan lalu dijual ke warung. Hasil penjualannya digunakan untuk biaya sekolah anaknya.\"\n\nPernyataan yang SESUAI dengan isi paragraf adalah ...",choices:["Pak Karta memelihara ayam pedaging","Telur dijual ke pasar kota","Hasil penjualan telur untuk biaya sekolah","Ayam Pak Karta bertelur seminggu sekali"],answer:2,explanation:"Paragraf menyebutkan hasil penjualan telur digunakan untuk biaya sekolah anak Pak Karta."},
+{id:26,category:"literasi",question:"Imbuhan \"pe-an\" pada kata \"pelabuhan\" menyatakan makna ...",choices:["Alat","Tempat","Orang yang melakukan","Hasil pekerjaan"],answer:1,explanation:"Pelabuhan berarti tempat kapal berlabuh, sehingga imbuhan pe-an bermakna tempat."},
+{id:27,category:"literasi",question:"Kalimat berikut yang berisi pendapat (opini) adalah ...",choices:["Indonesia memiliki lebih dari 17.000 pulau.","Air mendidih pada suhu 100 derajat Celsius.","Menurutku, film itu sangat menghibur.","Jakarta terletak di Pulau Jawa."],answer:2,explanation:"Opini adalah pernyataan berdasarkan perasaan atau pandangan pribadi, ditandai kata \"menurutku\"."},
+{id:28,category:"literasi",question:"Bacalah cuplikan cerita berikut!\n\"Bima mengembalikan dompet yang ia temukan di kantin kepada pemiliknya. Padahal, di dalam dompet itu ada uang yang cukup banyak.\"\n\nSifat Bima yang patut diteladani adalah ...",choices:["Pemberani","Jujur","Hemat","Rajin"],answer:1,explanation:"Mengembalikan barang temuan kepada pemiliknya menunjukkan kejujuran."},
+{id:29,category:"literasi",question:"Susunan kata acak: \"perpustakaan - buku - meminjam - Dina - di - cerita\"\nKalimat yang benar dari kata acak tersebut adalah ...",choices:["Dina meminjam buku cerita di perpustakaan.","Buku Dina meminjam cerita di perpustakaan.","Perpustakaan meminjam buku cerita di Dina.","Di Dina buku meminjam cerita perpustakaan."],answer:0,explanation:"Susunan kalimat yang benar mengikuti pola Subjek-Predikat-Objek-Keterangan."},
+{id:30,category:"literasi",question:"Kata \"membajak\" pada kalimat \"Petani membajak sawah dengan traktor\" bermakna ...",choices:["Mencuri hasil panen","Menggemburkan tanah sawah","Merampas kendaraan","Menanam padi"],answer:1,explanation:"Dalam konteks pertanian, membajak berarti mengolah atau menggemburkan tanah sebelum ditanami."},
+{id:31,category:"literasi",question:"Bacalah teks berikut!\n\"Lomba kebersihan kelas diadakan setiap akhir semester. Kelas VI-A meraih juara pertama karena semua siswanya kompak menjaga kebersihan. Mereka membuat jadwal piket dan menaatinya.\"\n\nKelas VI-A menjadi juara karena ...",choices:["Memiliki banyak alat kebersihan","Kekompakan siswa menjaga kebersihan","Kelasnya paling besar","Gurunya sangat disiplin"],answer:1,explanation:"Teks menyebutkan kelas VI-A juara karena semua siswanya kompak menjaga kebersihan."},
+{id:32,category:"literasi",question:"Kalimat perintah yang santun adalah ...",choices:["Cepat tutup pintunya!","Tutup pintu itu sekarang juga!","Tolong tutup pintunya, ya.","Kamu harus menutup pintu!"],answer:2,explanation:"Kalimat perintah santun menggunakan kata \"tolong\" atau \"mohon\" agar terdengar halus."},
+{id:33,category:"literasi",question:"Laporan hasil pengamatan sebaiknya ditulis berdasarkan ...",choices:["Khayalan penulis","Fakta yang diamati","Cerita teman","Dongeng lama"],answer:1,explanation:"Laporan pengamatan harus berisi fakta atau data nyata yang diperoleh saat pengamatan."},
+{id:34,category:"literasi",question:"Bacalah kalimat berikut!\n\"Meskipun berasal dari keluarga sederhana, Salma tidak pernah patah semangat meraih cita-citanya.\"\n\nMakna \"patah semangat\" adalah ...",choices:["Terjatuh saat berlari","Kehilangan keinginan untuk berusaha","Mengalami cedera tangan","Marah kepada keluarga"],answer:1,explanation:"Patah semangat adalah ungkapan yang berarti putus asa atau kehilangan kemauan berusaha."},
+{id:35,category:"literasi",question:"Bacalah dua teks berikut!\nTeks 1: \"Banjir merendam tiga desa akibat hujan deras semalaman.\"\nTeks 2: \"Hujan deras menyebabkan tanah longsor di kaki bukit.\"\n\nPersamaan kedua teks tersebut adalah ...",choices:["Membahas bencana akibat hujan deras","Membahas tiga desa yang terendam","Membahas kaki bukit yang longsor","Membahas cara mencegah banjir"],answer:0,explanation:"Kedua teks sama-sama memberitakan bencana yang disebabkan oleh hujan deras."},
+
+/* ---------- NUMERASI (35 soal) ---------- */
+{id:36,category:"numerasi",question:"Hasil dari 2.475 + 1.638 adalah ...",choices:["4.113","4.013","4.103","3.113"],answer:0,explanation:"2.475 + 1.638 = 4.113."},
+{id:37,category:"numerasi",question:"Hasil dari 5.000 − 2.347 adalah ...",choices:["2.653","2.753","2.663","3.653"],answer:0,explanation:"5.000 − 2.347 = 2.653."},
+{id:38,category:"numerasi",question:"Hasil dari 48 × 25 adalah ...",choices:["1.000","1.200","1.150","1.250"],answer:1,explanation:"48 × 25 = 48 × 100 : 4 = 4.800 : 4 = 1.200."},
+{id:39,category:"numerasi",question:"Hasil dari 1.944 : 36 adalah ...",choices:["52","56","54","58"],answer:2,explanation:"36 × 54 = 1.944, jadi 1.944 : 36 = 54."},
+{id:40,category:"numerasi",question:"Hasil dari 15 + 6 × 4 − 9 adalah ...",choices:["75","30","21","39"],answer:1,explanation:"Perkalian dikerjakan lebih dulu: 6 × 4 = 24, lalu 15 + 24 − 9 = 30."},
+{id:41,category:"numerasi",question:"KPK dari 12 dan 18 adalah ...",choices:["6","24","36","72"],answer:2,explanation:"Kelipatan 12: 12, 24, 36, ... Kelipatan 18: 18, 36, ... KPK = 36."},
+{id:42,category:"numerasi",question:"FPB dari 24 dan 36 adalah ...",choices:["6","8","12","18"],answer:2,explanation:"Faktor persekutuan terbesar dari 24 dan 36 adalah 12."},
+{id:43,category:"numerasi",question:"Bentuk paling sederhana dari pecahan 18/24 adalah ...",choices:["2/3","3/4","4/5","5/6"],answer:1,explanation:"18 dan 24 sama-sama dibagi 6 menjadi 3/4."},
+{id:44,category:"numerasi",question:"Hasil dari 2/5 + 1/4 adalah ...",choices:["3/9","13/20","3/20","11/20"],answer:1,explanation:"Samakan penyebut menjadi 20: 8/20 + 5/20 = 13/20."},
+{id:45,category:"numerasi",question:"Bentuk desimal dari 3/8 adalah ...",choices:["0,375","0,38","0,35","0,325"],answer:0,explanation:"3 : 8 = 0,375."},
+{id:46,category:"numerasi",question:"25% dari 480 adalah ...",choices:["100","110","120","140"],answer:2,explanation:"25% sama dengan 1/4, dan 480 : 4 = 120."},
+{id:47,category:"numerasi",question:"Urutan pecahan dari yang terkecil: 0,6 ; 1/2 ; 75% adalah ...",choices:["0,6 ; 1/2 ; 75%","1/2 ; 0,6 ; 75%","75% ; 0,6 ; 1/2","1/2 ; 75% ; 0,6"],answer:1,explanation:"Ubah ke desimal: 1/2 = 0,5; 0,6; 75% = 0,75. Urutan naik: 0,5 ; 0,6 ; 0,75."},
+{id:48,category:"numerasi",question:"Sebuah persegi panjang memiliki panjang 15 cm dan lebar 8 cm. Kelilingnya adalah ...",choices:["23 cm","46 cm","120 cm","60 cm"],answer:1,explanation:"Keliling = 2 × (15 + 8) = 2 × 23 = 46 cm."},
+{id:49,category:"numerasi",question:"Luas segitiga dengan alas 12 cm dan tinggi 9 cm adalah ...",choices:["108 cm²","54 cm²","42 cm²","21 cm²"],answer:1,explanation:"Luas segitiga = 1/2 × alas × tinggi = 1/2 × 12 × 9 = 54 cm²."},
+{id:50,category:"numerasi",question:"Volume kubus dengan panjang rusuk 7 cm adalah ...",choices:["49 cm³","147 cm³","343 cm³","294 cm³"],answer:2,explanation:"Volume kubus = rusuk³ = 7 × 7 × 7 = 343 cm³."},
+{id:51,category:"numerasi",question:"Sebuah balok berukuran panjang 10 cm, lebar 6 cm, dan tinggi 5 cm. Volumenya adalah ...",choices:["300 cm³","150 cm³","210 cm³","600 cm³"],answer:0,explanation:"Volume balok = p × l × t = 10 × 6 × 5 = 300 cm³."},
+{id:52,category:"numerasi",question:"3,5 km sama dengan ... meter",choices:["35","350","3.500","35.000"],answer:2,explanation:"1 km = 1.000 m, sehingga 3,5 km = 3.500 m."},
+{id:53,category:"numerasi",question:"2 jam 45 menit sama dengan ... menit",choices:["145","155","165","175"],answer:2,explanation:"2 jam = 120 menit, ditambah 45 menit menjadi 165 menit."},
+{id:54,category:"numerasi",question:"4 kg + 15 ons = ... gram",choices:["5.500","4.150","5.150","4.015"],answer:0,explanation:"4 kg = 4.000 g dan 15 ons = 1.500 g, jumlahnya 5.500 g."},
+{id:55,category:"numerasi",question:"Ibu membeli 3 lusin gelas. Sebanyak 7 gelas pecah saat dibawa pulang. Sisa gelas ibu adalah ...",choices:["29 buah","28 buah","36 buah","30 buah"],answer:0,explanation:"3 lusin = 36 buah. Sisa = 36 − 7 = 29 buah."},
+{id:56,category:"numerasi",question:"Harga sebuah buku Rp8.500. Andi membeli 6 buku dan membayar dengan uang Rp60.000. Kembaliannya adalah ...",choices:["Rp9.000","Rp8.500","Rp10.000","Rp9.500"],answer:0,explanation:"6 × Rp8.500 = Rp51.000. Kembalian = Rp60.000 − Rp51.000 = Rp9.000."},
+{id:57,category:"numerasi",question:"Sebuah toko memberi diskon 20% untuk tas seharga Rp150.000. Harga tas setelah diskon adalah ...",choices:["Rp130.000","Rp120.000","Rp125.000","Rp110.000"],answer:1,explanation:"Diskon = 20% × 150.000 = Rp30.000. Harga akhir = Rp150.000 − Rp30.000 = Rp120.000."},
+{id:58,category:"numerasi",question:"Suhu di puncak gunung −4°C. Siang hari suhu naik 9°C. Suhu siang hari adalah ...",choices:["−13°C","13°C","5°C","−5°C"],answer:2,explanation:"−4 + 9 = 5, jadi suhunya menjadi 5°C."},
+{id:59,category:"numerasi",question:"Rata-rata nilai ulangan Dita adalah 80 dari 4 kali ulangan. Jumlah seluruh nilainya adalah ...",choices:["300","320","340","360"],answer:1,explanation:"Jumlah nilai = rata-rata × banyak data = 80 × 4 = 320."},
+{id:60,category:"numerasi",question:"Data banyak buku yang dibaca 5 siswa: 3, 7, 5, 7, 8. Modus data tersebut adalah ...",choices:["3","5","7","8"],answer:2,explanation:"Modus adalah data yang paling sering muncul, yaitu 7 (muncul dua kali)."},
+{id:61,category:"numerasi",question:"Median dari data 6, 9, 4, 7, 10 adalah ...",choices:["4","6","7","9"],answer:2,explanation:"Urutkan: 4, 6, 7, 9, 10. Nilai tengahnya adalah 7."},
+{id:62,category:"numerasi",question:"Perbandingan umur kakak dan adik adalah 5 : 3. Jika umur kakak 20 tahun, umur adik adalah ...",choices:["10 tahun","12 tahun","15 tahun","16 tahun"],answer:1,explanation:"Umur adik = (3/5) × 20 = 12 tahun."},
+{id:63,category:"numerasi",question:"Jarak kota A ke kota B pada peta 4 cm. Jika skala peta 1 : 500.000, jarak sebenarnya adalah ...",choices:["2 km","20 km","200 km","2.000 km"],answer:1,explanation:"4 cm × 500.000 = 2.000.000 cm = 20 km."},
+{id:64,category:"numerasi",question:"Sebuah mobil menempuh 180 km dalam 3 jam. Kecepatan rata-rata mobil adalah ...",choices:["50 km/jam","55 km/jam","60 km/jam","65 km/jam"],answer:2,explanation:"Kecepatan = jarak : waktu = 180 : 3 = 60 km/jam."},
+{id:65,category:"numerasi",question:"Pola bilangan: 2, 5, 11, 23, ... Bilangan berikutnya adalah ...",choices:["35","46","47","45"],answer:2,explanation:"Polanya: dikali 2 lalu ditambah 1. 23 × 2 + 1 = 47."},
+{id:66,category:"numerasi",question:"Hasil dari 8² + 6² adalah ...",choices:["100","96","104","112"],answer:0,explanation:"8² = 64 dan 6² = 36, jumlahnya 64 + 36 = 100."},
+{id:67,category:"numerasi",question:"Akar pangkat tiga dari 216 adalah ...",choices:["4","5","6","7"],answer:2,explanation:"6 × 6 × 6 = 216, jadi ∛216 = 6."},
+{id:68,category:"numerasi",question:"Sebuah tandon berisi 250 liter air. Air digunakan 3/5 bagian untuk menyiram kebun. Sisa air di tandon adalah ...",choices:["100 liter","150 liter","125 liter","175 liter"],answer:0,explanation:"Terpakai = 3/5 × 250 = 150 liter. Sisa = 250 − 150 = 100 liter."},
+{id:69,category:"numerasi",question:"Bangun datar yang memiliki 4 sisi sama panjang dan 4 sudut siku-siku adalah ...",choices:["Persegi panjang","Belah ketupat","Persegi","Jajargenjang"],answer:2,explanation:"Persegi memiliki empat sisi sama panjang dan semua sudutnya 90°."},
+{id:70,category:"numerasi",question:"Ayah berangkat kerja pukul 06.45 dan tiba di kantor pukul 07.30. Lama perjalanan ayah adalah ...",choices:["30 menit","40 menit","45 menit","50 menit"],answer:2,explanation:"Dari 06.45 ke 07.30 lamanya 45 menit."},
+
+/* ---------- IPA DASAR (15 soal) ---------- */
+{id:71,category:"ipa",question:"Bagian tumbuhan yang berfungsi menyerap air dan zat hara dari dalam tanah adalah ...",choices:["Daun","Batang","Akar","Bunga"],answer:2,explanation:"Akar berfungsi menyerap air dan zat hara serta menegakkan tumbuhan."},
+{id:72,category:"ipa",question:"Peristiwa perubahan wujud dari padat menjadi cair disebut ...",choices:["Membeku","Mencair","Menguap","Menyublim"],answer:1,explanation:"Perubahan wujud dari padat menjadi cair, misalnya es menjadi air, disebut mencair."},
+{id:73,category:"ipa",question:"Hewan berikut yang berkembang biak dengan cara bertelur adalah ...",choices:["Kucing","Sapi","Ayam","Kambing"],answer:2,explanation:"Ayam berkembang biak dengan bertelur (ovipar), sedangkan kucing, sapi, dan kambing melahirkan."},
+{id:74,category:"ipa",question:"Alat pernapasan pada ikan adalah ...",choices:["Paru-paru","Insang","Kulit","Trakea"],answer:1,explanation:"Ikan bernapas menggunakan insang untuk mengambil oksigen yang terlarut dalam air."},
+{id:75,category:"ipa",question:"Sumber energi utama bagi kehidupan di bumi adalah ...",choices:["Bulan","Matahari","Angin","Air"],answer:1,explanation:"Matahari adalah sumber energi utama yang menghangatkan bumi dan diperlukan tumbuhan untuk fotosintesis."},
+{id:76,category:"ipa",question:"Gaya yang membuat benda yang dilempar ke atas akhirnya jatuh ke tanah adalah gaya ...",choices:["Gesek","Otot","Gravitasi","Magnet"],answer:2,explanation:"Gaya gravitasi bumi menarik benda menuju pusat bumi sehingga benda jatuh ke bawah."},
+{id:77,category:"ipa",question:"Bagian bunga yang berfungsi sebagai alat perkembangbiakan betina adalah ...",choices:["Benang sari","Putik","Mahkota","Kelopak"],answer:1,explanation:"Putik adalah alat kelamin betina pada bunga, sedangkan benang sari adalah alat kelamin jantan."},
+{id:78,category:"ipa",question:"Contoh benda yang dapat menghantarkan listrik dengan baik (konduktor) adalah ...",choices:["Kayu","Plastik","Besi","Karet"],answer:2,explanation:"Besi merupakan logam yang termasuk konduktor listrik, sedangkan kayu, plastik, dan karet adalah isolator."},
+{id:79,category:"ipa",question:"Proses pembuatan makanan pada tumbuhan hijau dengan bantuan cahaya matahari disebut ...",choices:["Respirasi","Fotosintesis","Penguapan","Penyerbukan"],answer:1,explanation:"Fotosintesis adalah proses tumbuhan membuat makanan menggunakan cahaya matahari, air, dan karbon dioksida."},
+{id:80,category:"ipa",question:"Bunyi dapat merambat melalui zat berikut, KECUALI ...",choices:["Udara","Air","Kayu","Ruang hampa"],answer:3,explanation:"Bunyi memerlukan medium untuk merambat, sehingga tidak dapat merambat di ruang hampa."},
+{id:81,category:"ipa",question:"Perubahan wujud yang terjadi saat kapur barus (kamper) lama-lama habis di udara adalah ...",choices:["Mencair","Membeku","Menyublim","Mengembun"],answer:2,explanation:"Kapur barus berubah langsung dari padat menjadi gas, peristiwa ini disebut menyublim."},
+{id:82,category:"ipa",question:"Rantai makanan yang benar di sawah adalah ...",choices:["Padi → ular → tikus → elang","Padi → tikus → ular → elang","Tikus → padi → elang → ular","Elang → ular → tikus → padi"],answer:1,explanation:"Aliran energi dimulai dari produsen (padi) ke konsumen: tikus, ular, lalu elang."},
+{id:83,category:"ipa",question:"Cara paling tepat menghemat energi listrik di rumah adalah ...",choices:["Menyalakan lampu di siang hari","Mematikan lampu saat tidak digunakan","Membiarkan televisi menyala terus","Mengisi daya ponsel semalaman"],answer:1,explanation:"Mematikan lampu dan alat listrik saat tidak dipakai adalah cara menghemat energi listrik."},
+{id:84,category:"ipa",question:"Bagian mata yang berfungsi mengatur banyak sedikitnya cahaya yang masuk adalah ...",choices:["Kornea","Pupil","Retina","Lensa"],answer:1,explanation:"Pupil dapat membesar dan mengecil untuk mengatur jumlah cahaya yang masuk ke mata."},
+{id:85,category:"ipa",question:"Magnet memiliki gaya paling kuat pada bagian ...",choices:["Tengah magnet","Kutub magnet","Seluruh permukaan sama","Bagian yang dicat"],answer:1,explanation:"Gaya tarik magnet paling kuat berada pada kedua kutubnya."},
+
+/* ---------- IPS DASAR (10 soal) ---------- */
+{id:86,category:"ips",question:"Ibu kota negara Indonesia saat ini secara resmi ditetapkan berpindah ke ...",choices:["Bandung","Surabaya","Nusantara (Kalimantan Timur)","Medan"],answer:2,explanation:"Melalui undang-undang, ibu kota negara Indonesia ditetapkan pindah ke Nusantara di Kalimantan Timur."},
+{id:87,category:"ips",question:"Kegiatan menghasilkan barang atau jasa disebut ...",choices:["Distribusi","Konsumsi","Produksi","Promosi"],answer:2,explanation:"Produksi adalah kegiatan menghasilkan atau menambah nilai guna suatu barang dan jasa."},
+{id:88,category:"ips",question:"Alat transportasi tradisional yang digerakkan oleh tenaga hewan adalah ...",choices:["Sepeda motor","Delman","Kereta api","Pesawat"],answer:1,explanation:"Delman adalah kendaraan tradisional yang ditarik oleh kuda."},
+{id:89,category:"ips",question:"Semboyan negara Indonesia \"Bhinneka Tunggal Ika\" berarti ...",choices:["Bersatu kita teguh","Berbeda-beda tetapi tetap satu","Satu untuk semua","Kekuatan dari persatuan"],answer:1,explanation:"Bhinneka Tunggal Ika berarti berbeda-beda tetapi tetap satu jua, menggambarkan keberagaman Indonesia."},
+{id:90,category:"ips",question:"Kenampakan alam berupa daratan luas yang ditumbuhi banyak pohon disebut ...",choices:["Danau","Hutan","Pantai","Lembah"],answer:1,explanation:"Hutan adalah kawasan daratan luas yang ditumbuhi banyak pepohonan."},
+{id:91,category:"ips",question:"Pahlawan yang dikenal sebagai tokoh emansipasi wanita di Indonesia adalah ...",choices:["Cut Nyak Dien","R.A. Kartini","Dewi Sartika","Martha Christina Tiahahu"],answer:1,explanation:"R.A. Kartini dikenal sebagai pelopor emansipasi (kesetaraan hak) wanita di Indonesia."},
+{id:92,category:"ips",question:"Sikap yang tepat dalam menghadapi keberagaman suku dan budaya adalah ...",choices:["Menganggap suku sendiri paling baik","Saling menghormati dan menghargai","Menjauhi teman yang berbeda suku","Memaksakan budaya sendiri"],answer:1,explanation:"Keberagaman harus disikapi dengan saling menghormati dan menghargai agar tercipta persatuan."},
+{id:93,category:"ips",question:"Tempat bertemunya penjual dan pembeli untuk melakukan jual beli disebut ...",choices:["Sekolah","Pasar","Kantor","Rumah sakit"],answer:1,explanation:"Pasar adalah tempat bertemunya penjual dan pembeli untuk melakukan kegiatan jual beli."},
+{id:94,category:"ips",question:"Negara di Asia Tenggara yang berbatasan langsung dengan Indonesia di Pulau Kalimantan adalah ...",choices:["Thailand","Filipina","Malaysia","Vietnam"],answer:2,explanation:"Malaysia berbatasan darat langsung dengan Indonesia di Pulau Kalimantan (Borneo)."},
+{id:95,category:"ips",question:"Koperasi bertujuan untuk ...",choices:["Mencari keuntungan sebesar-besarnya untuk pengurus","Menyejahterakan anggotanya","Bersaing dengan pedagang lain","Mengumpulkan modal asing"],answer:1,explanation:"Koperasi adalah usaha bersama yang bertujuan menyejahterakan seluruh anggotanya berdasarkan asas kekeluargaan."},
+
+/* ---------- PENALARAN LOGIS (5 soal) ---------- */
+{id:96,category:"logika",question:"Semua burung memiliki sayap. Elang adalah burung. Maka kesimpulan yang benar adalah ...",choices:["Elang tidak bersayap","Elang memiliki sayap","Semua bersayap adalah elang","Sayap adalah burung"],answer:1,explanation:"Karena semua burung bersayap dan elang termasuk burung, maka elang pasti memiliki sayap."},
+{id:97,category:"logika",question:"Perhatikan pola gambar berikut!\n🔺 🔺🔺 🔺🔺🔺 ...\nBanyak segitiga pada pola keempat adalah ...",choices:["3","4","5","6"],answer:1,explanation:"Pola bertambah satu setiap urutan: 1, 2, 3, 4. Pola keempat berisi 4 segitiga."},
+{id:98,category:"logika",question:"Ani lebih tinggi daripada Budi. Budi lebih tinggi daripada Cika. Maka yang paling pendek adalah ...",choices:["Ani","Budi","Cika","Tidak dapat ditentukan"],answer:2,explanation:"Urutan tinggi: Ani > Budi > Cika, sehingga Cika adalah yang paling pendek."},
+{id:99,category:"logika",question:"Jika hari ini hari Rabu, maka 3 hari lagi adalah hari ...",choices:["Jumat","Sabtu","Minggu","Senin"],answer:1,explanation:"Rabu + 3 hari = Kamis (1), Jumat (2), Sabtu (3). Jadi jatuh pada hari Sabtu."},
+{id:100,category:"logika",question:"Perhatikan urutan huruf: A, C, E, G, ... Huruf berikutnya adalah ...",choices:["H","I","J","K"],answer:1,explanation:"Polanya melompati satu huruf (A_C_E_G), sehingga huruf berikutnya adalah I."}
+,
+
+/* ============================================================
+   TAMBAHAN 100 SOAL (Tingkat Kesulitan Lebih Tinggi)
+   id 101-200. Komposisi sama: Literasi 35, Numerasi 35,
+   IPA 15, IPS 10, Logika 5.
+============================================================ */
+
+/* ---------- LITERASI (Lanjutan, id 101-135) ---------- */
+{id:101,category:"literasi",question:"Bacalah paragraf berikut!\n\"Meskipun teknologi memudahkan kita berkomunikasi jarak jauh, tidak sedikit orang justru merasa semakin terasing. Mereka sibuk dengan gawai masing-masing sehingga lupa berbincang dengan orang di sekitarnya.\"\n\nMakna tersirat paragraf tersebut adalah ...",choices:["Teknologi selalu merugikan manusia","Kemudahan berkomunikasi dapat mengurangi kedekatan nyata antarmanusia","Gawai membuat orang menjadi pintar","Berbincang langsung sudah tidak diperlukan"],answer:1,explanation:"Makna tersirat menekankan bahwa kemudahan teknologi dapat membuat orang mengabaikan interaksi langsung dengan sekitarnya."},
+{id:102,category:"literasi",question:"Perhatikan kalimat rumpang berikut!\n\"Berkat kegigihannya berlatih, Rendi berhasil ... juara pertama lomba renang tingkat provinsi.\"\n\nKata berimbuhan yang tepat untuk melengkapi kalimat tersebut adalah ...",choices:["menyabet","disabet","tersabet","penyabet"],answer:0,explanation:"Kata \"menyabet\" (meraih) tepat karena berfungsi sebagai predikat aktif yang dilakukan Rendi."},
+{id:103,category:"literasi",question:"Bacalah kutipan berikut!\n\"Angin malam berembus pelan. Dari kejauhan terdengar suara jangkrik bersahutan. Bulan sabit menggantung di langit yang bertabur bintang.\"\n\nLatar waktu yang tergambar pada kutipan tersebut adalah ...",choices:["Pagi hari","Siang hari","Sore hari","Malam hari"],answer:3,explanation:"Kata \"angin malam\", \"bulan sabit\", dan \"bintang\" menunjukkan latar waktu malam hari."},
+{id:104,category:"literasi",question:"Cermati kalimat berikut!\n\"Karena rajin menabung sejak kecil, akhirnya Nia dapat membeli sepeda impiannya dari uang tabungannya sendiri.\"\n\nHubungan antarbagian kalimat tersebut menyatakan ...",choices:["Pertentangan","Sebab-akibat","Pemilihan","Syarat"],answer:1,explanation:"Kata \"karena\" menandakan sebab (rajin menabung) dan \"akhirnya\" menandakan akibat (dapat membeli sepeda)."},
+{id:105,category:"literasi",question:"Bacalah teks berikut!\n\"Vaksinasi bertujuan melatih tubuh mengenali kuman penyebab penyakit. Dengan begitu, saat kuman sesungguhnya menyerang, tubuh sudah siap melawannya. Itulah sebabnya imunisasi sangat penting bagi anak-anak.\"\n\nGagasan utama paragraf tersebut adalah ...",choices:["Kuman menyerang tubuh anak-anak","Pentingnya vaksinasi untuk melatih tubuh melawan penyakit","Anak-anak sering sakit","Tubuh manusia lemah terhadap kuman"],answer:1,explanation:"Seluruh kalimat mendukung gagasan bahwa vaksinasi penting karena melatih tubuh melawan penyakit."},
+{id:106,category:"literasi",question:"Perhatikan kalimat berikut!\n\"Pak Guru berpesan, 'Kerjakan tugas ini dengan teliti.'\"\n\nJika diubah menjadi kalimat tidak langsung, menjadi ...",choices:["Pak Guru berpesan bahwa kerjakan tugas ini dengan teliti.","Pak Guru berpesan agar kami mengerjakan tugas itu dengan teliti.","Pak Guru berpesan, kerjakan tugas dengan teliti.","Pak Guru berpesan: 'kerjakan dengan teliti'."],answer:1,explanation:"Kalimat tidak langsung mengubah kata ganti dan menghilangkan tanda petik, misalnya \"ini\" menjadi \"itu\" dan menambah kata \"agar\"."},
+{id:107,category:"literasi",question:"Bacalah paragraf berikut!\n\"[...] Ia selalu datang paling awal dan pulang paling akhir. Setiap tugas dikerjakan dengan sepenuh hati. Tak heran, ia menjadi karyawan teladan tahun ini.\"\n\nKalimat yang tepat untuk mengawali paragraf tersebut adalah ...",choices:["Pak Hasan seorang yang sangat pemalas.","Pak Hasan dikenal sebagai pekerja yang sangat rajin.","Pak Hasan jarang masuk kerja.","Pak Hasan suka menunda pekerjaan."],answer:1,explanation:"Kalimat awal harus selaras dengan isi paragraf yang menggambarkan kerajinan, sehingga pilihan tentang \"pekerja yang rajin\" paling tepat."},
+{id:108,category:"literasi",question:"Cermati penggunaan kata bercetak miring!\n\"Para hadirin yang terhormat dipersilakan untuk menempati kursinya masing-masing.\"\n\nKesalahan pada kalimat tersebut terletak pada ...",choices:["Kata \"terhormat\" seharusnya \"dihormati\"","Kata \"para hadirin\" mubazir karena \"hadirin\" sudah jamak","Kata \"kursinya\" seharusnya \"kursi\"","Kata \"dipersilakan\" seharusnya \"disilakan\""],answer:1,explanation:"Kata \"hadirin\" sudah bermakna jamak, sehingga penambahan \"para\" merupakan pemborosan kata."},
+{id:109,category:"literasi",question:"Bacalah kedua kalimat berikut!\n(1) Rina belajar dengan sungguh-sungguh.\n(2) Rina ingin membanggakan orang tuanya.\n\nGabungan kedua kalimat yang tepat menggunakan konjungsi tujuan adalah ...",choices:["Rina belajar dengan sungguh-sungguh tetapi ingin membanggakan orang tuanya.","Rina belajar dengan sungguh-sungguh agar dapat membanggakan orang tuanya.","Rina belajar dengan sungguh-sungguh karena membanggakan orang tuanya.","Rina belajar dengan sungguh-sungguh atau membanggakan orang tuanya."],answer:1,explanation:"Konjungsi tujuan yang tepat adalah \"agar\", menghubungkan usaha dengan tujuan yang ingin dicapai."},
+{id:110,category:"literasi",question:"Bacalah teks berikut!\n\"Hutan mangrove berperan penting menjaga garis pantai. Akarnya yang rapat meredam gelombang dan menahan lumpur. Selain itu, hutan mangrove menjadi tempat berkembang biak berbagai jenis ikan dan kepiting.\"\n\nRingkasan yang tepat untuk teks tersebut adalah ...",choices:["Hutan mangrove hanya melindungi pantai dari ombak.","Hutan mangrove melindungi pantai sekaligus menjadi tempat hidup berbagai biota laut.","Akar mangrove menahan lumpur di pantai.","Ikan dan kepiting hidup di lumpur pantai."],answer:1,explanation:"Ringkasan mencakup dua fungsi utama mangrove: melindungi pantai dan menjadi habitat biota laut."},
+{id:111,category:"literasi",question:"Perhatikan kalimat berikut!\n\"Dokter menyarankan pasien agar mengonsumsi obat secara teratur.\"\n\nKata \"mengonsumsi\" pada kalimat tersebut bermakna ...",choices:["Membeli","Menyimpan","Memakai atau menggunakan","Menjual"],answer:2,explanation:"Dalam konteks obat, \"mengonsumsi\" berarti memakai atau menggunakan (meminum) obat tersebut."},
+{id:112,category:"literasi",question:"Bacalah paragraf berikut!\n\"Kejujuran ibarat pondasi sebuah bangunan. Jika pondasinya kokoh, bangunan akan berdiri tegak. Sebaliknya, tanpa kejujuran, hubungan antarmanusia mudah runtuh.\"\n\nMajas yang digunakan pada kalimat pertama paragraf tersebut adalah ...",choices:["Personifikasi","Hiperbola","Perumpamaan (asosiasi)","Metonimia"],answer:2,explanation:"Kata \"ibarat\" menunjukkan majas perumpamaan (asosiasi) yang membandingkan dua hal berbeda."},
+{id:113,category:"literasi",question:"Cermati data berikut!\nNama : Farida\nTempat, tanggal lahir : Bandung, 12 Mei 2013\nHobi : membaca dan menulis\n\nPenulisan data diri dalam kalimat yang tepat adalah ...",choices:["Farida lahir di Bandung pada 12 Mei 2013 dan hobinya membaca serta menulis.","Farida di Bandung lahir tanggal 12 Mei 2013 hobi membaca menulis.","Farida hobi membaca menulis lahir Bandung 12 Mei 2013.","Bandung Farida lahir hobinya membaca dan menulis 12 Mei 2013."],answer:0,explanation:"Data diri sebaiknya disusun menjadi kalimat runtut dan padu sesuai kaidah bahasa Indonesia."},
+{id:114,category:"literasi",question:"Bacalah cerita berikut!\n\"Meski tahu akan kalah, Semut kecil tetap membantu memindahkan remah roti bersama teman-temannya. 'Sedikit tenaga dariku pasti berguna,' pikirnya.\"\n\nAmanat kutipan cerita tersebut adalah ...",choices:["Jangan mau kalah dengan siapa pun","Setiap sumbangan, sekecil apa pun, tetap bermanfaat","Semut suka mengumpulkan roti","Bekerja sendiri lebih baik"],answer:1,explanation:"Amanat tersirat: setiap usaha atau bantuan kecil tetap memberi manfaat bagi kerja bersama."},
+{id:115,category:"literasi",question:"Perhatikan paragraf berikut!\n\"Banjir yang melanda kawasan itu bukan semata karena hujan deras. Saluran air yang tersumbat sampah dan berkurangnya daerah resapan turut memperparah keadaan.\"\n\nPenulis menyampaikan bahwa penyebab banjir bersifat ...",choices:["Tunggal","Beragam (lebih dari satu faktor)","Tidak diketahui","Hanya karena hujan"],answer:1,explanation:"Kata \"bukan semata\" dan \"turut memperparah\" menunjukkan penyebab banjir lebih dari satu faktor."},
+{id:116,category:"literasi",question:"Bacalah kalimat berikut!\n\"Setelah lulus, ia bercita-cita menjadi seorang arsitek yang ... karya-karya megah.\"\n\nKata berimbuhan me-kan yang tepat adalah ...",choices:["mendirikan","menciptakan","membangunkan","mengerjakan"],answer:1,explanation:"Kata \"menciptakan\" paling tepat berpasangan dengan \"karya-karya megah\" untuk menyatakan menghasilkan sesuatu."},
+{id:117,category:"literasi",question:"Cermati teks berikut!\n\"Perpustakaan sekolah kini dilengkapi ruang baca yang nyaman. Koleksi bukunya pun bertambah. Namun, jumlah pengunjung justru menurun.\"\n\nKata penghubung \"namun\" pada teks tersebut menyatakan hubungan ...",choices:["Penambahan","Pertentangan","Sebab-akibat","Urutan waktu"],answer:1,explanation:"Kata \"namun\" menghubungkan dua hal yang bertentangan: fasilitas membaik, tetapi pengunjung menurun."},
+{id:118,category:"literasi",question:"Bacalah penggalan pidato berikut!\n\"Marilah kita jaga kebersihan lingkungan sekolah. Sekolah yang bersih membuat kita nyaman belajar dan terhindar dari penyakit.\"\n\nKalimat ajakan pada penggalan pidato tersebut ditandai dengan kata ...",choices:["Membuat","Marilah","Terhindar","Belajar"],answer:1,explanation:"Kata \"marilah\" merupakan penanda kalimat ajakan dalam pidato."},
+{id:119,category:"literasi",question:"Perhatikan kalimat-kalimat berikut!\n(1) Tuangkan adonan ke dalam cetakan.\n(2) Campur tepung, gula, dan telur hingga rata.\n(3) Panggang selama 30 menit.\n(4) Sajikan kue setelah dingin.\n\nUrutan membuat kue yang tepat adalah ...",choices:["2-1-3-4","1-2-3-4","2-3-1-4","1-3-2-4"],answer:0,explanation:"Urutan logis membuat kue: campur adonan, tuang ke cetakan, panggang, lalu sajikan."},
+{id:120,category:"literasi",question:"Bacalah paragraf berikut!\n\"Sungai yang dulu jernih kini berubah keruh. Ikan-ikan yang biasa berenang lincah tak lagi terlihat. Warga pun enggan memanfaatkan airnya.\"\n\nPenyebab keadaan pada paragraf tersebut yang paling mungkin adalah ...",choices:["Sungai mengering total","Sungai tercemar limbah","Sungai membeku","Sungai berpindah aliran"],answer:1,explanation:"Air keruh, ikan hilang, dan warga enggan memakai air menandakan sungai telah tercemar limbah."},
+{id:121,category:"literasi",question:"Cermati kalimat berikut!\n\"Ia menceritakan pengalamannya dengan begitu detail sehingga pendengar seolah-olah ikut merasakannya.\"\n\nKata \"detail\" pada kalimat tersebut memiliki makna ...",choices:["Singkat","Rinci","Membosankan","Cepat"],answer:1,explanation:"Kata \"detail\" berarti terperinci atau rinci hingga bagian-bagian kecilnya."},
+{id:122,category:"literasi",question:"Bacalah teks berikut!\n\"Membaca buku memperluas wawasan. Menulis melatih kita menuangkan gagasan. Keduanya saling melengkapi dalam mengasah kemampuan berpikir.\"\n\nSimpulan teks tersebut adalah ...",choices:["Membaca lebih penting daripada menulis","Membaca dan menulis sama-sama penting untuk mengasah pikiran","Menulis hanya untuk penulis","Berpikir tidak memerlukan membaca"],answer:1,explanation:"Kalimat terakhir menegaskan bahwa membaca dan menulis saling melengkapi untuk mengasah kemampuan berpikir."},
+{id:123,category:"literasi",question:"Perhatikan kalimat berikut!\n\"Walaupun hujan turun deras, para petani itu tetap ... sawah mereka.\"\n\nKata berimbuhan yang tepat untuk mengisi bagian rumpang adalah ...",choices:["menggarap","tergarap","penggarap","garapan"],answer:0,explanation:"Kata kerja aktif \"menggarap\" tepat karena menjadi predikat yang dilakukan oleh para petani."},
+{id:124,category:"literasi",question:"Bacalah dua teks berikut!\nTeks 1: Menjelaskan langkah-langkah menanam benih cabai.\nTeks 2: Menceritakan pengalaman seorang anak menanam cabai bersama ayahnya.\n\nPerbedaan jenis kedua teks tersebut adalah ...",choices:["Teks 1 prosedur, Teks 2 narasi","Teks 1 narasi, Teks 2 prosedur","Keduanya teks laporan","Keduanya teks persuasi"],answer:0,explanation:"Teks 1 berisi langkah-langkah (prosedur), sedangkan Teks 2 berupa cerita pengalaman (narasi)."},
+{id:125,category:"literasi",question:"Cermati kalimat berikut!\n\"Prestasi yang diraihnya tidak lepas dari kerja kerasnya selama ini.\"\n\nUngkapan yang semakna dengan \"kerja keras\" pada kalimat tersebut adalah ...",choices:["berpangku tangan","membanting tulang","angkat tangan","cuci tangan"],answer:1,explanation:"Ungkapan \"membanting tulang\" bermakna bekerja keras, semakna dengan frasa pada kalimat."},
+{id:126,category:"literasi",question:"Bacalah paragraf berikut!\n\"Setiap orang memiliki bakat yang berbeda. Ada yang pandai menyanyi, melukis, atau berhitung. Yang terpenting adalah terus mengasah bakat itu agar berkembang.\"\n\nTanggapan yang sesuai dengan isi paragraf adalah ...",choices:["Bakat tidak perlu diasah karena sudah ada sejak lahir.","Kita sebaiknya rutin melatih bakat agar semakin berkembang.","Hanya bakat menyanyi yang perlu dilatih.","Bakat setiap orang selalu sama."],answer:1,explanation:"Isi paragraf menekankan pentingnya mengasah bakat, sehingga tanggapan yang sesuai adalah melatih bakat secara rutin."},
+{id:127,category:"literasi",question:"Perhatikan kalimat berikut!\n\"... yang kamu pilih, pastikan itu bermanfaat bagi orang banyak.\"\n\nKata tanya yang tepat untuk melengkapi kalimat tersebut adalah ...",choices:["Kapan pun","Apa pun","Siapa pun","Di mana pun"],answer:1,explanation:"Frasa \"apa pun yang kamu pilih\" tepat karena mengacu pada pilihan (benda/hal), bukan waktu, orang, atau tempat."},
+{id:128,category:"literasi",question:"Bacalah kutipan berikut!\n\"Hari sudah larut, tetapi Bagas belum juga menyelesaikan tugasnya. Matanya berat, namun ia bertekad menuntaskan pekerjaannya malam itu juga.\"\n\nKonflik yang dialami tokoh pada kutipan tersebut adalah ...",choices:["Konflik dengan orang lain","Konflik dengan alam","Konflik batin dalam diri tokoh","Konflik dengan masyarakat"],answer:2,explanation:"Bagas berjuang melawan rasa kantuknya sendiri demi menyelesaikan tugas, menunjukkan konflik batin (dalam diri)."},
+{id:129,category:"literasi",question:"Cermati paragraf berikut!\n\"Sampah organik seperti sisa sayur dan buah dapat diolah menjadi kompos. Kompos ini menyuburkan tanaman. Dengan demikian, sampah dapur pun bisa bermanfaat.\"\n\nKata \"dengan demikian\" pada paragraf tersebut berfungsi sebagai penanda ...",choices:["Penambahan contoh","Simpulan","Pertentangan","Perbandingan"],answer:1,explanation:"Frasa \"dengan demikian\" mengawali kalimat simpulan dari uraian sebelumnya."},
+{id:130,category:"literasi",question:"Bacalah iklan berikut!\n\"Hemat energi, selamatkan bumi! Matikan lampu yang tidak terpakai mulai dari sekarang.\"\n\nMaksud iklan tersebut adalah ...",choices:["Mengajak masyarakat menghemat energi demi kelestarian bumi","Melarang orang menyalakan lampu","Menjual lampu hemat energi","Memberitahukan tarif listrik naik"],answer:0,explanation:"Iklan tersebut merupakan iklan layanan masyarakat yang mengajak menghemat energi untuk menjaga bumi."},
+{id:131,category:"literasi",question:"Perhatikan kalimat berikut!\n\"Karena terburu-buru, ia (lupa) membawa buku tugasnya.\"\n\nBentuk kata dalam kurung yang paling tepat sesuai konteks kalimat adalah ...",choices:["terlupa","melupakan","kelupaan","dilupakan"],answer:2,explanation:"Kata \"kelupaan\" tepat menyatakan ketidaksengajaan akibat terburu-buru, sesuai konteks sehari-hari."},
+{id:132,category:"literasi",question:"Bacalah paragraf berikut!\n\"Olahraga teratur menyehatkan jantung. Selain itu, olahraga juga memperbaiki suasana hati dan kualitas tidur. Sayangnya, banyak orang mengabaikan manfaat ini.\"\n\nKalimat yang menyatakan fakta pada paragraf tersebut adalah ...",choices:["Sayangnya, banyak orang mengabaikan manfaat ini.","Olahraga teratur menyehatkan jantung.","Menurutku olahraga membosankan.","Olahraga sebaiknya dihindari."],answer:1,explanation:"Kalimat \"olahraga teratur menyehatkan jantung\" merupakan fakta yang dapat dibuktikan secara ilmiah."},
+{id:133,category:"literasi",question:"Cermati kalimat berikut!\n\"Bukannya membantu, kehadiran mereka malah menambah kekacauan.\"\n\nMakna kalimat tersebut adalah ...",choices:["Mereka sangat membantu menyelesaikan masalah.","Kehadiran mereka justru memperburuk keadaan.","Mereka tidak hadir sama sekali.","Kekacauan berhasil diatasi berkat mereka."],answer:1,explanation:"Frasa \"bukannya... malah...\" menunjukkan hasil yang berlawanan dengan harapan, yaitu memperburuk keadaan."},
+{id:134,category:"literasi",question:"Bacalah teks berikut!\n\"Koperasi sekolah menjual alat tulis dengan harga terjangkau. Keuntungannya digunakan untuk kegiatan siswa. Semua anggota berhak ikut mengelola dan menikmati hasilnya.\"\n\nNilai yang terkandung dalam teks tersebut adalah ...",choices:["Persaingan usaha","Kebersamaan dan gotong royong","Mencari keuntungan pribadi","Menghindari tanggung jawab"],answer:1,explanation:"Pengelolaan dan hasil yang dinikmati bersama mencerminkan nilai kebersamaan dan gotong royong."},
+{id:135,category:"literasi",question:"Perhatikan kalimat berikut!\n\"Novel setebal 300 halaman itu berhasil ia baca hanya dalam dua hari.\"\n\nInformasi yang tepat sesuai kalimat tersebut adalah ...",choices:["Novel itu tipis dan mudah dibaca.","Ia membaca novel tebal dalam waktu singkat.","Ia membutuhkan waktu lama membaca novel.","Novel itu tidak selesai dibaca."],answer:1,explanation:"Novel 300 halaman (tebal) yang selesai dalam dua hari menunjukkan ia membaca dengan cepat/waktu singkat."},
+
+/* ---------- NUMERASI (Lanjutan, id 136-170) ---------- */
+{id:136,category:"numerasi",question:"Hasil dari 3.204 : 12 × 5 adalah ...",choices:["1.335","1.235","267","1.535"],answer:0,explanation:"Kerjakan dari kiri: 3.204 : 12 = 267, lalu 267 × 5 = 1.335."},
+{id:137,category:"numerasi",question:"Hasil dari 3/4 + 2/3 − 5/6 adalah ...",choices:["7/12","5/12","1/2","11/12"],answer:0,explanation:"Samakan penyebut ke 12: 9/12 + 8/12 − 10/12 = 7/12."},
+{id:138,category:"numerasi",question:"Hasil dari 2 1/2 × 1 3/5 adalah ...",choices:["3","4","3 1/2","4 1/2"],answer:1,explanation:"Ubah ke pecahan biasa: 5/2 × 8/5 = 40/10 = 4."},
+{id:139,category:"numerasi",question:"Bentuk persen dari pecahan 7/20 adalah ...",choices:["25%","30%","35%","40%"],answer:2,explanation:"7/20 = 35/100 = 35%."},
+{id:140,category:"numerasi",question:"KPK dari 8, 12, dan 15 adalah ...",choices:["60","90","120","240"],answer:2,explanation:"Faktorisasi: 8=2³, 12=2²·3, 15=3·5. KPK = 2³·3·5 = 120."},
+{id:141,category:"numerasi",question:"Sebuah bak mandi berbentuk kubus dengan rusuk 60 cm. Volume bak dalam liter adalah ...",choices:["216 liter","21,6 liter","2.160 liter","2,16 liter"],answer:0,explanation:"Volume = 60³ = 216.000 cm³. Karena 1 liter = 1.000 cm³, maka = 216 liter."},
+{id:142,category:"numerasi",question:"Luas daerah lingkaran dengan jari-jari 14 cm (π = 22/7) adalah ...",choices:["616 cm²","44 cm²","88 cm²","1.232 cm²"],answer:0,explanation:"Luas = π × r² = 22/7 × 14 × 14 = 22 × 28 = 616 cm²."},
+{id:143,category:"numerasi",question:"Keliling lingkaran dengan diameter 28 cm (π = 22/7) adalah ...",choices:["44 cm","88 cm","66 cm","176 cm"],answer:1,explanation:"Keliling = π × d = 22/7 × 28 = 88 cm."},
+{id:144,category:"numerasi",question:"Sebuah mobil berangkat pukul 07.15 dengan kecepatan 60 km/jam. Jika jarak tempuh 150 km, mobil tiba pukul ...",choices:["09.15","09.30","09.45","10.00"],answer:2,explanation:"Waktu = 150 : 60 = 2,5 jam = 2 jam 30 menit. 07.15 + 2 jam 30 menit = 09.45."},
+{id:145,category:"numerasi",question:"Perbandingan uang Ana dan Bela adalah 3 : 5. Jika selisih uang mereka Rp40.000, jumlah uang keduanya adalah ...",choices:["Rp120.000","Rp160.000","Rp200.000","Rp100.000"],answer:1,explanation:"Selisih perbandingan = 5 − 3 = 2 bagian = Rp40.000, jadi 1 bagian = Rp20.000. Jumlah = 8 bagian = Rp160.000."},
+{id:146,category:"numerasi",question:"Sebuah barang dibeli Rp80.000 dan dijual Rp92.000. Persentase keuntungannya adalah ...",choices:["12%","15%","10%","20%"],answer:1,explanation:"Untung = Rp12.000. Persentase = 12.000/80.000 × 100% = 15%."},
+{id:147,category:"numerasi",question:"Rata-rata nilai 5 siswa adalah 78. Setelah nilai seorang siswa baru dimasukkan, rata-ratanya menjadi 80. Nilai siswa baru tersebut adalah ...",choices:["88","90","92","86"],answer:1,explanation:"Total 5 siswa = 390. Total 6 siswa = 480. Nilai siswa baru = 480 − 390 = 90."},
+{id:148,category:"numerasi",question:"Hasil dari (−8) + 15 − (−6) adalah ...",choices:["1","13","-17","7"],answer:1,explanation:"(−8) + 15 = 7, lalu 7 − (−6) = 7 + 6 = 13."},
+{id:149,category:"numerasi",question:"Sebuah kolam diisi air oleh keran dengan debit 12 liter/menit. Untuk mengisi 360 liter, waktu yang dibutuhkan adalah ...",choices:["25 menit","30 menit","35 menit","40 menit"],answer:1,explanation:"Waktu = volume : debit = 360 : 12 = 30 menit."},
+{id:150,category:"numerasi",question:"Pola bilangan: 1, 4, 9, 16, 25, ... Bilangan ke-7 adalah ...",choices:["36","42","49","64"],answer:2,explanation:"Pola bilangan kuadrat: n². Bilangan ke-7 = 7² = 49."},
+{id:151,category:"numerasi",question:"Hasil dari 144 : (6 + 2) + 3 × 4 adalah ...",choices:["30","24","21","18"],answer:0,explanation:"Kurung dulu: 6+2=8. Lalu 144:8=18 dan 3×4=12. Hasil = 18 + 12 = 30."},
+{id:152,category:"numerasi",question:"Sebuah drum berbentuk tabung memiliki jari-jari 7 cm dan tinggi 20 cm. Volumenya (π=22/7) adalah ...",choices:["3.080 cm³","440 cm³","2.080 cm³","6.160 cm³"],answer:0,explanation:"Volume tabung = π × r² × t = 22/7 × 49 × 20 = 154 × 20 = 3.080 cm³."},
+{id:153,category:"numerasi",question:"Ibu memotong kue menjadi 24 bagian sama besar. Ayah makan 1/6 bagian dan adik makan 1/4 bagian. Sisa kue adalah ... bagian.",choices:["12","14","10","16"],answer:1,explanation:"Ayah = 1/6 × 24 = 4, adik = 1/4 × 24 = 6. Terpakai 10, sisa = 24 − 10 = 14 bagian."},
+{id:154,category:"numerasi",question:"Sebuah lapangan berbentuk persegi panjang berukuran 40 m × 25 m. Di sekelilingnya ditanami pohon dengan jarak 5 m. Banyak pohon yang dibutuhkan adalah ...",choices:["24 pohon","26 pohon","28 pohon","30 pohon"],answer:1,explanation:"Keliling = 2×(40+25) = 130 m. Banyak pohon = 130 : 5 = 26 pohon."},
+{id:155,category:"numerasi",question:"Diskon berganda 20% lalu 10% untuk baju seharga Rp200.000. Harga akhir baju adalah ...",choices:["Rp140.000","Rp144.000","Rp150.000","Rp136.000"],answer:1,explanation:"Setelah diskon 20%: Rp160.000. Diskon 10% berikutnya: Rp160.000 − Rp16.000 = Rp144.000."},
+{id:156,category:"numerasi",question:"Bilangan 0,25 ; 30% ; 1/5 ; 0,3 diurutkan dari yang terbesar adalah ...",choices:["0,3 ; 30% ; 0,25 ; 1/5","30% ; 0,3 ; 0,25 ; 1/5","0,3 = 30% ; 0,25 ; 1/5","1/5 ; 0,25 ; 0,3 ; 30%"],answer:0,explanation:"Ubah ke desimal: 0,25; 0,30; 0,20; 0,30. Terbesar: 0,3 = 30%, lalu 0,25, lalu 1/5. Pilihan yang menuliskan urutan menurun dengan tepat adalah A."},
+{id:157,category:"numerasi",question:"Sebuah segitiga siku-siku memiliki panjang sisi tegak 6 cm dan 8 cm. Panjang sisi miringnya adalah ...",choices:["10 cm","12 cm","14 cm","48 cm"],answer:0,explanation:"Sisi miring = √(6² + 8²) = √(36+64) = √100 = 10 cm."},
+{id:158,category:"numerasi",question:"Jumlah dua bilangan adalah 45 dan selisihnya 9. Bilangan yang lebih besar adalah ...",choices:["18","27","24","30"],answer:1,explanation:"Bilangan besar = (45 + 9) : 2 = 54 : 2 = 27."},
+{id:159,category:"numerasi",question:"Sebuah kelas terdiri atas 40 siswa. 60% di antaranya perempuan. Banyak siswa laki-laki adalah ...",choices:["16 siswa","24 siswa","20 siswa","18 siswa"],answer:0,explanation:"Perempuan = 60% × 40 = 24. Laki-laki = 40 − 24 = 16 siswa."},
+{id:160,category:"numerasi",question:"Hasil dari 15² − 12² adalah ...",choices:["81","9","27","54"],answer:0,explanation:"15² = 225 dan 12² = 144. 225 − 144 = 81."},
+{id:161,category:"numerasi",question:"Sebuah pekerjaan dapat diselesaikan 6 orang dalam 8 hari. Jika dikerjakan 4 orang, waktu yang dibutuhkan adalah ...",choices:["10 hari","12 hari","14 hari","16 hari"],answer:1,explanation:"Total pekerjaan = 6 × 8 = 48 orang-hari. Dengan 4 orang: 48 : 4 = 12 hari."},
+{id:162,category:"numerasi",question:"Data nilai: 7, 8, 6, 9, 8, 7, 10, 8. Rata-rata data tersebut adalah ...",choices:["7,875","8,000","7,500","8,125"],answer:0,explanation:"Jumlah = 63, banyak data = 8. Rata-rata = 63 : 8 = 7,875."},
+{id:163,category:"numerasi",question:"Skala sebuah peta 1 : 250.000. Jika jarak sebenarnya 15 km, jarak pada peta adalah ...",choices:["4 cm","5 cm","6 cm","8 cm"],answer:2,explanation:"15 km = 1.500.000 cm. Jarak peta = 1.500.000 : 250.000 = 6 cm."},
+{id:164,category:"numerasi",question:"Hasil dari ∛(27) + √(49) adalah ...",choices:["10","13","16","34"],answer:0,explanation:"∛27 = 3 dan √49 = 7, jumlahnya 3 + 7 = 10."},
+{id:165,category:"numerasi",question:"Sebuah toko buka pukul 08.00 dan tutup pukul 21.00. Setiap 3 jam, lampu tokonya dicek. Berapa kali pengecekan dilakukan (termasuk saat buka)?",choices:["4 kali","5 kali","6 kali","3 kali"],answer:1,explanation:"Pengecekan pada 08.00, 11.00, 14.00, 17.00, 20.00 = 5 kali (20.00 masih dalam jam buka)."},
+{id:166,category:"numerasi",question:"Luas trapesium dengan sisi sejajar 10 cm dan 14 cm serta tinggi 8 cm adalah ...",choices:["96 cm²","192 cm²","112 cm²","48 cm²"],answer:0,explanation:"Luas = 1/2 × (10 + 14) × 8 = 1/2 × 24 × 8 = 96 cm²."},
+{id:167,category:"numerasi",question:"Harga 3 pensil dan 2 buku adalah Rp19.000. Harga 1 pensil Rp3.000. Harga 1 buku adalah ...",choices:["Rp4.000","Rp5.000","Rp6.000","Rp4.500"],answer:1,explanation:"3 pensil = Rp9.000. Sisa untuk 2 buku = Rp19.000 − Rp9.000 = Rp10.000. Harga 1 buku = Rp5.000."},
+{id:168,category:"numerasi",question:"Sebuah tangki berisi 3/4 bagian penuh, yaitu 90 liter. Kapasitas penuh tangki tersebut adalah ...",choices:["100 liter","110 liter","120 liter","135 liter"],answer:2,explanation:"Jika 3/4 = 90 liter, maka 1/4 = 30 liter. Penuh (4/4) = 4 × 30 = 120 liter."},
+{id:169,category:"numerasi",question:"Rina menabung Rp15.000 pada minggu pertama, dan setiap minggu bertambah Rp5.000. Total tabungannya pada minggu ke-4 adalah ...",choices:["Rp30.000","Rp70.000","Rp90.000","Rp60.000"],answer:2,explanation:"Tabungan tiap minggu: 15rb, 20rb, 25rb, 30rb. Total = 15+20+25+30 = Rp90.000."},
+{id:170,category:"numerasi",question:"Sebuah dadu dilempar sekali. Peluang muncul mata dadu bilangan genap adalah ...",choices:["1/6","1/3","1/2","2/3"],answer:2,explanation:"Mata dadu genap: 2, 4, 6 (3 kejadian) dari 6 kemungkinan. Peluang = 3/6 = 1/2."},
+
+/* ---------- IPA DASAR (Lanjutan, id 171-185) ---------- */
+{id:171,category:"ipa",question:"Perhatikan ciri berikut: memiliki paruh, berbulu, dan bertelur. Ciri tersebut dimiliki oleh kelompok hewan ...",choices:["Mamalia","Aves (burung)","Reptil","Amfibi"],answer:1,explanation:"Berparuh, berbulu, dan bertelur adalah ciri khas kelompok Aves (burung)."},
+{id:172,category:"ipa",question:"Urutan peredaran darah kecil pada manusia yang benar adalah ...",choices:["Jantung → seluruh tubuh → jantung","Jantung → paru-paru → jantung","Paru-paru → seluruh tubuh → paru-paru","Jantung → ginjal → jantung"],answer:1,explanation:"Peredaran darah kecil mengalirkan darah dari jantung ke paru-paru lalu kembali ke jantung."},
+{id:173,category:"ipa",question:"Saat kita menjemur pakaian basah di bawah sinar matahari, terjadi perpindahan panas secara ...",choices:["Konduksi","Konveksi","Radiasi","Evaporasi"],answer:2,explanation:"Panas matahari sampai ke pakaian tanpa medium perantara, disebut perpindahan panas secara radiasi."},
+{id:174,category:"ipa",question:"Tumbuhan kaktus dapat bertahan di gurun karena memiliki adaptasi berupa ...",choices:["Daun lebar untuk fotosintesis","Batang menyimpan air dan daun berbentuk duri","Akar yang pendek","Bunga yang besar"],answer:1,explanation:"Kaktus menyimpan air di batangnya dan daunnya berubah menjadi duri untuk mengurangi penguapan."},
+{id:175,category:"ipa",question:"Gerhana bulan terjadi ketika ...",choices:["Bulan berada di antara matahari dan bumi","Bumi berada di antara matahari dan bulan","Matahari berada di antara bumi dan bulan","Bulan menutupi matahari"],answer:1,explanation:"Gerhana bulan terjadi saat bumi berada di antara matahari dan bulan sehingga bayangan bumi menutupi bulan."},
+{id:176,category:"ipa",question:"Perubahan energi yang terjadi pada setrika listrik saat digunakan adalah ...",choices:["Energi listrik menjadi energi cahaya","Energi listrik menjadi energi panas","Energi panas menjadi energi listrik","Energi listrik menjadi energi gerak"],answer:1,explanation:"Setrika mengubah energi listrik menjadi energi panas untuk merapikan pakaian."},
+{id:177,category:"ipa",question:"Bagian tumbuhan yang berperan dalam proses penyerbukan adalah ...",choices:["Akar dan batang","Daun dan akar","Benang sari dan putik","Batang dan daun"],answer:2,explanation:"Penyerbukan adalah jatuhnya serbuk sari dari benang sari ke kepala putik."},
+{id:178,category:"ipa",question:"Jika sebuah rangkaian lampu disusun seri lalu satu lampu putus, maka ...",choices:["Semua lampu tetap menyala","Semua lampu ikut padam","Hanya lampu itu yang padam","Lampu menyala lebih terang"],answer:1,explanation:"Pada rangkaian seri, arus mengalir satu jalur. Jika satu lampu putus, seluruh rangkaian terputus dan semua lampu padam."},
+{id:179,category:"ipa",question:"Hewan yang mengalami metamorfosis sempurna adalah ...",choices:["Belalang","Kecoak","Kupu-kupu","Capung"],answer:2,explanation:"Kupu-kupu mengalami metamorfosis sempurna: telur → ulat → kepompong → kupu-kupu."},
+{id:180,category:"ipa",question:"Salah satu cara mencegah tanah longsor di daerah perbukitan adalah ...",choices:["Menebang seluruh pohon","Membuat terasering dan menanam pohon","Membangun rumah di lereng curam","Menggali tanah sebanyak-banyaknya"],answer:1,explanation:"Terasering (sengkedan) dan penghijauan memperkuat tanah dan mencegah longsor di daerah miring."},
+{id:181,category:"ipa",question:"Benda yang dapat ditarik magnet disebut benda ...",choices:["Diamagnetik","Feromagnetik","Isolator","Nonmagnetik"],answer:1,explanation:"Benda feromagnetik, seperti besi dan baja, dapat ditarik kuat oleh magnet."},
+{id:182,category:"ipa",question:"Fungsi bulu-bulu halus (silia) pada saluran pernapasan manusia adalah ...",choices:["Menghasilkan oksigen","Menyaring kotoran dan debu","Menghangatkan tubuh","Mencerna makanan"],answer:1,explanation:"Silia pada saluran pernapasan berfungsi menyaring dan menahan kotoran serta debu agar tidak masuk ke paru-paru."},
+{id:183,category:"ipa",question:"Air laut menjadi sumber utama dalam siklus air melalui proses ...",choices:["Presipitasi","Evaporasi (penguapan)","Infiltrasi","Pembekuan"],answer:1,explanation:"Panas matahari menguapkan air laut (evaporasi), yang kemudian menjadi awan dalam siklus air."},
+{id:184,category:"ipa",question:"Tulang yang berfungsi melindungi organ otak adalah ...",choices:["Tulang rusuk","Tulang tengkorak","Tulang belakang","Tulang panggul"],answer:1,explanation:"Tulang tengkorak berbentuk kokoh dan berfungsi melindungi otak dari benturan."},
+{id:185,category:"ipa",question:"Peristiwa mengembunnya uap air pada tutup panci saat memasak menunjukkan perubahan wujud dari ...",choices:["Cair ke gas","Gas ke cair","Padat ke gas","Cair ke padat"],answer:1,explanation:"Uap air (gas) yang menyentuh tutup panci dingin berubah menjadi titik-titik air (cair), disebut mengembun."},
+
+/* ---------- IPS DASAR (Lanjutan, id 186-195) ---------- */
+{id:186,category:"ips",question:"Kegiatan menyalurkan barang dari produsen ke konsumen disebut ...",choices:["Produksi","Distribusi","Konsumsi","Investasi"],answer:1,explanation:"Distribusi adalah kegiatan menyalurkan barang atau jasa dari produsen kepada konsumen."},
+{id:187,category:"ips",question:"Sumpah Pemuda yang mengikrarkan persatuan bangsa Indonesia diperingati setiap tanggal ...",choices:["17 Agustus","28 Oktober","10 November","20 Mei"],answer:1,explanation:"Sumpah Pemuda diikrarkan pada 28 Oktober 1928 dan diperingati setiap tanggal tersebut."},
+{id:188,category:"ips",question:"Indonesia terletak di antara dua benua dan dua samudra. Dua benua tersebut adalah ...",choices:["Asia dan Afrika","Asia dan Australia","Eropa dan Asia","Australia dan Amerika"],answer:1,explanation:"Indonesia terletak di antara Benua Asia dan Benua Australia serta Samudra Hindia dan Pasifik."},
+{id:189,category:"ips",question:"Koperasi yang anggotanya para petani dan bergerak di bidang pertanian termasuk jenis koperasi ...",choices:["Koperasi konsumsi","Koperasi produksi","Koperasi simpan pinjam","Koperasi sekolah"],answer:1,explanation:"Koperasi produksi beranggotakan produsen (seperti petani) yang menghasilkan barang bersama."},
+{id:190,category:"ips",question:"Perhatikan hasil bumi berikut: teh, kopi, dan sayuran. Hasil tersebut umumnya berasal dari daerah ...",choices:["Pantai","Dataran tinggi","Rawa","Gurun"],answer:1,explanation:"Teh, kopi, dan sayuran cocok tumbuh di dataran tinggi yang berhawa sejuk."},
+{id:191,category:"ips",question:"Tokoh yang dikenal sebagai Bapak Proklamator Indonesia adalah ...",choices:["Soekarno dan Mohammad Hatta","Ki Hajar Dewantara","Sudirman","R.A. Kartini"],answer:0,explanation:"Soekarno dan Mohammad Hatta memproklamasikan kemerdekaan Indonesia dan dikenal sebagai Bapak Proklamator."},
+{id:192,category:"ips",question:"Sikap yang mencerminkan pengamalan sila ketiga Pancasila adalah ...",choices:["Beribadah sesuai agama","Mengutamakan persatuan dan kebersamaan","Bermusyawarah dalam mengambil keputusan","Membantu orang miskin"],answer:1,explanation:"Sila ketiga (Persatuan Indonesia) tercermin dari sikap mengutamakan persatuan dan kebersamaan."},
+{id:193,category:"ips",question:"Kegiatan ekonomi masyarakat yang tinggal di daerah pesisir pantai umumnya adalah ...",choices:["Bertani padi di sawah","Menjadi nelayan","Berkebun teh","Menambang batu bara"],answer:1,explanation:"Masyarakat pesisir pantai umumnya bermata pencaharian sebagai nelayan karena dekat dengan laut."},
+{id:194,category:"ips",question:"Peninggalan sejarah bercorak Buddha yang terkenal di Indonesia dan menjadi warisan dunia adalah ...",choices:["Candi Prambanan","Candi Borobudur","Masjid Demak","Keraton Yogyakarta"],answer:1,explanation:"Candi Borobudur merupakan candi Buddha terbesar yang menjadi warisan dunia UNESCO."},
+{id:195,category:"ips",question:"Manfaat gotong royong dalam kehidupan bermasyarakat adalah ...",choices:["Pekerjaan menjadi lebih berat","Pekerjaan cepat selesai dan mempererat persaudaraan","Menimbulkan perpecahan","Menghabiskan banyak biaya"],answer:1,explanation:"Gotong royong membuat pekerjaan lebih ringan, cepat selesai, dan mempererat persaudaraan antarwarga."},
+
+/* ---------- PENALARAN LOGIS (Lanjutan, id 196-200) ---------- */
+{id:196,category:"logika",question:"Semua siswa yang rajin pasti lulus ujian. Doni lulus ujian. Kesimpulan yang PASTI benar adalah ...",choices:["Doni pasti siswa yang rajin","Doni tidak rajin","Belum tentu Doni rajin","Doni tidak lulus"],answer:2,explanation:"Rajin menjamin lulus, tetapi lulus tidak selalu berarti rajin (bisa karena sebab lain). Jadi belum tentu Doni rajin."},
+{id:197,category:"logika",question:"Perhatikan pola: 3, 6, 12, 24, 48, ... Dua bilangan berikutnya adalah ...",choices:["96 dan 192","72 dan 96","96 dan 144","64 dan 128"],answer:0,explanation:"Setiap bilangan dikali 2: 48×2=96, lalu 96×2=192."},
+{id:198,category:"logika",question:"Dalam sebuah lomba, Adi finis sebelum Beni. Beni finis sesudah Candra tetapi sebelum Dodi. Candra finis sebelum Adi. Urutan finis dari pertama adalah ...",choices:["Candra, Adi, Beni, Dodi","Adi, Candra, Beni, Dodi","Candra, Beni, Adi, Dodi","Adi, Beni, Candra, Dodi"],answer:0,explanation:"Candra sebelum Adi, Adi sebelum Beni, Beni sebelum Dodi. Urutan: Candra, Adi, Beni, Dodi."},
+{id:199,category:"logika",question:"Jika hari ini tanggal 28 Februari 2026 (bukan tahun kabisat), maka besok adalah tanggal ...",choices:["29 Februari 2026","1 Maret 2026","28 Maret 2026","1 April 2026"],answer:1,explanation:"Tahun 2026 bukan kabisat, sehingga Februari hanya sampai tanggal 28. Besoknya adalah 1 Maret 2026."},
+{id:200,category:"logika",question:"Perhatikan hubungan berikut: \"Buku : Membaca\". Hubungan yang sama terdapat pada pasangan ...",choices:["Pensil : Kertas","Sepeda : Mengayuh","Meja : Kayu","Sepatu : Kaki"],answer:1,explanation:"Buku adalah alat untuk membaca, sebagaimana sepeda adalah alat untuk mengayuh. Pasangan menyatakan benda dan kegiatannya."}
+
+];
+
+/* ============================================================
+   BAGIAN 4 : UTILITY (Fungsi Bantu)
+============================================================ */
+
+// Metadata setiap kategori: label, warna, emoji, kelas badge.
+const META_KATEGORI = {
+  literasi:{label:"Literasi B. Indonesia", emoji:"📖", warna:"#1cb0f6", badge:"b-literasi"},
+  numerasi:{label:"Numerasi",             emoji:"🔢", warna:"#58cc02", badge:"b-numerasi"},
+  ipa:     {label:"IPA Dasar",            emoji:"🔬", warna:"#ce82ff", badge:"b-ipa"},
+  ips:     {label:"IPS Dasar",            emoji:"🌏", warna:"#ffc800", badge:"b-ips"},
+  logika:  {label:"Penalaran Logis",      emoji:"🧩", warna:"#ff4b4b", badge:"b-logika"}
+};
+
+const HURUF = ["A","B","C","D"];
+const KUNCI_SIMPAN = "tka_sd_progress_v2";  // kunci LocalStorage (v2: 50 soal/attempt)
+const DURASI_DETIK = 120 * 60;              // total waktu = 120 menit
+
+// Setiap percobaan hanya menampilkan 50 soal dari 200 soal di bank,
+// diambil secara proporsional per kategori agar komposisi tetap seimbang.
+const KOMPOSISI_ATTEMPT = { literasi:18, numerasi:17, ipa:7, ips:5, logika:3 }; // total = 50
+
+// --- Modal konfirmasi kustom (pengganti confirm() yang diblokir iframe) ---
+function konfirmasi(pesan, ikon, onYa){
+  const lapis = document.createElement("div");
+  lapis.className = "lapis-modal";
+  lapis.innerHTML =
+    '<div class="kotak-modal">' +
+      '<div class="ikon">' + (ikon || "❓") + '</div>' +
+      '<p>' + pesan + '</p>' +
+      '<div class="baris-tombol">' +
+        '<button class="tbl tbl-abu" data-aksi="batal">Batal</button>' +
+        '<button class="tbl tbl-hijau" data-aksi="ya">Ya</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(lapis);
+  lapis.querySelector('[data-aksi="ya"]').onclick = () => { lapis.remove(); onYa(); };
+  lapis.querySelector('[data-aksi="batal"]').onclick = () => lapis.remove();
+}
+
+// --- Toast pemberitahuan singkat (pengganti alert()) ---
+function beritahu(pesan, durasi){
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = pesan;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), durasi || 2600);
+}
+
+/**
+ * Fisher-Yates Shuffle.
+ * Mengacak elemen array secara in-place lalu mengembalikannya.
+ * Digunakan untuk mengacak urutan soal maupun pilihan jawaban.
+ */
+function fisherYates(array){
+  for(let i = array.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1)); // indeks acak 0..i
+    [array[i], array[j]] = [array[j], array[i]];    // tukar posisi
+  }
+  return array;
+}
+
+// Mengubah total detik menjadi format MM:SS.
+function formatWaktu(detik){
+  const m = Math.floor(detik / 60);
+  const s = detik % 60;
+  return String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+}
+
+// Referensi elemen DOM yang sering dipakai.
+const el = (id) => document.getElementById(id);
+
+/* ============================================================
+   BAGIAN 5 : QUIZ ENGINE (Mesin Kuis)
+============================================================ */
+
+// State utama aplikasi.
+let state = {
+  soal: [],          // daftar soal yang sudah diacak + pilihan teracak
+  indeks: 0,         // nomor soal yang sedang tampil (0-based)
+  jawaban: [],       // jawaban pengguna: indeks pilihan yang dipilih / null
+  sisaDetik: DURASI_DETIK,
+  mulaiTs: null,     // timestamp mulai (untuk sinkron timer)
+  selesai: false
+};
+let timerId = null;
+
+/**
+ * Membangun set soal baru untuk satu percobaan (50 soal).
+ * - Soal diambil per kategori sesuai KOMPOSISI_ATTEMPT (proporsional).
+ * - Pemilihan & urutan soal diacak dengan Fisher-Yates, sehingga
+ *   soal yang keluar berbeda setiap kali memulai (dan setiap refresh).
+ * - Setiap pilihan jawaban juga diacak, dan indeks jawaban benar
+ *   dipetakan ulang ke posisi barunya.
+ */
+function bangunSoalAcak(){
+  // Kelompokkan bank soal berdasarkan kategori.
+  const perKategori = {};
+  BANK_SOAL.forEach(s => {
+    (perKategori[s.category] = perKategori[s.category] || []).push(s);
+  });
+
+  // Ambil sejumlah soal acak dari tiap kategori sesuai komposisi.
+  let terpilih = [];
+  Object.keys(KOMPOSISI_ATTEMPT).forEach(kat => {
+    const kolam = fisherYates((perKategori[kat] || []).slice()); // salin lalu acak
+    terpilih = terpilih.concat(kolam.slice(0, KOMPOSISI_ATTEMPT[kat]));
+  });
+
+  // Acak lagi gabungan soal agar kategori tidak berkelompok.
+  fisherYates(terpilih);
+
+  // Acak pilihan jawaban tiap soal & petakan ulang indeks jawaban benar.
+  return terpilih.map(s => {
+    const pilihan = s.choices.map((teks, i) => ({ teks, benar: i === s.answer }));
+    fisherYates(pilihan);
+    return {
+      id: s.id,
+      category: s.category,
+      question: s.question,
+      choices: pilihan.map(p => p.teks),
+      answerIndex: pilihan.findIndex(p => p.benar),
+      explanation: s.explanation
+    };
+  });
+}
+
+// Menyimpan progress ke LocalStorage (dipanggil setiap ada perubahan).
+function simpanProgress(){
+  try{
+    localStorage.setItem(KUNCI_SIMPAN, JSON.stringify(state));
+  }catch(e){ /* abaikan jika storage penuh / diblokir */ }
+}
+
+// Memuat progress dari LocalStorage. Mengembalikan true jika ada.
+function muatProgress(){
+  try{
+    const data = localStorage.getItem(KUNCI_SIMPAN);
+    if(!data) return false;
+    const parsed = JSON.parse(data);
+    if(!parsed.soal || parsed.soal.length === 0) return false;
+    state = parsed;
+    return true;
+  }catch(e){ return false; }
+}
+
+// Menghapus progress yang tersimpan.
+function hapusProgress(){
+  try{ localStorage.removeItem(KUNCI_SIMPAN); }catch(e){}
+}
+
+// Memulai kuis baru (soal & pilihan diacak ulang setiap kali dipanggil).
+function mulaiKuis(){
+  const soalAcak = bangunSoalAcak();
+  state = {
+    soal: soalAcak,
+    indeks: 0,
+    jawaban: new Array(soalAcak.length).fill(null),
+    sisaDetik: DURASI_DETIK,
+    mulaiTs: Date.now(),
+    selesai: false
+  };
+  simpanProgress();
+  masukLayarKuis();
+}
+
+// Melanjutkan kuis dari progress tersimpan.
+function lanjutkanKuis(){
+  masukLayarKuis();
+}
+
+// Menampilkan layar kuis dan menjalankan timer.
+function masukLayarKuis(){
+  tampilkanLayar("layarQuiz");
+  el("chipTimer").classList.remove("tersembunyi");
+  tampilkanSoal();
+  jalankanTimer();
+}
+
+// Merender satu soal ke dalam kartu.
+function tampilkanSoal(){
+  const s = state.soal[state.indeks];
+  const meta = META_KATEGORI[s.category];
+
+  // Badge kategori.
+  const badge = el("badgeKategori");
+  badge.textContent = meta.emoji + " " + meta.label;
+  badge.className = "badge-kategori " + meta.badge;
+
+  // Teks soal & nomor.
+  el("teksSoal").textContent = s.question;
+  el("infoNomor").textContent = "Soal " + (state.indeks + 1) + " / " + state.soal.length;
+
+  // Pilihan jawaban.
+  const wadah = el("daftarPilihan");
+  wadah.innerHTML = "";
+  s.choices.forEach((teks, i) => {
+    const btn = document.createElement("button");
+    btn.className = "pilihan" + (state.jawaban[state.indeks] === i ? " terpilih" : "");
+    btn.innerHTML = '<span class="huruf">' + HURUF[i] + '</span><span>' + teks + '</span>';
+    btn.addEventListener("click", () => pilihJawaban(i));
+    wadah.appendChild(btn);
+  });
+
+  perbaruiProgres();
+  perbaruiTombolNavigasi();
+}
+
+// Menyimpan pilihan pengguna dan menandai tombol terpilih.
+function pilihJawaban(i){
+  state.jawaban[state.indeks] = i;
+  simpanProgress();
+  // Perbarui tampilan terpilih tanpa render ulang penuh.
+  const tombol = el("daftarPilihan").querySelectorAll(".pilihan");
+  tombol.forEach((t, idx) => t.classList.toggle("terpilih", idx === i));
+  perbaruiProgres();
+}
+
+// Memperbarui progress bar dan info terjawab.
+function perbaruiProgres(){
+  const terjawab = state.jawaban.filter(j => j !== null).length;
+  const persen = (terjawab / state.soal.length) * 100;
+  el("progresBar").style.width = persen + "%";
+  el("infoTerjawab").textContent = "Terjawab: " + terjawab;
+}
+
+// Mengaktifkan/menonaktifkan tombol Previous & Next sesuai posisi.
+function perbaruiTombolNavigasi(){
+  el("tblPrev").disabled = state.indeks === 0;
+  el("tblNext").disabled = state.indeks === state.soal.length - 1;
+}
+
+// Berpindah soal dengan animasi transisi geser.
+function pindahSoal(arah){
+  const target = state.indeks + arah;
+  if(target < 0 || target >= state.soal.length) return;
+  const kartu = el("kartuSoal");
+  kartu.classList.add("keluar");
+  setTimeout(() => {
+    state.indeks = target;
+    kartu.classList.remove("keluar");
+    tampilkanSoal();
+    simpanProgress();
+  }, 180);
+}
+
+/* ---------- Timer ---------- */
+function jalankanTimer(){
+  if(timerId) clearInterval(timerId);
+  perbaruiTampilanTimer();
+  timerId = setInterval(() => {
+    state.sisaDetik--;
+    if(state.sisaDetik <= 0){
+      state.sisaDetik = 0;
+      perbaruiTampilanTimer();
+      submitKuis(true); // waktu habis -> submit otomatis
+      return;
+    }
+    perbaruiTampilanTimer();
+    if(state.sisaDetik % 15 === 0) simpanProgress(); // simpan berkala
+  }, 1000);
+}
+
+function perbaruiTampilanTimer(){
+  const chip = el("chipTimer");
+  chip.textContent = "⏱️ " + formatWaktu(state.sisaDetik);
+  chip.classList.toggle("bahaya", state.sisaDetik <= 300); // 5 menit terakhir
+}
+
+
+/* ============================================================
+   BAGIAN 6 : RESULT ENGINE (Mesin Hasil)
+============================================================ */
+
+// Menghitung hasil akhir kuis.
+function hitungHasil(){
+  let benar = 0;
+  // Statistik per kategori: {benar, total}
+  const perKategori = {literasi:{b:0,t:0},numerasi:{b:0,t:0},ipa:{b:0,t:0},ips:{b:0,t:0},logika:{b:0,t:0}};
+
+  state.soal.forEach((s, i) => {
+    const kat = perKategori[s.category];
+    kat.t++;
+    if(state.jawaban[i] === s.answerIndex){
+      benar++;
+      kat.b++;
+    }
+  });
+
+  const total = state.soal.length;
+  const salah = total - benar;
+  const skor = Math.round((benar / total) * 100); // skor 0-100
+  const persen = Math.round((benar / total) * 100);
+
+  return {benar, salah, total, skor, persen, perKategori};
+}
+
+// Menentukan grade berdasarkan skor.
+function tentukanGrade(skor){
+  if(skor >= 85) return {huruf:"A", warna:"#58cc02", pesan:"Luar biasa! Kamu sudah sangat siap menghadapi TKA. Pertahankan, ya! 🏆"};
+  if(skor >= 70) return {huruf:"B", warna:"#1cb0f6", pesan:"Bagus sekali! Sedikit lagi menuju sempurna. Terus berlatih! 💪"};
+  if(skor >= 55) return {huruf:"C", warna:"#ffc800", pesan:"Sudah cukup baik! Ayo perkuat materi yang masih lemah. Kamu bisa! 🌟"};
+  return {huruf:"D", warna:"#ff4b4b", pesan:"Jangan menyerah! Setiap latihan membuatmu lebih hebat. Coba lagi, ya! 🚀"};
+}
+
+// Menampilkan halaman hasil.
+function tampilkanHasil(){
+  const h = hitungHasil();
+  const grade = tentukanGrade(h.skor);
+
+  // Lingkaran skor.
+  el("angkaSkor").textContent = h.skor;
+  el("lingkarSkor").style.background = grade.warna;
+  el("teksGrade").textContent = "Grade " + grade.huruf;
+  el("teksGrade").style.color = grade.warna;
+
+  // Statistik.
+  el("statBenar").textContent = h.benar;
+  el("statSalah").textContent = h.salah;
+  el("statPersen").textContent = h.persen + "%";
+
+  // Motivasi.
+  el("kotakMotivasi").textContent = grade.pesan;
+
+  // Analisis per kategori (bar).
+  const wadah = el("daftarAnalisis");
+  wadah.innerHTML = "";
+  Object.keys(META_KATEGORI).forEach(kat => {
+    const m = META_KATEGORI[kat];
+    const data = h.perKategori[kat];
+    const pct = data.t ? Math.round((data.b / data.t) * 100) : 0;
+    const baris = document.createElement("div");
+    baris.className = "baris-analisis";
+    baris.innerHTML =
+      '<span class="nama">' + m.emoji + ' ' + m.label.split(" ")[0] + '</span>' +
+      '<div class="bar-luar"><div class="bar-dalam" style="width:' + pct + '%;background:' + m.warna + '"></div></div>' +
+      '<span class="pct">' + data.b + '/' + data.t + '</span>';
+    wadah.appendChild(baris);
+  });
+
+  gambarRadar(h.perKategori);
+  siapkanReview();
+
+  tampilkanLayar("layarHasil");
+  el("chipTimer").classList.add("tersembunyi");
+}
+
+// Proses submit kuis (manual atau otomatis karena waktu habis).
+function submitKuis(otomatis){
+  if(state.selesai) return;
+  if(!otomatis){
+    const terjawab = state.jawaban.filter(j => j !== null).length;
+    const belum = state.soal.length - terjawab;
+    if(belum > 0){
+      konfirmasi("Masih ada " + belum + " soal yang belum dijawab. Yakin ingin submit sekarang?", "📝",
+                 () => finalisasiSubmit(false));
+      return;
+    }
+  }
+  finalisasiSubmit(otomatis);
+}
+
+// Menuntaskan submit: hentikan timer, hapus progress, tampilkan hasil.
+function finalisasiSubmit(otomatis){
+  if(state.selesai) return;
+  state.selesai = true;
+  if(timerId) clearInterval(timerId);
+  hapusProgress();        // progress dihapus setelah selesai
+  if(otomatis) beritahu("⏰ Waktu habis! Jawabanmu otomatis dikumpulkan.");
+  tampilkanHasil();
+}
+
+/* ============================================================
+   BAGIAN 7 : CHART (Radar Chart dengan Chart.js)
+============================================================ */
+let radarInstance = null;
+
+function gambarRadar(perKategori){
+  const ctx = el("radarChart").getContext("2d");
+  const label = Object.keys(META_KATEGORI).map(k => META_KATEGORI[k].label.split(" ")[0]);
+  const nilai = Object.keys(META_KATEGORI).map(k => {
+    const d = perKategori[k];
+    return d.t ? Math.round((d.b / d.t) * 100) : 0; // persentase per kategori
+  });
+
+  if(radarInstance) radarInstance.destroy(); // hindari duplikasi chart
+
+  radarInstance = new Chart(ctx, {
+    type: "radar",
+    data: {
+      labels: label,
+      datasets: [{
+        label: "Penguasaan (%)",
+        data: nilai,
+        backgroundColor: "rgba(88,204,2,0.25)",
+        borderColor: "#58cc02",
+        borderWidth: 3,
+        pointBackgroundColor: "#1cb0f6",
+        pointRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          min: 0, max: 100,
+          ticks: { stepSize: 20, backdropColor: "transparent", font:{weight:"700"} },
+          pointLabels: { font: { size: 13, weight: "800" }, color: "#3c3c3c" },
+          grid: { color: "#e5e5e5" },
+          angleLines: { color: "#e5e5e5" }
+        }
+      },
+      plugins: { legend: { labels: { font: { weight: "800" } } } }
+    }
+  });
+}
+
+/* ============================================================
+   BAGIAN 8 : REVIEW ENGINE (Ulasan Soal)
+============================================================ */
+let filterReview = "semua";
+
+function siapkanReview(){
+  renderReview();
+  // Pasang event filter (sekali saja).
+  document.querySelectorAll(".chip-filter").forEach(chip => {
+    chip.onclick = () => {
+      filterReview = chip.dataset.filter;
+      document.querySelectorAll(".chip-filter").forEach(c => c.classList.remove("aktif"));
+      chip.classList.add("aktif");
+      renderReview();
+    };
+  });
+}
+
+function renderReview(){
+  const wadah = el("wadahReview");
+  wadah.innerHTML = "";
+
+  state.soal.forEach((s, i) => {
+    const jawabanUser = state.jawaban[i];
+    const benar = jawabanUser === s.answerIndex;
+
+    if(filterReview === "benar" && !benar) return;
+    if(filterReview === "salah" && benar) return;
+
+    const meta = META_KATEGORI[s.category];
+    const teksUser = jawabanUser === null ? "(tidak dijawab)" : HURUF[jawabanUser] + ". " + s.choices[jawabanUser];
+    const teksKunci = HURUF[s.answerIndex] + ". " + s.choices[s.answerIndex];
+
+    const item = document.createElement("div");
+    item.className = "kartu item-review";
+    item.innerHTML =
+      '<div class="kepala-review">' +
+        '<span class="no-soal ' + (benar ? "no-benar" : "no-salah") + '">' + (i + 1) + '</span>' +
+        '<span class="badge-kategori ' + meta.badge + '" style="margin:0;">' + meta.emoji + ' ' + meta.label.split(" ")[0] + '</span>' +
+      '</div>' +
+      '<p class="teks-soal" style="font-size:1rem;">' + s.question + '</p>' +
+      '<div class="jawaban-baris ' + (benar ? "j-user-benar" : "j-user-salah") + '">' +
+        (benar ? "✅" : "❌") + ' Jawabanmu: ' + teksUser + '</div>' +
+      (benar ? "" :
+        '<div class="jawaban-baris j-kunci">✔️ Jawaban benar: ' + teksKunci + '</div>') +
+      '<div class="penjelasan">💡 ' + s.explanation + '</div>';
+    wadah.appendChild(item);
+  });
+
+  if(wadah.innerHTML === ""){
+    wadah.innerHTML = '<div class="kartu" style="text-align:center;font-weight:800;">Tidak ada soal pada filter ini. 🎉</div>';
+  }
+}
+
+/* ============================================================
+   BAGIAN 9 : NAVIGASI LAYAR & EVENT
+============================================================ */
+
+// Menampilkan satu layar dan menyembunyikan lainnya.
+function tampilkanLayar(idLayar){
+  ["layarMulai","layarQuiz","layarHasil","layarReview"].forEach(id => {
+    el(id).classList.toggle("tersembunyi", id !== idLayar);
+  });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+// Saat halaman dimuat: cek apakah ada progress tersimpan.
+window.addEventListener("DOMContentLoaded", () => {
+  if(muatProgress() && !state.selesai){
+    // Tawarkan tombol lanjutkan jika ada progress yang belum selesai.
+    el("areaLanjut").classList.remove("tersembunyi");
+  }
+
+  el("tblMulai").addEventListener("click", mulaiKuis);
+  el("tblLanjut").addEventListener("click", lanjutkanKuis);
+  el("tblPrev").addEventListener("click", () => pindahSoal(-1));
+  el("tblNext").addEventListener("click", () => pindahSoal(1));
+  el("tblSubmit").addEventListener("click", () => submitKuis(false));
+  el("tblReview").addEventListener("click", () => tampilkanLayar("layarReview"));
+  el("tblKembaliHasil").addEventListener("click", () => tampilkanLayar("layarHasil"));
+
+  const ulang = () => {
+    konfirmasi("Mulai sesi baru? 50 soal akan diacak ulang dari bank soal.", "🔄", mulaiKuis);
+  };
+  el("tblUlang").addEventListener("click", ulang);
+  el("tblUlang2").addEventListener("click", ulang);
+});
+</script>
+</body>
+</html>
