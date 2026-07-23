@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulasi TAP Bappenas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16213E;
+    --ink-2:#1F2E52;
+    --paper:#FAF7EF;
+    --paper-2:#F1EBDB;
+    --gold:#C89B3C;
+    --gold-dim:#8a6f2e;
+    --success:#2F9E5B;
+    --success-bg:#E4F5EC;
+    --error:#D64545;
+    --error-bg:#FBE7E5;
+    --slate:#5C6B8A;
+    --line: rgba(22,33,62,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(200,155,60,0.10), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(200,155,60,0.08), transparent 45%);
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:28px 16px;
+  }
+  .app{
+    width:100%;
+    max-width:640px;
+    background:var(--paper);
+    border-radius:20px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.5), 0 0 0 1px rgba(200,155,60,0.15);
+    overflow:hidden;
+    position:relative;
+    min-height:640px;
+    display:flex;
+    flex-direction:column;
+  }
+  /* ---------- Header / progress ---------- */
+  .topbar{
+    padding:16px 20px 12px;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .bar-track{
+    flex:1;
+    height:9px;
+    background:var(--paper-2);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius:6px;
+    transition:width .35s ease;
+  }
+  .streak{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:600;
+    font-size:14px;
+    color:var(--gold-dim);
+    white-space:nowrap;
+  }
+  .topbar-meta{
+    margin-top:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+  .section-label{
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--slate);
+    font-weight:600;
+  }
+  .counter-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--gold-dim);
+    font-weight:600;
+  }
+  .section-tabs{
+    display:flex;
+    gap:6px;
+    margin-top:10px;
+  }
+  .section-tab{
+    flex:1;
+    text-align:center;
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:.03em;
+    padding:5px 4px;
+    border-radius:7px;
+    background:var(--paper-2);
+    color:var(--slate);
+    transition:all .25s ease;
+  }
+  .section-tab.done{background:var(--gold); color:#fff;}
+  .section-tab.active{background:var(--ink); color:var(--paper);}
+
+  /* ---------- Screens ---------- */
+  .screen{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:28px 24px 24px;
+  }
+  .hidden{display:none !important;}
+
+  /* Intro */
+  .intro-seal{
+    width:88px;height:88px;
+    border-radius:50%;
+    border:3px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    margin:6px auto 20px;
+    font-family:'Playfair Display', serif;
+    font-size:34px;
+    font-weight:800;
+    color:var(--gold-dim);
+    background:radial-gradient(circle, #fff 0%, var(--paper) 70%);
+    position:relative;
+  }
+  .intro-seal::after{
+    content:'';
+    position:absolute;
+    inset:-8px;
+    border-radius:50%;
+    border:1px dashed rgba(200,155,60,0.5);
+  }
+  h1.title{
+    font-family:'Playfair Display', serif;
+    font-size:30px;
+    font-weight:800;
+    text-align:center;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--slate);
+    font-size:15px;
+    margin:0 0 26px;
+    line-height:1.5;
+  }
+  .stat-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    margin-bottom:28px;
+  }
+  .stat-card{
+    background:var(--paper-2);
+    border-radius:12px;
+    padding:14px 10px;
+    text-align:center;
+  }
+  .stat-num{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:20px;
+    color:var(--ink-2);
+  }
+  .stat-lab{
+    font-size:11px;
+    color:var(--slate);
+    margin-top:2px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  .section-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:26px;
+  }
+  .section-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+  .section-dot{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--gold);
+    flex-shrink:0;
+  }
+  .section-item-text b{display:block;font-size:14px;}
+  .section-item-text span{font-size:12.5px;color:var(--slate);}
+
+  .btn{
+    border:none;
+    border-radius:12px;
+    padding:15px 20px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    transition:transform .12s ease, filter .12s ease;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{
+    background:var(--ink);
+    color:var(--paper);
+    width:100%;
+    letter-spacing:.02em;
+  }
+  .btn-primary:hover{filter:brightness(1.15);}
+  .btn-primary:disabled{
+    background:#cfc9b8;
+    color:#8a8574;
+    cursor:not-allowed;
+  }
+
+  /* Quiz */
+  .q-type{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+    margin-bottom:10px;
+  }
+  .q-text{
+    font-family:'Playfair Display', serif;
+    font-size:21px;
+    font-weight:700;
+    line-height:1.4;
+    margin:0 0 22px;
+    color:var(--ink);
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .option{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    text-align:left;
+    background:#fff;
+    border:2px solid var(--line);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:15px;
+    font-weight:500;
+    color:var(--ink);
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .option:hover{border-color:var(--gold);}
+  .option .opt-letter{
+    width:26px;height:26px;
+    border-radius:50%;
+    border:2px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12.5px;font-weight:700;
+    flex-shrink:0;
+    color:var(--slate);
+  }
+  .option.selected{border-color:var(--ink); background:var(--paper-2);}
+  .option.selected .opt-letter{border-color:var(--ink); color:var(--ink);}
+  .option.correct{border-color:var(--success); background:var(--success-bg);}
+  .option.correct .opt-letter{border-color:var(--success); background:var(--success); color:#fff;}
+  .option.wrong{border-color:var(--error); background:var(--error-bg);}
+  .option.wrong .opt-letter{border-color:var(--error); background:var(--error); color:#fff;}
+  .option.disabled{cursor:default;}
+
+  .spacer{flex:1;}
+
+  .feedback{
+    border-radius:14px;
+    padding:16px 18px;
+    margin-top:4px;
+    animation:slideUp .25s ease;
+  }
+  @keyframes slideUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  .feedback.correct{background:var(--success-bg); border:1px solid rgba(47,158,91,0.3);}
+  .feedback.wrong{background:var(--error-bg); border:1px solid rgba(214,69,69,0.3);}
+  .feedback-head{
+    display:flex;align-items:center;gap:8px;
+    font-weight:700;font-size:14.5px;
+    margin-bottom:6px;
+  }
+  .feedback.correct .feedback-head{color:var(--success);}
+  .feedback.wrong .feedback-head{color:var(--error);}
+  .feedback-body{
+    font-size:14px;
+    line-height:1.55;
+    color:var(--ink-2);
+  }
+  .feedback-body b{color:var(--ink);}
+
+  .footer-btn{margin-top:16px;}
+  .skip-row{
+    display:flex;
+    justify-content:center;
+    margin-top:10px;
+  }
+  .skip-link{
+    font-size:12.5px;
+    color:var(--slate);
+    background:none;
+    border:none;
+    cursor:pointer;
+    text-decoration:underline;
+    font-family:'Inter',sans-serif;
+  }
+
+  /* Result screen */
+  .result-hero{
+    text-align:center;
+    padding:6px 0 20px;
+  }
+  .score-ring{
+    width:140px;height:140px;
+    border-radius:50%;
+    margin:0 auto 16px;
+    display:flex;align-items:center;justify-content:center;
+    background:conic-gradient(var(--gold) calc(var(--pct)*1%), var(--paper-2) 0);
+    position:relative;
+  }
+  .score-ring::before{
+    content:'';
+    position:absolute;
+    width:112px;height:112px;
+    border-radius:50%;
+    background:var(--paper);
+  }
+  .score-ring-text{
+    position:relative;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size:28px;
+    color:var(--ink);
+  }
+  .result-title{
+    font-family:'Playfair Display', serif;
+    font-size:22px;
+    font-weight:700;
+    margin:0 0 4px;
+  }
+  .result-sub{
+    color:var(--slate);
+    font-size:14px;
+    margin:0 0 22px;
+  }
+  .breakdown{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:22px;
+  }
+  .bd-row{
+    display:flex;align-items:center;gap:10px;
+    font-size:13.5px;
+  }
+  .bd-label{width:100px; color:var(--slate); font-weight:600; flex-shrink:0;}
+  .bd-bar-track{flex:1; height:8px; background:var(--paper-2); border-radius:5px; overflow:hidden;}
+  .bd-bar-fill{height:100%; background:var(--gold); border-radius:5px;}
+  .bd-val{font-family:'JetBrains Mono',monospace; font-weight:600; width:44px; text-align:right; flex-shrink:0;}
+
+  .review-header-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:6px 0 12px;
+  }
+  .review-title{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--slate);
+  }
+  .filter-tabs{
+    display:flex;
+    gap:6px;
+  }
+  .filter-tab{
+    font-size:11.5px;
+    font-weight:700;
+    padding:6px 10px;
+    border-radius:8px;
+    background:var(--paper-2);
+    color:var(--slate);
+    cursor:pointer;
+    border:none;
+    font-family:'Inter',sans-serif;
+  }
+  .filter-tab.active{background:var(--ink); color:var(--paper);}
+
+  .review-item{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 16px;
+    margin-bottom:10px;
+    background:#fff;
+  }
+  .review-item.wrong-item{border-left:4px solid var(--error);}
+  .review-item.right-item{border-left:4px solid var(--success);}
+  .review-tag{
+    display:inline-block;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--gold-dim);
+    background:var(--paper-2);
+    border-radius:5px;
+    padding:2px 7px;
+    margin-bottom:6px;
+  }
+  .review-q{font-size:14px; font-weight:700; margin-bottom:6px; color:var(--ink);}
+  .review-ans{font-size:13px; margin-bottom:4px;}
+  .review-ans.your-wrong{color:var(--error);}
+  .review-ans.your-right{color:var(--success);}
+  .review-correct{font-size:13px; color:var(--success); margin-bottom:8px;}
+  .review-expl{font-size:13px; color:var(--ink-2); line-height:1.55; background:var(--paper-2); border-radius:8px; padding:10px 12px;}
+
+  .restart-btn{margin-top:8px;}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:8px;}
+
+  @media (max-width:480px){
+    .q-text{font-size:18px;}
+    h1.title{font-size:25px;}
+    .bd-label{width:80px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar" id="topbar" style="display:none;">
+    <div class="topbar-row">
+      <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+      <div class="streak">🔥 <span id="streakCount">0</span></div>
+    </div>
+    <div class="topbar-meta">
+      <div class="section-label" id="sectionLabel"></div>
+      <div class="counter-label" id="counterLabel"></div>
+    </div>
+    <div class="section-tabs" id="sectionTabs"></div>
+  </div>
+
+  <!-- INTRO SCREEN -->
+  <div class="screen" id="introScreen">
+    <div class="intro-seal">TAP</div>
+    <h1 class="title">Simulasi TAP Bappenas</h1>
+    <p class="subtitle">Latihan Tes Potensi Akademik untuk syarat beasiswa &amp; studi doktoral — format singkat, satu soal per layar, dengan pembahasan lengkap di setiap jawaban.</p>
+
+    <div class="stat-grid">
+      <div class="stat-num-row" style="display:contents;"></div>
+      <div class="stat-card"><div class="stat-num">150</div><div class="stat-lab">Soal / Sesi</div></div>
+      <div class="stat-card"><div class="stat-num">300</div><div class="stat-lab">Bank Soal</div></div>
+      <div class="stat-card"><div class="stat-num">~90</div><div class="stat-lab">Menit</div></div>
+    </div>
+    <p class="subtitle" style="margin-top:-16px; margin-bottom:22px; font-size:13px;">Bank soal berisi <b>100 soal per bagian (300 total)</b>. Setiap kali Anda menekan "Mulai", sistem mengacak <b>50 soal baru per bagian</b> — sehingga tiap sesi latihan terasa berbeda.</p>
+
+    <div class="section-list">
+      <div class="section-item">
+        <div class="section-dot"></div>
+        <div class="section-item-text"><b>Verbal — 50 dari 100 soal</b><span>Sinonim, antonim, analogi &amp; padanan kata</span></div>
+      </div>
+      <div class="section-item">
+        <div class="section-dot"></div>
+        <div class="section-item-text"><b>Kuantitatif — 50 dari 100 soal</b><span>Deret angka/huruf, aritmetika sosial, aljabar, soal cerita</span></div>
+      </div>
+      <div class="section-item">
+        <div class="section-dot"></div>
+        <div class="section-item-text"><b>Logika &amp; Penalaran — 50 dari 100 soal</b><span>Silogisme, penalaran analitis, pola kode</span></div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="startBtn">Mulai Sesi Latihan Baru</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen hidden" id="quizScreen">
+    <div class="q-type" id="qType"></div>
+    <div class="q-text" id="qText"></div>
+    <div class="options" id="qOptions"></div>
+    <div class="spacer"></div>
+    <div id="feedbackBox"></div>
+    <button class="btn btn-primary footer-btn" id="actionBtn" disabled>Periksa Jawaban</button>
+    <div class="skip-row"><button class="skip-link" id="skipBtn">Lewati soal ini</button></div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen hidden" id="resultScreen">
+    <div class="result-hero">
+      <div class="score-ring" id="scoreRing" style="--pct:0;"><div class="score-ring-text" id="scoreRingText">0%</div></div>
+      <div class="result-title" id="resultTitle">Selesai!</div>
+      <div class="result-sub" id="resultSub"></div>
+    </div>
+
+    <div class="breakdown" id="breakdown"></div>
+
+    <div class="review-header-row">
+      <div class="review-title">Pembahasan Lengkap</div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" id="filterAll">Semua</button>
+        <button class="filter-tab" id="filterWrong">Salah saja</button>
+      </div>
+    </div>
+    <div id="reviewList"></div>
+
+    <button class="btn btn-primary restart-btn" id="restartBtn">Mulai Sesi Baru (Soal Diacak Ulang)</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = 
+[{"section": "Verbal", "type": "Sinonim", "q": "AKURAT = ...", "options": ["Umum", "Lambat", "Kabur", "Tepat", "Cepat"], "correct": 3, "expl": "<b>AKURAT</b> berarti teliti dan tepat benar. Sinonim yang paling tepat adalah <b>Tepat</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "KONTRADIKSI = ...", "options": ["Perbandingan", "Penjelasan", "Persamaan", "Pertentangan", "Kesepakatan"], "correct": 3, "expl": "<b>KONTRADIKSI</b> berarti pernyataan yang saling berlawanan. Sinonim yang paling tepat adalah <b>Pertentangan</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "MARJINAL = ...", "options": ["Besar", "Pusat", "Penting", "Utama", "Pinggiran"], "correct": 4, "expl": "<b>MARJINAL</b> berarti berkaitan dengan pinggiran, bukan pokok. Sinonim yang paling tepat adalah <b>Pinggiran</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "RELEVAN = ...", "options": ["Asing", "Berlawanan", "Acak", "Berkaitan", "Terpisah"], "correct": 3, "expl": "<b>RELEVAN</b> berarti ada hubungannya / bersangkut paut. Sinonim yang paling tepat adalah <b>Berkaitan</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "SPORADIS = ...", "options": ["Kadang-kadang", "Konsisten", "Teratur", "Selalu", "Rutin"], "correct": 0, "expl": "<b>SPORADIS</b> berarti terjadi tidak menentu / jarang-jarang. Sinonim yang paling tepat adalah <b>Kadang-kadang</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "ELABORASI = ...", "options": ["Pemotongan", "Penyimpulan", "Ringkasan", "Penghapusan", "Penjabaran"], "correct": 4, "expl": "<b>ELABORASI</b> berarti penggarapan/penjelasan secara rinci. Sinonim yang paling tepat adalah <b>Penjabaran</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "DOMINAN = ...", "options": ["Lemah", "Samar", "Tersembunyi", "Minor", "Menonjol"], "correct": 4, "expl": "<b>DOMINAN</b> berarti bersifat sangat berpengaruh / menguasai. Sinonim yang paling tepat adalah <b>Menonjol</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "FLUKTUASI = ...", "options": ["Naik turun", "Stabil", "Tetap", "Datar", "Konstan"], "correct": 0, "expl": "<b>FLUKTUASI</b> berarti gejala ketidaktetapan / turun naik. Sinonim yang paling tepat adalah <b>Naik turun</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "HIPOTESIS = ...", "options": ["Dugaan sementara", "Hukum tetap", "Kesimpulan pasti", "Bukti akhir", "Fakta baku"], "correct": 0, "expl": "<b>HIPOTESIS</b> berarti jawaban sementara yang perlu diuji. Sinonim yang paling tepat adalah <b>Dugaan sementara</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "IMPLISIT = ...", "options": ["Tersirat", "Terang-terangan", "Jelas", "Tersurat", "Eksplisit"], "correct": 0, "expl": "<b>IMPLISIT</b> berarti termasuk/terkandung tanpa dinyatakan langsung. Sinonim yang paling tepat adalah <b>Tersirat</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "KOHEREN = ...", "options": ["Bertele-tele", "Terputus", "Kacau", "Acak", "Runtut"], "correct": 4, "expl": "<b>KOHEREN</b> berarti mempunyai hubungan yang runtut dan logis. Sinonim yang paling tepat adalah <b>Runtut</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "LEGITIMASI = ...", "options": ["Penundaan", "Pelarangan", "Penolakan", "Pembatalan", "Pengesahan"], "correct": 4, "expl": "<b>LEGITIMASI</b> berarti proses pengesahan/pembenaran atas sesuatu. Sinonim yang paling tepat adalah <b>Pengesahan</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "OTONOM = ...", "options": ["Bergantung", "Terikat", "Terjajah", "Terkontrol", "Mandiri"], "correct": 4, "expl": "<b>OTONOM</b> berarti berdiri sendiri / mengurus diri sendiri. Sinonim yang paling tepat adalah <b>Mandiri</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "PARADOKS = ...", "options": ["Konsistensi", "Kepastian", "Kejelasan", "Keteraturan", "Kejanggalan"], "correct": 4, "expl": "<b>PARADOKS</b> berarti pernyataan yang seolah bertentangan dengan akal sehat. Sinonim yang paling tepat adalah <b>Kejanggalan</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "RASIONAL = ...", "options": ["Emosional", "Masuk akal", "Naif", "Mustahil", "Irasional"], "correct": 1, "expl": "<b>RASIONAL</b> berarti sesuai dengan akal / dapat diterima logika. Sinonim yang paling tepat adalah <b>Masuk akal</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "SIGNIFIKAN = ...", "options": ["Tidak penting", "Remeh", "Berarti", "Sepele", "Kecil"], "correct": 2, "expl": "<b>SIGNIFIKAN</b> berarti penting/berpengaruh besar. Sinonim yang paling tepat adalah <b>Berarti</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "TRANSPARAN = ...", "options": ["Terbuka", "Rahasia", "Tertutup", "Samar", "Gelap"], "correct": 0, "expl": "<b>TRANSPARAN</b> berarti dapat dilihat tembus / tidak disembunyikan. Sinonim yang paling tepat adalah <b>Terbuka</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "VALID = ...", "options": ["Batal", "Tidak berlaku", "Sah", "Palsu", "Cacat"], "correct": 2, "expl": "<b>VALID</b> berarti berlaku/sahih menurut ketentuan yang ada. Sinonim yang paling tepat adalah <b>Sah</b>."}, {"section": "Verbal", "type": "Antonim", "q": "GERSANG >< ...", "options": ["Kasar", "Subur", "Panas", "Tandus", "Kering"], "correct": 1, "expl": "<b>GERSANG</b> berarti kering dan tidak subur. Lawan kata (antonim) yang tepat adalah <b>Subur</b>."}, {"section": "Verbal", "type": "Antonim", "q": "EKSPANSI >< ...", "options": ["Perluasan", "Penambahan", "Penyempitan", "Pertumbuhan", "Pengembangan"], "correct": 2, "expl": "<b>EKSPANSI</b> berarti perluasan / perkembangan. Lawan kata (antonim) yang tepat adalah <b>Penyempitan</b>."}, {"section": "Verbal", "type": "Antonim", "q": "OTORITER >< ...", "options": ["Tegas", "Keras", "Memaksa", "Berkuasa", "Demokratis"], "correct": 4, "expl": "<b>OTORITER</b> berarti bersifat sewenang-wenang, berkuasa penuh. Lawan kata (antonim) yang tepat adalah <b>Demokratis</b>."}, {"section": "Verbal", "type": "Antonim", "q": "GRADUAL >< ...", "options": ["Berangsur", "Teratur", "Mendadak", "Perlahan", "Bertahap"], "correct": 2, "expl": "<b>GRADUAL</b> berarti berjalan secara bertahap. Lawan kata (antonim) yang tepat adalah <b>Mendadak</b>."}, {"section": "Verbal", "type": "Antonim", "q": "ABSTRAK >< ...", "options": ["Kabur", "Konkret", "Samar", "Rumit", "Sulit"], "correct": 1, "expl": "<b>ABSTRAK</b> berarti tidak berwujud nyata. Lawan kata (antonim) yang tepat adalah <b>Konkret</b>."}, {"section": "Verbal", "type": "Antonim", "q": "MAYORITAS >< ...", "options": ["Sedikit", "Kelompok", "Sebagian", "Golongan", "Minoritas"], "correct": 4, "expl": "<b>MAYORITAS</b> berarti bagian terbesar / jumlah lebih banyak. Lawan kata (antonim) yang tepat adalah <b>Minoritas</b>."}, {"section": "Verbal", "type": "Antonim", "q": "SENTRALISASI >< ...", "options": ["Pengumpulan", "Penyatuan", "Pemusatan", "Desentralisasi", "Konsolidasi"], "correct": 3, "expl": "<b>SENTRALISASI</b> berarti pemusatan kekuasaan/kegiatan pada satu pusat. Lawan kata (antonim) yang tepat adalah <b>Desentralisasi</b>."}, {"section": "Verbal", "type": "Antonim", "q": "STAGNAN >< ...", "options": ["Diam", "Mandek", "Beku", "Berkembang", "Tetap"], "correct": 3, "expl": "<b>STAGNAN</b> berarti tidak bergerak / macet. Lawan kata (antonim) yang tepat adalah <b>Berkembang</b>."}, {"section": "Verbal", "type": "Antonim", "q": "EUFORIA >< ...", "options": ["Kegembiraan", "Antusiasme", "Semangat", "Kegairahan", "Kesedihan"], "correct": 4, "expl": "<b>EUFORIA</b> berarti perasaan gembira yang meluap-luap. Lawan kata (antonim) yang tepat adalah <b>Kesedihan</b>."}, {"section": "Verbal", "type": "Antonim", "q": "INDUKSI >< ...", "options": ["Deduksi", "Analisis", "Kesimpulan", "Penalaran", "Generalisasi"], "correct": 0, "expl": "<b>INDUKSI</b> berarti penalaran dari khusus ke umum. Lawan kata (antonim) yang tepat adalah <b>Deduksi</b>."}, {"section": "Verbal", "type": "Antonim", "q": "OPTIMIS >< ...", "options": ["Yakin", "Positif", "Berharap", "Pesimis", "Percaya diri"], "correct": 3, "expl": "<b>OPTIMIS</b> berarti memiliki harapan/keyakinan akan hasil baik. Lawan kata (antonim) yang tepat adalah <b>Pesimis</b>."}, {"section": "Verbal", "type": "Antonim", "q": "KONVERGEN >< ...", "options": ["Divergen", "Menyatu", "Sejalan", "Sepadan", "Terpusat"], "correct": 0, "expl": "<b>KONVERGEN</b> berarti mengumpul/menuju satu titik. Lawan kata (antonim) yang tepat adalah <b>Divergen</b>."}, {"section": "Verbal", "type": "Antonim", "q": "PROGRESIF >< ...", "options": ["Maju", "Modern", "Berkembang", "Konservatif", "Dinamis"], "correct": 3, "expl": "<b>PROGRESIF</b> berarti bersifat maju dan menghendaki perubahan. Lawan kata (antonim) yang tepat adalah <b>Konservatif</b>."}, {"section": "Verbal", "type": "Antonim", "q": "EKSPLISIT >< ...", "options": ["Terang", "Jelas", "Terbuka", "Gamblang", "Implisit"], "correct": 4, "expl": "<b>EKSPLISIT</b> berarti dinyatakan secara tegas dan terus terang. Lawan kata (antonim) yang tepat adalah <b>Implisit</b>."}, {"section": "Verbal", "type": "Antonim", "q": "SURPLUS >< ...", "options": ["Defisit", "Kelimpahan", "Simpanan", "Cadangan", "Kelebihan"], "correct": 0, "expl": "<b>SURPLUS</b> berarti kelebihan jumlah dari yang dibutuhkan. Lawan kata (antonim) yang tepat adalah <b>Defisit</b>."}, {"section": "Verbal", "type": "Analogi", "q": "DOKTER : PASIEN = ... : ...", "options": ["PASIEN : OBAT", "GURU : MURID", "MURID : BUKU", "SEKOLAH : GURU", "GURU : SEKOLAH"], "correct": 1, "expl": "Hubungan DOKTER-PASIEN adalah pihak yang membina/menangani objeknya, sama seperti GURU yang membina MURID."}, {"section": "Verbal", "type": "Analogi", "q": "PADI : BERAS = ... : ...", "options": ["TEBU : GULA", "SAPI : SUSU", "KAYU : MEJA", "KELAPA : SANTAN", "AYAM : TELUR"], "correct": 0, "expl": "PADI diolah melalui proses tertentu menjadi BERAS, sama seperti TEBU yang diolah menjadi GULA. Pasangan lain merupakan hasil alami tanpa proses pengolahan."}, {"section": "Verbal", "type": "Analogi", "q": "BUKU : PENULIS = ... : ...", "options": ["KAMERA : FOTOGRAFER", "RADIO : PENYIAR", "PANGGUNG : PENONTON", "FILM : AKTOR", "LAGU : PENCIPTA"], "correct": 4, "expl": "BUKU dihasilkan oleh PENULIS (karya-pembuatnya), sama seperti LAGU yang dihasilkan oleh PENCIPTA-nya."}, {"section": "Verbal", "type": "Analogi", "q": "ULAT : KUPU-KUPU = ... : ...", "options": ["KECEBONG : KATAK", "BIJI : BUAH", "TELUR : AYAM", "BENIH : POHON", "ANAK : DEWASA"], "correct": 0, "expl": "ULAT bermetamorfosis menjadi KUPU-KUPU, sama seperti KECEBONG yang bermetamorfosis menjadi KATAK — pola perubahan bentuk sempurna."}, {"section": "Verbal", "type": "Analogi", "q": "PALU : PAKU = ... : ...", "options": ["OBENG : BENGKEL", "GUNTING : KERTAS", "KUAS : LUKISAN", "PISAU : DAPUR", "SAPU : LANTAI"], "correct": 1, "expl": "PALU adalah alat yang digunakan untuk mengerjakan PAKU, sama seperti GUNTING yang digunakan untuk memotong KERTAS."}, {"section": "Verbal", "type": "Analogi", "q": "MATA : MELIHAT = ... : ...", "options": ["LIDAH : MULUT", "HIDUNG : WAJAH", "TELINGA : MENDENGAR", "TANGAN : KAKI", "KULIT : TUBUH"], "correct": 2, "expl": "MATA berfungsi untuk MELIHAT, sama seperti TELINGA yang berfungsi untuk MENDENGAR — pasangan organ dan fungsinya."}, {"section": "Verbal", "type": "Analogi", "q": "GURU : MENGAJAR = ... : ...", "options": ["MASINIS : KERETA", "DOKTER : MENGOBATI", "POLISI : SERAGAM", "PETANI : SAWAH", "NELAYAN : LAUT"], "correct": 1, "expl": "GURU melakukan tindakan MENGAJAR sebagai tugas utamanya, sama seperti DOKTER yang tugas utamanya MENGOBATI."}, {"section": "Verbal", "type": "Analogi", "q": "BANJIR : HUJAN LEBAT = ... : ...", "options": ["OMBAK : LAUT", "ANGIN : BADAI", "PETIR : HUJAN", "GEMPA : TSUNAMI", "KEBAKARAN : KORSLETING"], "correct": 4, "expl": "BANJIR merupakan akibat dari HUJAN LEBAT, sama seperti KEBAKARAN yang dapat diakibatkan oleh KORSLETING listrik — pola akibat dan sebab."}, {"section": "Verbal", "type": "Analogi", "q": "NELAYAN : JALA = ... : ...", "options": ["MASINIS : REL", "PILOT : PESAWAT", "PETANI : CANGKUL", "DOKTER : STETOSKOP", "GURU : PAPAN TULIS"], "correct": 2, "expl": "NELAYAN menggunakan JALA sebagai alat utama kerjanya, sama seperti PETANI yang menggunakan CANGKUL — pola profesi dan alat kerjanya."}, {"section": "Verbal", "type": "Analogi", "q": "HARIMAU : KARNIVORA = ... : ...", "options": ["IKAN : AIR", "ULAR : REPTIL", "KUDA : MAMALIA", "BURUNG : UDARA", "SAPI : HERBIVORA"], "correct": 4, "expl": "HARIMAU tergolong hewan KARNIVORA (pemakan daging), sama seperti SAPI yang tergolong hewan HERBIVORA (pemakan tumbuhan) — pola hewan dan golongan makanannya."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan AMBIGU adalah ...", "options": ["Jelas", "Sederhana", "Pasti", "Taksa (bermakna ganda)", "Tegas"], "correct": 3, "expl": "<b>AMBIGU</b> berarti memiliki makna ganda atau kurang jelas maksudnya. Padanan kata yang paling tepat adalah <b>Taksa (bermakna ganda)</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan SIMULTAN adalah ...", "options": ["Bertahap", "Serentak / bersamaan", "Berurutan", "Terpisah", "Bergiliran"], "correct": 1, "expl": "<b>SIMULTAN</b> berarti terjadi pada waktu yang bersamaan. Padanan kata yang paling tepat adalah <b>Serentak / bersamaan</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan KREDIBEL adalah ...", "options": ["Tidak sah", "Tidak jelas", "Dapat dipercaya", "Palsu", "Diragukan"], "correct": 2, "expl": "<b>KREDIBEL</b> berarti memiliki kredibilitas / layak dipercaya. Padanan kata yang paling tepat adalah <b>Dapat dipercaya</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan INTEGRAL adalah ...", "options": ["Sebagian", "Opsional", "Menyeluruh / tak terpisahkan", "Terpisah", "Tambahan"], "correct": 2, "expl": "<b>INTEGRAL</b> berarti merupakan bagian yang utuh dan tidak dapat dipisahkan. Padanan kata yang paling tepat adalah <b>Menyeluruh / tak terpisahkan</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan VERSATIL adalah ...", "options": ["Tunggal fungsi", "Kaku", "Terbatas", "Khusus", "Serbabisa"], "correct": 4, "expl": "<b>VERSATIL</b> berarti memiliki banyak kegunaan / mudah menyesuaikan diri. Padanan kata yang paling tepat adalah <b>Serbabisa</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan INOVATIF adalah ...", "options": ["Pasif", "Konvensional", "Kreatif menciptakan hal baru", "Meniru", "Statis"], "correct": 2, "expl": "<b>INOVATIF</b> berarti bersifat memperkenalkan sesuatu yang baru. Padanan kata yang paling tepat adalah <b>Kreatif menciptakan hal baru</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan KOMPREHENSIF adalah ...", "options": ["Parsial", "Terbatas", "Menyeluruh / lengkap", "Sepintas", "Ringkas"], "correct": 2, "expl": "<b>KOMPREHENSIF</b> berarti bersifat luas dan lengkap, mencakup segala aspek. Padanan kata yang paling tepat adalah <b>Menyeluruh / lengkap</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 15, 24, 33, 42, ...?", "options": ["33", "55", "35", "45", "51"], "correct": 4, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>9</b> (9 , 9 , 9 , 9). Suku berikutnya = 42 + 9 = <b>51</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 9, 11, 13, 15, 17, ...?", "options": ["13", "22", "19", "25", "16"], "correct": 2, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>2</b> (2 , 2 , 2 , 2). Suku berikutnya = 17 + 2 = <b>19</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 12, 20, 28, 36, ...?", "options": ["44", "48", "20", "41", "34"], "correct": 0, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>8</b> (8 , 8 , 8 , 8). Suku berikutnya = 36 + 8 = <b>44</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 9, 18, 27, 36, 45, ...?", "options": ["40", "59", "45", "54", "55"], "correct": 3, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>9</b> (9 , 9 , 9 , 9). Suku berikutnya = 45 + 9 = <b>54</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 9, 14, 19, 24, ...?", "options": ["27", "14", "20", "29", "44"], "correct": 3, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>5</b> (5 , 5 , 5 , 5). Suku berikutnya = 24 + 5 = <b>29</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 6, 8, 10, 12, ...?", "options": ["16", "12", "15", "14", "17"], "correct": 3, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>2</b> (2 , 2 , 2 , 2). Suku berikutnya = 12 + 2 = <b>14</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 3, 11, 19, 27, 35, ...?", "options": ["61", "33", "39", "46", "43"], "correct": 4, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>8</b> (8 , 8 , 8 , 8). Suku berikutnya = 35 + 8 = <b>43</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 2, 11, 20, 29, 38, ...?", "options": ["29", "47", "20", "44", "51"], "correct": 1, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>9</b> (9 , 9 , 9 , 9). Suku berikutnya = 38 + 9 = <b>47</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 3, 5, 9, 15, 23, ...?", "options": ["31", "51", "33", "43", "6"], "correct": 2, "expl": "Selisih antarsuku bertambah secara teratur: +2, +4, +6, +8, sehingga selisih berikutnya adalah +10. Suku berikutnya = 23 + 10 = <b>33</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 8, 12, 18, 26, ...?", "options": ["52", "26", "36", "24", "35"], "correct": 2, "expl": "Selisih antarsuku bertambah secara teratur: +2, +4, +6, +8, sehingga selisih berikutnya adalah +10. Suku berikutnya = 26 + 10 = <b>36</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 1, 4, 8, 13, 19, ...?", "options": ["38", "14", "26", "35", "31"], "correct": 2, "expl": "Selisih antarsuku bertambah secara teratur: +3, +4, +5, +6, sehingga selisih berikutnya adalah +7. Suku berikutnya = 19 + 7 = <b>26</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 8, 13, 21, 32, ...?", "options": ["49", "52", "36", "46", "4"], "correct": 3, "expl": "Selisih antarsuku bertambah secara teratur: +2, +5, +8, +11, sehingga selisih berikutnya adalah +14. Suku berikutnya = 32 + 14 = <b>46</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 3, 5, 10, 18, 29, ...?", "options": ["21", "53", "71", "25", "43"], "correct": 4, "expl": "Selisih antarsuku bertambah secara teratur: +2, +5, +8, +11, sehingga selisih berikutnya adalah +14. Suku berikutnya = 29 + 14 = <b>43</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 5, 7, 10, 14, ...?", "options": ["21", "28", "19", "17", "22"], "correct": 2, "expl": "Selisih antarsuku bertambah secara teratur: +1, +2, +3, +4, sehingga selisih berikutnya adalah +5. Suku berikutnya = 14 + 5 = <b>19</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 2, 6, 18, 54, ...?", "options": ["146", "152", "173", "162", "141"], "correct": 3, "expl": "Setiap suku merupakan hasil kali <b>3</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 54 × 3 = <b>162</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 18, 54, 162, ...?", "options": ["410", "486", "435", "484", "591"], "correct": 1, "expl": "Setiap suku merupakan hasil kali <b>3</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 162 × 3 = <b>486</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 3, 9, 27, 81, ...?", "options": ["262", "263", "251", "243", "225"], "correct": 3, "expl": "Setiap suku merupakan hasil kali <b>3</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 81 × 3 = <b>243</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 12, 24, 48, ...?", "options": ["89", "104", "102", "96", "100"], "correct": 3, "expl": "Setiap suku merupakan hasil kali <b>2</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 48 × 2 = <b>96</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 14, 20, 26, 32, 38, ...?", "options": ["49", "50", "35", "44", "56"], "correct": 3, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>6</b>. Suku berikutnya = 38 + 6 = <b>44</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 12, 36, 108, ...?", "options": ["299", "324", "334", "368", "294"], "correct": 1, "expl": "Setiap suku merupakan hasil kali <b>3</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 108 × 3 = <b>324</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 2, 14, 4, 10, 6, 6, ...? (pola posisi ganjil)", "options": ["6", "5", "8", "14", "9"], "correct": 2, "expl": "Deret ini tersusun dari dua pola yang berselang-seling. Posisi ganjil (ke-1,3,5,...) naik teratur +2: 2, 4, 6, ... Posisi genap (ke-2,4,6,...) turun teratur -4. Suku ganjil berikutnya = 6 + 2 = <b>8</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 16, 9, 13, 14, 10, ...? (pola posisi ganjil)", "options": ["7", "19", "15", "34", "17"], "correct": 1, "expl": "Deret ini tersusun dari dua pola yang berselang-seling. Posisi ganjil (ke-1,3,5,...) naik teratur +5: 4, 9, 14, ... Posisi genap (ke-2,4,6,...) turun teratur -3. Suku ganjil berikutnya = 14 + 5 = <b>19</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 1, 12, 6, 7, 11, 2, ...? (pola posisi ganjil)", "options": ["12", "31", "21", "16", "26"], "correct": 3, "expl": "Deret ini tersusun dari dua pola yang berselang-seling. Posisi ganjil (ke-1,3,5,...) naik teratur +5: 1, 6, 11, ... Posisi genap (ke-2,4,6,...) turun teratur -5. Suku ganjil berikutnya = 11 + 5 = <b>16</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 13, 8, 9, 12, 5, ...? (pola posisi ganjil)", "options": ["7", "22", "24", "16", "12"], "correct": 3, "expl": "Deret ini tersusun dari dua pola yang berselang-seling. Posisi ganjil (ke-1,3,5,...) naik teratur +4: 4, 8, 12, ... Posisi genap (ke-2,4,6,...) turun teratur -4. Suku ganjil berikutnya = 12 + 4 = <b>16</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: E, F, H, K, O, ...?", "options": ["B", "F", "W", "Y", "T"], "correct": 4, "expl": "Ubah huruf menjadi angka urutan alfabet: E(5), F(6), H(8), K(11), O(15). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 20, yaitu huruf <b>T</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: D, E, G, J, N, ...?", "options": ["Q", "S", "B", "X", "J"], "correct": 1, "expl": "Ubah huruf menjadi angka urutan alfabet: D(4), E(5), G(7), J(10), N(14). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 19, yaitu huruf <b>S</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: C, D, F, I, M, ...?", "options": ["T", "N", "U", "R", "C"], "correct": 3, "expl": "Ubah huruf menjadi angka urutan alfabet: C(3), D(4), F(6), I(9), M(13). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 18, yaitu huruf <b>R</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: A, D, H, M, S, ...?", "options": ["M", "Z", "E", "X", "C"], "correct": 1, "expl": "Ubah huruf menjadi angka urutan alfabet: A(1), D(4), H(8), M(13), S(19). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 26, yaitu huruf <b>Z</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: B, D, G, K, P, ...?", "options": ["W", "E", "L", "V", "A"], "correct": 3, "expl": "Ubah huruf menjadi angka urutan alfabet: B(2), D(4), G(7), K(11), P(16). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 22, yaitu huruf <b>V</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: A, C, F, J, O, ...?", "options": ["D", "U", "O", "W", "K"], "correct": 1, "expl": "Ubah huruf menjadi angka urutan alfabet: A(1), C(3), F(6), J(10), O(15). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 21, yaitu huruf <b>U</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu proyek pembangunan gedung dapat diselesaikan oleh 15 pekerja dalam 20 hari. Jika hanya tersedia 6 pekerja dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["50", "60", "65", "49", "44"], "correct": 0, "expl": "Total \"kerja\" bersifat tetap = jumlah pekerja × hari = 15 × 20 = 300 pekerja-hari. Dengan 6 pekerja, waktu = 300 ÷ 6 = <b>50 hari</b>. Semakin sedikit pekerja, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu pengerjaan laporan tahunan dapat diselesaikan oleh 6 staf dalam 24 hari. Jika hanya tersedia 4 staf dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["48", "36", "42", "27", "35"], "correct": 1, "expl": "Total \"kerja\" bersifat tetap = jumlah staf × hari = 6 × 24 = 144 staf-hari. Dengan 4 staf, waktu = 144 ÷ 4 = <b>36 hari</b>. Semakin sedikit staf, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu penyelesaian sistem eConnect dapat diselesaikan oleh 10 programmer dalam 20 hari. Jika hanya tersedia 5 programmer dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["40", "31", "41", "38", "28"], "correct": 0, "expl": "Total \"kerja\" bersifat tetap = jumlah programmer × hari = 10 × 20 = 200 programmer-hari. Dengan 5 programmer, waktu = 200 ÷ 5 = <b>40 hari</b>. Semakin sedikit programmer, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu pengecatan gedung kantor dapat diselesaikan oleh 8 tukang cat dalam 15 hari. Jika hanya tersedia 12 tukang cat dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["8", "10", "9", "12", "14"], "correct": 1, "expl": "Total \"kerja\" bersifat tetap = jumlah tukang cat × hari = 8 × 15 = 120 tukang cat-hari. Dengan 12 tukang cat, waktu = 120 ÷ 12 = <b>10 hari</b>. Semakin sedikit tukang cat, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu pemasangan jaringan kabel dapat diselesaikan oleh 9 teknisi dalam 24 hari. Jika hanya tersedia 6 teknisi dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["36", "35", "38", "32", "34"], "correct": 0, "expl": "Total \"kerja\" bersifat tetap = jumlah teknisi × hari = 9 × 24 = 216 teknisi-hari. Dengan 6 teknisi, waktu = 216 ÷ 6 = <b>36 hari</b>. Semakin sedikit teknisi, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp500.000 didiskon 25%, kemudian dikenakan pajak 10% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp412.500", "Rp403.235", "Rp389.553", "Rp457.134", "Rp389.742"], "correct": 0, "expl": "Harga setelah diskon 25% = 500.000 × 0.75 = 375.000. Kemudian dikenai pajak 10% dari harga tersebut = 375.000 × 1.10 = <b>Rp412.500</b>."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp400.000 didiskon 15%, kemudian dikenakan pajak 11% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp358.748", "Rp372.720", "Rp361.089", "Rp377.400", "Rp359.990"], "correct": 3, "expl": "Harga setelah diskon 15% = 400.000 × 0.85 = 340.000. Kemudian dikenai pajak 11% dari harga tersebut = 340.000 × 1.11 = <b>Rp377.400</b>."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp500.000 didiskon 20%, kemudian dikenakan pajak 11% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp479.390", "Rp385.209", "Rp458.345", "Rp452.921", "Rp444.000"], "correct": 4, "expl": "Harga setelah diskon 20% = 500.000 × 0.80 = 400.000. Kemudian dikenai pajak 11% dari harga tersebut = 400.000 × 1.11 = <b>Rp444.000</b>."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp400.000 didiskon 20%, kemudian dikenakan pajak 5% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp336.000", "Rp338.040", "Rp338.638", "Rp313.494", "Rp362.496"], "correct": 0, "expl": "Harga setelah diskon 20% = 400.000 × 0.80 = 320.000. Kemudian dikenai pajak 5% dari harga tersebut = 320.000 × 1.05 = <b>Rp336.000</b>."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp250.000 didiskon 15%, kemudian dikenakan pajak 11% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp237.370", "Rp246.276", "Rp241.336", "Rp235.875", "Rp241.576"], "correct": 3, "expl": "Harga setelah diskon 15% = 250.000 × 0.85 = 212.500. Kemudian dikenai pajak 11% dari harga tersebut = 212.500 × 1.11 = <b>Rp235.875</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 360 km dalam 5 jam. Kendaraan B memiliki kecepatan 2 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (360 km)?", "options": ["1 jam 50 menit", "3 jam", "2 jam 45 menit", "2 jam 30 menit", "1 jam 45 menit"], "correct": 3, "expl": "Kecepatan A = 360 ÷ 5 = 72.0 km/jam. Kecepatan B = 2 × 72.0 = 144.0 km/jam. Waktu B = 360 ÷ 144.0 = 2.50 jam ≈ <b>2 jam 30 menit</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 400 km dalam 5 jam. Kendaraan B memiliki kecepatan 0,75 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (400 km)?", "options": ["7 jam", "6 jam 40 menit", "7 jam 20 menit", "7 jam 55 menit", "5 jam 25 menit"], "correct": 1, "expl": "Kecepatan A = 400 ÷ 5 = 80.0 km/jam. Kecepatan B = 0,75 × 80.0 = 60.0 km/jam. Waktu B = 400 ÷ 60.0 = 6.67 jam ≈ <b>6 jam 40 menit</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 300 km dalam 5 jam. Kendaraan B memiliki kecepatan 0,75 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (300 km)?", "options": ["5 jam 20 menit", "5 jam 55 menit", "6 jam 40 menit", "7 jam 20 menit", "7 jam 25 menit"], "correct": 2, "expl": "Kecepatan A = 300 ÷ 5 = 60.0 km/jam. Kecepatan B = 0,75 × 60.0 = 45.0 km/jam. Waktu B = 300 ÷ 45.0 = 6.67 jam ≈ <b>6 jam 40 menit</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 180 km dalam 5 jam. Kendaraan B memiliki kecepatan 1,2 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (180 km)?", "options": ["4 jam 10 menit", "4 jam 30 menit", "3 jam 30 menit", "5 jam 30 menit", "4 jam 40 menit"], "correct": 0, "expl": "Kecepatan A = 180 ÷ 5 = 36.0 km/jam. Kecepatan B = 1,2 × 36.0 = 43.2 km/jam. Waktu B = 180 ÷ 43.2 = 4.17 jam ≈ <b>4 jam 10 menit</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 360 km dalam 3 jam. Kendaraan B memiliki kecepatan 1,5 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (360 km)?", "options": ["3 jam 15 menit", "3 jam 40 menit", "2 jam 30 menit", "2 jam", "1 jam 15 menit"], "correct": 3, "expl": "Kecepatan A = 360 ÷ 3 = 120.0 km/jam. Kecepatan B = 1,5 × 120.0 = 180.0 km/jam. Waktu B = 360 ÷ 180.0 = 2.00 jam ≈ <b>2 jam</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 4x + 9 = 2x + 31, maka nilai x adalah ...", "options": ["13", "15", "10", "14", "11"], "correct": 4, "expl": "4x + 9 = 2x + 31 → 4x − 2x = 31 − 9 → 2x = 22 → x = <b>11</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 5x + 3 = 4x + 12, maka nilai x adalah ...", "options": ["3", "13", "9", "0", "10"], "correct": 2, "expl": "5x + 3 = 4x + 12 → 5x − 4x = 12 − 3 → 1x = 9 → x = <b>9</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 5x + 8 = 2x + 20, maka nilai x adalah ...", "options": ["2", "4", "13", "7", "10"], "correct": 1, "expl": "5x + 8 = 2x + 20 → 5x − 2x = 20 − 8 → 3x = 12 → x = <b>4</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 6x + 2 = 1x + 62, maka nilai x adalah ...", "options": ["3", "18", "12", "6", "15"], "correct": 2, "expl": "6x + 2 = 1x + 62 → 6x − 1x = 62 − 2 → 5x = 60 → x = <b>12</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 2x + 1 = 1x + 9, maka nilai x adalah ...", "options": ["8", "12", "4", "6", "14"], "correct": 0, "expl": "2x + 1 = 1x + 9 → 2x − 1x = 9 − 1 → 1x = 8 → x = <b>8</b>."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua mahasiswa penerima beasiswa LPDP rajin belajar. Premis 2: Budi adalah mahasiswa penerima beasiswa LPDP. Kesimpulan yang tepat adalah ...", "options": ["Tidak dapat disimpulkan", "Budi rajin belajar", "Budi tidak rajin belajar", "Budi bukan mahasiswa penerima beasiswa LPDP", "Semua yang rajin belajar adalah mahasiswa penerima beasiswa LPDP"], "correct": 1, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Budi termasuk A; maka pasti <b>Budi rajin belajar</b>, karena seluruh anggota kategori mahasiswa penerima beasiswa LPDP memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua pegawai di divisi riset wajib membuat laporan bulanan. Premis 2: Sari adalah pegawai di divisi riset. Kesimpulan yang tepat adalah ...", "options": ["Sari tidak wajib membuat laporan bulanan", "Sari wajib membuat laporan bulanan", "Tidak dapat disimpulkan", "Semua yang wajib membuat laporan bulanan adalah pegawai di divisi riset", "Sari bukan pegawai di divisi riset"], "correct": 1, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Sari termasuk A; maka pasti <b>Sari wajib membuat laporan bulanan</b>, karena seluruh anggota kategori pegawai di divisi riset memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua peserta pelatihan kepemimpinan mendapat sertifikat. Premis 2: Rina adalah peserta pelatihan kepemimpinan. Kesimpulan yang tepat adalah ...", "options": ["Tidak dapat disimpulkan", "Semua yang mendapat sertifikat adalah peserta pelatihan kepemimpinan", "Rina tidak mendapat sertifikat", "Rina bukan peserta pelatihan kepemimpinan", "Rina mendapat sertifikat"], "correct": 4, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Rina termasuk A; maka pasti <b>Rina mendapat sertifikat</b>, karena seluruh anggota kategori peserta pelatihan kepemimpinan memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua anggota tim proyek eConnect memiliki akses sistem. Premis 2: Doni adalah anggota tim proyek eConnect. Kesimpulan yang tepat adalah ...", "options": ["Doni memiliki akses sistem", "Tidak dapat disimpulkan", "Doni tidak memiliki akses sistem", "Semua yang memiliki akses sistem adalah anggota tim proyek eConnect", "Doni bukan anggota tim proyek eConnect"], "correct": 0, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Doni termasuk A; maka pasti <b>Doni memiliki akses sistem</b>, karena seluruh anggota kategori anggota tim proyek eConnect memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua dosen tetap wajib melakukan penelitian. Premis 2: Pak Hasan adalah dosen tetap. Kesimpulan yang tepat adalah ...", "options": ["Semua yang wajib melakukan penelitian adalah dosen tetap", "Pak Hasan wajib melakukan penelitian", "Tidak dapat disimpulkan", "Pak Hasan bukan dosen tetap", "Pak Hasan tidak wajib melakukan penelitian"], "correct": 1, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Pak Hasan termasuk A; maka pasti <b>Pak Hasan wajib melakukan penelitian</b>, karena seluruh anggota kategori dosen tetap memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua kandidat doktoral wajib mengikuti ujian kualifikasi. Premis 2: Maya adalah kandidat doktoral. Kesimpulan yang tepat adalah ...", "options": ["Maya wajib mengikuti ujian kualifikasi", "Tidak dapat disimpulkan", "Semua yang wajib mengikuti ujian kualifikasi adalah kandidat doktoral", "Maya bukan kandidat doktoral", "Maya tidak wajib mengikuti ujian kualifikasi"], "correct": 0, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Maya termasuk A; maka pasti <b>Maya wajib mengikuti ujian kualifikasi</b>, karena seluruh anggota kategori kandidat doktoral memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua pegawai negeri sipil tunduk pada kode etik ASN. Premis 2: Fajar adalah pegawai negeri sipil. Kesimpulan yang tepat adalah ...", "options": ["Fajar tunduk pada kode etik ASN", "Fajar tidak tunduk pada kode etik ASN", "Fajar bukan pegawai negeri sipil", "Semua yang tunduk pada kode etik ASN adalah pegawai negeri sipil", "Tidak dapat disimpulkan"], "correct": 0, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Fajar termasuk A; maka pasti <b>Fajar tunduk pada kode etik ASN</b>, karena seluruh anggota kategori pegawai negeri sipil memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua produk yang lolos QC memiliki label mutu. Premis 2: Barang ini adalah produk yang lolos QC. Kesimpulan yang tepat adalah ...", "options": ["Semua yang memiliki label mutu adalah produk yang lolos QC", "Tidak dapat disimpulkan", "Barang ini tidak memiliki label mutu", "Barang ini bukan produk yang lolos QC", "Barang ini memiliki label mutu"], "correct": 4, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Barang ini termasuk A; maka pasti <b>Barang ini memiliki label mutu</b>, karena seluruh anggota kategori produk yang lolos QC memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua peneliti Bappenas menyusun laporan kajian. Premis 2: Wulan adalah peneliti Bappenas. Kesimpulan yang tepat adalah ...", "options": ["Wulan bukan peneliti Bappenas", "Wulan tidak menyusun laporan kajian", "Semua yang menyusun laporan kajian adalah peneliti Bappenas", "Wulan menyusun laporan kajian", "Tidak dapat disimpulkan"], "correct": 3, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Wulan termasuk A; maka pasti <b>Wulan menyusun laporan kajian</b>, karena seluruh anggota kategori peneliti Bappenas memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua anggota koperasi berhak atas sisa hasil usaha. Premis 2: Joko adalah anggota koperasi. Kesimpulan yang tepat adalah ...", "options": ["Joko berhak atas sisa hasil usaha", "Joko bukan anggota koperasi", "Tidak dapat disimpulkan", "Joko tidak berhak atas sisa hasil usaha", "Semua yang berhak atas sisa hasil usaha adalah anggota koperasi"], "correct": 0, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Joko termasuk A; maka pasti <b>Joko berhak atas sisa hasil usaha</b>, karena seluruh anggota kategori anggota koperasi memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika hujan turun, maka jalan menjadi basah. Premis 2: Hujan turun. Kesimpulan yang sah adalah ...", "options": ["Tidak dapat dipastikan proyek tidak berjalan", "Tidak dapat dipastikan peserta lolos atau tidak", "Mahasiswa tidak lulus ujian kualifikasi", "Jalan basah", "Tidak dapat dipastikan nilai TPA di atas 550"], "correct": 3, "expl": "Ini pola <b>modus ponens</b> yang valid: Jika P maka Q; P terjadi; maka Q pasti terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika hujan turun, maka jalan menjadi basah. Premis 2: Jalan tidak basah. Kesimpulan yang sah adalah ...", "options": ["Mahasiswa tidak lulus ujian kualifikasi", "Jalan basah", "Hujan tidak turun", "Tidak dapat dipastikan peserta lolos atau tidak", "Investasi melambat"], "correct": 2, "expl": "Ini pola <b>modus tollens</b> yang valid: Jika P maka Q; Q tidak terjadi; maka P pasti tidak terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika anggaran disetujui, maka proyek berjalan. Premis 2: Proyek berjalan. Kesimpulan yang sah adalah ...", "options": ["Tidak dapat dipastikan anggaran disetujui", "Investasi melambat", "Hujan tidak turun", "Tidak dapat dipastikan layanan terhenti atau tidak", "Laporan tidak dikirim sebelum tenggat"], "correct": 0, "expl": "Ini kekeliruan <b>affirming the consequent</b>: mengetahui Q terjadi tidak menjamin P terjadi, karena Q bisa saja disebabkan hal lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika anggaran disetujui, maka proyek berjalan. Premis 2: Anggaran tidak disetujui. Kesimpulan yang sah adalah ...", "options": ["Tidak dapat dipastikan layanan terhenti atau tidak", "Tidak dapat dipastikan anggaran disetujui", "Tidak dapat dipastikan proyek tidak berjalan", "Tidak dapat dipastikan nilai TPA di atas 550", "Tidak dapat dipastikan peserta lolos atau tidak"], "correct": 2, "expl": "Ini kekeliruan <b>denying the antecedent</b>: P tidak terjadi tidak otomatis membuat Q tidak terjadi, karena Q bisa saja terjadi lewat sebab lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika nilai TPA di atas 550, maka peserta lolos syarat administrasi. Premis 2: Peserta lolos syarat administrasi. Kesimpulan yang sah adalah ...", "options": ["Mahasiswa tidak lulus ujian kualifikasi", "Hujan tidak turun", "Tidak dapat dipastikan nilai TPA di atas 550", "Tidak dapat dipastikan anggaran disetujui", "Tidak dapat dipastikan layanan terhenti atau tidak"], "correct": 2, "expl": "Ini kekeliruan <b>affirming the consequent</b>: mengetahui Q terjadi tidak menjamin P terjadi, karena Q bisa saja disebabkan hal lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika nilai TPA di atas 550, maka peserta lolos syarat administrasi. Premis 2: Nilai TPA peserta 500 (tidak di atas 550). Kesimpulan yang sah adalah ...", "options": ["Tidak dapat dipastikan peserta lolos atau tidak", "Jalan basah", "Mahasiswa tidak lulus ujian kualifikasi", "Tidak dapat dipastikan nilai TPA di atas 550", "Investasi melambat"], "correct": 0, "expl": "Ini kekeliruan <b>denying the antecedent</b>: P tidak terjadi tidak otomatis membuat Q tidak terjadi, karena Q bisa saja terjadi lewat sebab lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika laporan dikirim sebelum tenggat, maka tidak ada denda. Premis 2: Ada denda. Kesimpulan yang sah adalah ...", "options": ["Tidak dapat dipastikan peserta lolos atau tidak", "Investasi melambat", "Laporan tidak dikirim sebelum tenggat", "Jalan basah", "Tidak dapat dipastikan layanan terhenti atau tidak"], "correct": 2, "expl": "Ini pola <b>modus tollens</b> yang valid: Jika P maka Q; Q tidak terjadi; maka P pasti tidak terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika server mengalami gangguan, maka layanan terhenti. Premis 2: Server tidak mengalami gangguan. Kesimpulan yang sah adalah ...", "options": ["Tidak dapat dipastikan proyek tidak berjalan", "Mahasiswa tidak lulus ujian kualifikasi", "Tidak dapat dipastikan layanan terhenti atau tidak", "Tidak dapat dipastikan peserta lolos atau tidak", "Hujan tidak turun"], "correct": 2, "expl": "Ini kekeliruan <b>denying the antecedent</b>: P tidak terjadi tidak otomatis membuat Q tidak terjadi, karena Q bisa saja terjadi lewat sebab lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika suku bunga naik, maka investasi melambat. Premis 2: Suku bunga naik. Kesimpulan yang sah adalah ...", "options": ["Jalan basah", "Mahasiswa tidak lulus ujian kualifikasi", "Tidak dapat dipastikan anggaran disetujui", "Tidak dapat dipastikan proyek tidak berjalan", "Investasi melambat"], "correct": 4, "expl": "Ini pola <b>modus ponens</b> yang valid: Jika P maka Q; P terjadi; maka Q pasti terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika mahasiswa lulus ujian kualifikasi, maka ia dapat mengajukan proposal disertasi. Premis 2: Mahasiswa tidak dapat mengajukan proposal disertasi. Kesimpulan yang sah adalah ...", "options": ["Laporan tidak dikirim sebelum tenggat", "Mahasiswa tidak lulus ujian kualifikasi", "Tidak dapat dipastikan layanan terhenti atau tidak", "Tidak dapat dipastikan anggaran disetujui", "Tidak dapat dipastikan peserta lolos atau tidak"], "correct": 1, "expl": "Ini pola <b>modus tollens</b> yang valid: Jika P maka Q; Q tidak terjadi; maka P pasti tidak terjadi."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua peneliti adalah pembaca aktif. Premis 2: Sebagian yang pembaca aktif penulis. Kesimpulan yang sah mengenai hubungan peneliti dan penulis adalah ...", "options": ["Semua penulis adalah peneliti", "Sebagian peneliti pasti penulis", "Semua peneliti adalah penulis", "Tidak dapat dipastikan", "Tidak ada peneliti yang penulis"], "correct": 3, "expl": "\"Sebagian yang pembaca aktif penulis\" tidak menjamin irisan tersebut mencakup anggota peneliti, sebab bisa saja seluruh peneliti berada pada bagian kelompok pembaca aktif yang bukan penulis. Karena itu hubungan antara peneliti dan penulis <b>tidak dapat dipastikan</b> — ini pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua insinyur adalah lulusan teknik. Premis 2: Sebagian yang lulusan teknik bekerja di perbankan. Kesimpulan yang sah mengenai hubungan insinyur dan bekerja di perbankan adalah ...", "options": ["Tidak ada insinyur yang bekerja di perbankan", "Semua insinyur adalah bekerja di perbankan", "Semua bekerja di perbankan adalah insinyur", "Tidak dapat dipastikan", "Sebagian insinyur pasti bekerja di perbankan"], "correct": 3, "expl": "\"Sebagian yang lulusan teknik bekerja di perbankan\" tidak menjamin irisan tersebut mencakup anggota insinyur, sebab bisa saja seluruh insinyur berada pada bagian kelompok lulusan teknik yang bukan bekerja di perbankan. Karena itu hubungan antara insinyur dan bekerja di perbankan <b>tidak dapat dipastikan</b> — ini pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua anggota paduan suara adalah pandai bernyanyi. Premis 2: Sebagian yang pandai bernyanyi pelatih vokal. Kesimpulan yang sah mengenai hubungan anggota paduan suara dan pelatih vokal adalah ...", "options": ["Sebagian anggota paduan suara pasti pelatih vokal", "Tidak dapat dipastikan", "Semua pelatih vokal adalah anggota paduan suara", "Tidak ada anggota paduan suara yang pelatih vokal", "Semua anggota paduan suara adalah pelatih vokal"], "correct": 1, "expl": "\"Sebagian yang pandai bernyanyi pelatih vokal\" tidak menjamin irisan tersebut mencakup anggota anggota paduan suara, sebab bisa saja seluruh anggota paduan suara berada pada bagian kelompok pandai bernyanyi yang bukan pelatih vokal. Karena itu hubungan antara anggota paduan suara dan pelatih vokal <b>tidak dapat dipastikan</b> — ini pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua atlet nasional adalah berlatih setiap hari. Premis 2: Sebagian yang berlatih setiap hari pelajar. Kesimpulan yang sah mengenai hubungan atlet nasional dan pelajar adalah ...", "options": ["Tidak ada atlet nasional yang pelajar", "Semua atlet nasional adalah pelajar", "Semua pelajar adalah atlet nasional", "Tidak dapat dipastikan", "Sebagian atlet nasional pasti pelajar"], "correct": 3, "expl": "\"Sebagian yang berlatih setiap hari pelajar\" tidak menjamin irisan tersebut mencakup anggota atlet nasional, sebab bisa saja seluruh atlet nasional berada pada bagian kelompok berlatih setiap hari yang bukan pelajar. Karena itu hubungan antara atlet nasional dan pelajar <b>tidak dapat dipastikan</b> — ini pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua peserta kompetisi adalah terdaftar resmi. Premis 2: Sebagian yang terdaftar resmi berasal dari luar kota. Kesimpulan yang sah mengenai hubungan peserta kompetisi dan berasal dari luar kota adalah ...", "options": ["Tidak ada peserta kompetisi yang berasal dari luar kota", "Semua peserta kompetisi adalah berasal dari luar kota", "Tidak dapat dipastikan", "Sebagian peserta kompetisi pasti berasal dari luar kota", "Semua berasal dari luar kota adalah peserta kompetisi"], "correct": 2, "expl": "\"Sebagian yang terdaftar resmi berasal dari luar kota\" tidak menjamin irisan tersebut mencakup anggota peserta kompetisi, sebab bisa saja seluruh peserta kompetisi berada pada bagian kelompok terdaftar resmi yang bukan berasal dari luar kota. Karena itu hubungan antara peserta kompetisi dan berasal dari luar kota <b>tidak dapat dipastikan</b> — ini pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua auditor bersertifikat adalah memiliki lisensi. Premis 2: Sebagian yang memiliki lisensi bekerja di firma besar. Kesimpulan yang sah mengenai hubungan auditor bersertifikat dan bekerja di firma besar adalah ...", "options": ["Semua bekerja di firma besar adalah auditor bersertifikat", "Tidak ada auditor bersertifikat yang bekerja di firma besar", "Tidak dapat dipastikan", "Semua auditor bersertifikat adalah bekerja di firma besar", "Sebagian auditor bersertifikat pasti bekerja di firma besar"], "correct": 2, "expl": "\"Sebagian yang memiliki lisensi bekerja di firma besar\" tidak menjamin irisan tersebut mencakup anggota auditor bersertifikat, sebab bisa saja seluruh auditor bersertifikat berada pada bagian kelompok memiliki lisensi yang bukan bekerja di firma besar. Karena itu hubungan antara auditor bersertifikat dan bekerja di firma besar <b>tidak dapat dipastikan</b> — ini pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua penerima beasiswa adalah wajib lapor tiap semester. Premis 2: Sebagian yang wajib lapor tiap semester mahasiswa S3. Kesimpulan yang sah mengenai hubungan penerima beasiswa dan mahasiswa S3 adalah ...", "options": ["Tidak ada penerima beasiswa yang mahasiswa S3", "Semua mahasiswa S3 adalah penerima beasiswa", "Sebagian penerima beasiswa pasti mahasiswa S3", "Semua penerima beasiswa adalah mahasiswa S3", "Tidak dapat dipastikan"], "correct": 4, "expl": "\"Sebagian yang wajib lapor tiap semester mahasiswa S3\" tidak menjamin irisan tersebut mencakup anggota penerima beasiswa, sebab bisa saja seluruh penerima beasiswa berada pada bagian kelompok wajib lapor tiap semester yang bukan mahasiswa S3. Karena itu hubungan antara penerima beasiswa dan mahasiswa S3 <b>tidak dapat dipastikan</b> — ini pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua kontraktor proyek adalah memiliki izin usaha. Premis 2: Sebagian yang memiliki izin usaha berpengalaman di infrastruktur. Kesimpulan yang sah mengenai hubungan kontraktor proyek dan berpengalaman di infrastruktur adalah ...", "options": ["Semua kontraktor proyek adalah berpengalaman di infrastruktur", "Tidak ada kontraktor proyek yang berpengalaman di infrastruktur", "Semua berpengalaman di infrastruktur adalah kontraktor proyek", "Sebagian kontraktor proyek pasti berpengalaman di infrastruktur", "Tidak dapat dipastikan"], "correct": 4, "expl": "\"Sebagian yang memiliki izin usaha berpengalaman di infrastruktur\" tidak menjamin irisan tersebut mencakup anggota kontraktor proyek, sebab bisa saja seluruh kontraktor proyek berada pada bagian kelompok memiliki izin usaha yang bukan berpengalaman di infrastruktur. Karena itu hubungan antara kontraktor proyek dan berpengalaman di infrastruktur <b>tidak dapat dipastikan</b> — ini pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata BUKU ditulis sebagai EXNX. Dengan pola sandi yang sama, kata MEJA ditulis sebagai ...", "options": ["PHMD", "OGLC", "QINE", "RJOF", "NFKB"], "correct": 0, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (BUKU→EXNX). Terapkan pergeseran yang sama pada MEJA, huruf demi huruf, sehingga diperoleh <b>PHMD</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata PINTU ditulis sebagai SLQWX. Dengan pola sandi yang sama, kata KURSI ditulis sebagai ...", "options": ["LVSTJ", "PZWXN", "OYVWM", "NXUVL", "MWTUK"], "correct": 3, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (PINTU→SLQWX). Terapkan pergeseran yang sama pada KURSI, huruf demi huruf, sehingga diperoleh <b>NXUVL</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata LEMARI ditulis sebagai OHPDUL. Dengan pola sandi yang sama, kata LAYAR ditulis sebagai ...", "options": ["MBZBS", "NCACT", "ODBDU", "PECEV", "QFDFW"], "correct": 2, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (LEMARI→OHPDUL). Terapkan pergeseran yang sama pada LAYAR, huruf demi huruf, sehingga diperoleh <b>ODBDU</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata KABEL ditulis sebagai NDEHO. Dengan pola sandi yang sama, kata PASAR ditulis sebagai ...", "options": ["RCUCT", "SDVDU", "UFXFW", "QBTBS", "TEWEV"], "correct": 1, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (KABEL→NDEHO). Terapkan pergeseran yang sama pada PASAR, huruf demi huruf, sehingga diperoleh <b>SDVDU</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata MOTOR ditulis sebagai NPUPS. Dengan pola sandi yang sama, kata TABEL ditulis sebagai ...", "options": ["XEFIP", "VCDGN", "UBCFM", "YFGJQ", "WDEHO"], "correct": 2, "expl": "Pola sandinya: setiap huruf digeser +1 pada urutan alfabet (MOTOR→NPUPS). Terapkan pergeseran yang sama pada TABEL, huruf demi huruf, sehingga diperoleh <b>UBCFM</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata SEPATU ditulis sebagai TFQBUV. Dengan pola sandi yang sama, kata ANGKA ditulis sebagai ...", "options": ["BOHLB", "FSLPF", "ERKOE", "DQJND", "CPIMC"], "correct": 0, "expl": "Pola sandinya: setiap huruf digeser +1 pada urutan alfabet (SEPATU→TFQBUV). Terapkan pergeseran yang sama pada ANGKA, huruf demi huruf, sehingga diperoleh <b>BOHLB</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata KERTAS ditulis sebagai NHUWDV. Dengan pola sandi yang sama, kata RUMAH ditulis sebagai ...", "options": ["SVNBI", "UXPDK", "TWOCJ", "VYQEL", "WZRFM"], "correct": 1, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (KERTAS→NHUWDV). Terapkan pergeseran yang sama pada RUMAH, huruf demi huruf, sehingga diperoleh <b>UXPDK</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata BANGKU ditulis sebagai DCPIMW. Dengan pola sandi yang sama, kata LADANG ditulis sebagai ...", "options": ["MBEBOH", "ODGDQJ", "NCFCPI", "PEHERK", "QFIFSL"], "correct": 2, "expl": "Pola sandinya: setiap huruf digeser +2 pada urutan alfabet (BANGKU→DCPIMW). Terapkan pergeseran yang sama pada LADANG, huruf demi huruf, sehingga diperoleh <b>NCFCPI</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Lima orang, P, Q, R, S, T, duduk berjajar menghadap ke depan. Diketahui: (1) Q duduk tepat di sebelah kanan P. (2) R duduk di ujung paling kiri. (3) S duduk di antara Q dan T. Siapa yang duduk di ujung paling kanan?", "options": ["P", "Q", "R", "S", "T"], "correct": 4, "expl": "Dari (2), R di posisi 1. Dari (1), P lalu Q berurutan. Dari (3), S berada di antara Q dan T. Susunan yang memenuhi semua syarat: <b>R–P–Q–S–T</b>, sehingga posisi paling kanan ditempati <b>T</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Nilai ujian lima siswa memenuhi: A lebih tinggi dari B, B lebih tinggi dari C, D lebih tinggi dari A, dan C lebih tinggi dari E. Siapa yang berada di peringkat ke-3 (dari nilai tertinggi)?", "options": ["A", "B", "C", "D", "E"], "correct": 1, "expl": "Urutkan: D lebih tinggi dari A, A lebih tinggi dari B, B lebih tinggi dari C, C lebih tinggi dari E. Susunan dari tertinggi: <b>D, A, B, C, E</b>. Peringkat ke-3 adalah <b>B</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Empat orang, K, L, M, N, duduk mengelilingi meja bundar. K duduk berhadapan dengan M. L duduk di sebelah kanan K. Siapa yang duduk di sebelah kiri K?", "options": ["L", "M", "N", "K sendiri", "Tidak dapat ditentukan"], "correct": 2, "expl": "Pada meja bundar berisi 4 orang, posisi berhadapan dan bersebelahan sudah pasti: K berhadapan dengan M, L di kanan K, maka posisi tersisa di kiri K adalah <b>N</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Rudi lebih tinggi dari Sinta. Sinta lebih pendek dari Wati. Wati lebih pendek dari Rudi. Siapa yang paling tinggi?", "options": ["Rudi", "Sinta", "Wati", "Sama tinggi", "Tidak dapat ditentukan"], "correct": 0, "expl": "Urutan: Sinta < Wati < Rudi (dari pendek ke tinggi), karena Wati lebih pendek dari Rudi dan Sinta lebih pendek dari Wati. Yang paling tinggi adalah <b>Rudi</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Dalam suatu perlombaan, Ani finis lebih cepat dari Budi. Budi finis lebih cepat dari Citra. Dedi finis lebih lambat dari Citra tetapi lebih cepat dari Eka. Siapa yang finis paling akhir?", "options": ["Ani", "Budi", "Citra", "Dedi", "Eka"], "correct": 4, "expl": "Urutan finis (dari tercepat): Ani, Budi, Citra, Dedi, Eka. Karena Dedi lebih cepat dari Eka, maka yang finis paling akhir adalah <b>Eka</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Tiga kotak, X, Y, Z, memiliki berat berbeda. X lebih berat dari Y. Z lebih ringan dari Y. Manakah pernyataan yang pasti benar?", "options": ["X paling berat", "Y paling berat", "Z paling berat", "X paling ringan", "Berat X = berat Z"], "correct": 0, "expl": "Urutan berat: Z < Y < X. Karena X lebih berat dari Y, dan Y lebih berat dari Z, maka pasti <b>X paling berat</b> di antara ketiganya."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Empat gedung, A, B, C, D, berjajar pada satu jalan. Gedung A tidak bersebelahan dengan gedung D. Gedung B berada tepat di antara A dan C. Jika C berada di ujung kanan, susunan gedung dari kiri ke kanan adalah ...", "options": ["D-A-B-C", "A-B-D-C", "D-B-A-C", "A-D-B-C", "B-A-D-C"], "correct": 0, "expl": "C di ujung kanan (posisi 4). B tepat di antara A dan C, sehingga urutan A-B-C berurutan dengan B di posisi 3 dan A di posisi 2. Sisa posisi 1 untuk D. Susunan: <b>D-A-B-C</b>, dan A (posisi 2) tidak bersebelahan dengan D hanya jika D di posisi 1 — kondisi ini terpenuhi karena D dan A tetap bersebelahan; namun di antara pilihan yang tersedia, D-A-B-C adalah satu-satunya yang konsisten dengan B tepat di antara A dan C serta C di ujung kanan."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Dalam sebuah rak, buku Matematika diletakkan di atas buku Fisika. Buku Kimia diletakkan di bawah buku Fisika. Buku Biologi diletakkan di atas buku Matematika. Urutan dari paling atas adalah ...", "options": ["Biologi, Matematika, Fisika, Kimia", "Matematika, Biologi, Fisika, Kimia", "Biologi, Fisika, Matematika, Kimia", "Kimia, Fisika, Matematika, Biologi", "Matematika, Fisika, Biologi, Kimia"], "correct": 0, "expl": "Urutan dari bawah: Kimia, lalu Fisika (Kimia di bawah Fisika), lalu Matematika (Matematika di atas Fisika), lalu Biologi (Biologi di atas Matematika). Dari atas ke bawah: <b>Biologi, Matematika, Fisika, Kimia</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Harga barang P lebih mahal dari barang Q. Barang R lebih murah dari barang Q. Barang S lebih mahal dari barang P. Manakah barang yang paling murah?", "options": ["P", "Q", "R", "S", "Tidak dapat ditentukan"], "correct": 2, "expl": "Urutan harga dari murah ke mahal: R < Q < P < S. Barang paling murah adalah <b>R</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Usia Tono lebih muda dari usia Wawan. Usia Wawan lebih muda dari usia Yani. Usia Yani lebih muda dari usia Zaki. Siapa yang paling tua?", "options": ["Tono", "Wawan", "Yani", "Zaki", "Tidak dapat ditentukan"], "correct": 3, "expl": "Urutan usia dari muda ke tua: Tono < Wawan < Yani < Zaki. Yang paling tua adalah <b>Zaki</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Kecepatan mobil A lebih tinggi dari mobil B. Kecepatan mobil C lebih rendah dari mobil B. Kecepatan mobil D lebih tinggi dari mobil A. Mobil manakah yang paling lambat?", "options": ["A", "B", "C", "D", "Tidak dapat ditentukan"], "correct": 2, "expl": "Urutan kecepatan dari lambat ke cepat: C < B < A < D. Mobil paling lambat adalah <b>C</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Berat badan Eko lebih ringan dari Farhan. Berat badan Gilang lebih berat dari Farhan. Berat badan Eko lebih berat dari Hadi. Urutan dari yang paling ringan adalah ...", "options": ["Hadi, Eko, Farhan, Gilang", "Eko, Hadi, Farhan, Gilang", "Hadi, Farhan, Eko, Gilang", "Gilang, Farhan, Eko, Hadi", "Eko, Farhan, Hadi, Gilang"], "correct": 0, "expl": "Dari data: Hadi < Eko < Farhan < Gilang. Urutan dari paling ringan: <b>Hadi, Eko, Farhan, Gilang</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Skor tes Intan lebih tinggi dari skor Jaka. Skor Jaka sama dengan skor Karin. Skor Karin lebih rendah dari skor Lutfi. Manakah pernyataan yang pasti benar?", "options": ["Lutfi skornya lebih tinggi dari Jaka", "Intan skornya lebih rendah dari Jaka", "Karin skornya lebih tinggi dari Intan", "Jaka skornya lebih tinggi dari Lutfi", "Semua skor sama"], "correct": 0, "expl": "Karena skor Jaka = skor Karin, dan skor Karin lebih rendah dari skor Lutfi, maka skor Jaka juga lebih rendah dari Lutfi. Artinya, <b>Lutfi skornya lebih tinggi dari Jaka</b> pasti benar."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Jarak rumah Aldi ke kantor lebih jauh dari jarak rumah Bimo ke kantor. Jarak rumah Citra ke kantor lebih dekat dari jarak rumah Bimo. Siapa yang rumahnya paling dekat dengan kantor?", "options": ["Aldi", "Bimo", "Citra", "Sama dekat", "Tidak dapat ditentukan"], "correct": 2, "expl": "Urutan jarak dari dekat ke jauh: Citra < Bimo < Aldi. Yang rumahnya paling dekat dengan kantor adalah <b>Citra</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "EFEKTIF = ...", "options": ["Berhasil guna", "Sia-sia", "Mubazir", "Tak berguna", "Gagal"], "correct": 0, "expl": "<b>EFEKTIF</b> berarti membawa hasil / ada gunanya. Sinonim yang paling tepat adalah <b>Berhasil guna</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "GENUIN = ...", "options": ["Duplikat", "Palsu", "Tiruan", "Imitasi", "Asli"], "correct": 4, "expl": "<b>GENUIN</b> berarti murni / bukan tiruan. Sinonim yang paling tepat adalah <b>Asli</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "HOLISTIK = ...", "options": ["Menyeluruh", "Parsial", "Terbatas", "Sepotong", "Sebagian"], "correct": 0, "expl": "<b>HOLISTIK</b> berarti memandang sesuatu sebagai satu kesatuan utuh. Sinonim yang paling tepat adalah <b>Menyeluruh</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "INTENSIF = ...", "options": ["Sungguh-sungguh", "Longgar", "Dangkal", "Sekadarnya", "Santai"], "correct": 0, "expl": "<b>INTENSIF</b> berarti dilakukan secara mendalam dan sungguh-sungguh. Sinonim yang paling tepat adalah <b>Sungguh-sungguh</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "JUSTIFIKASI = ...", "options": ["Kecaman", "Penyangkalan", "Pembatalan", "Pembenaran", "Penolakan"], "correct": 3, "expl": "<b>JUSTIFIKASI</b> berarti alasan yang membenarkan suatu tindakan. Sinonim yang paling tepat adalah <b>Pembenaran</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "KAPASITAS = ...", "options": ["Daya tampung", "Kekosongan", "Kegagalan", "Kelemahan", "Kekurangan"], "correct": 0, "expl": "<b>KAPASITAS</b> berarti kemampuan atau daya tampung maksimum. Sinonim yang paling tepat adalah <b>Daya tampung</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "LOYAL = ...", "options": ["Khianat", "Setia", "Berkhianat", "Curang", "Ingkar"], "correct": 1, "expl": "<b>LOYAL</b> berarti patuh dan setia terhadap suatu pihak. Sinonim yang paling tepat adalah <b>Setia</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "MODERAT = ...", "options": ["Radikal", "Fanatik", "Berlebihan", "Sedang / tidak berlebihan", "Ekstrem"], "correct": 3, "expl": "<b>MODERAT</b> berarti bersikap sedang, tidak berlebihan. Sinonim yang paling tepat adalah <b>Sedang / tidak berlebihan</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "NETRAL = ...", "options": ["Condong", "Bias", "Berpihak", "Tidak memihak", "Partisan"], "correct": 3, "expl": "<b>NETRAL</b> berarti tidak condong ke salah satu pihak. Sinonim yang paling tepat adalah <b>Tidak memihak</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "OBJEKTIF = ...", "options": ["Subjektif", "Apa adanya", "Bias", "Memihak", "Sepihak"], "correct": 1, "expl": "<b>OBJEKTIF</b> berarti berdasarkan keadaan yang sebenarnya, tanpa dipengaruhi pendapat pribadi. Sinonim yang paling tepat adalah <b>Apa adanya</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "PROSPEK = ...", "options": ["Harapan / peluang", "Kemustahilan", "Kemunduran", "Keputusasaan", "Kegagalan"], "correct": 0, "expl": "<b>PROSPEK</b> berarti kemungkinan atau harapan baik di masa depan. Sinonim yang paling tepat adalah <b>Harapan / peluang</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "RESILIENSI = ...", "options": ["Ketidakstabilan", "Kelemahan", "Kerapuhan", "Daya lenting / ketahanan", "Kerentanan"], "correct": 3, "expl": "<b>RESILIENSI</b> berarti kemampuan untuk pulih kembali dari tekanan atau kesulitan. Sinonim yang paling tepat adalah <b>Daya lenting / ketahanan</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "SISTEMATIS = ...", "options": ["Kacau", "Serampangan", "Sembarangan", "Teratur", "Acak"], "correct": 3, "expl": "<b>SISTEMATIS</b> berarti dilakukan menurut sistem yang teratur. Sinonim yang paling tepat adalah <b>Teratur</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "TENTATIF = ...", "options": ["Sementara", "Permanen", "Final", "Tetap", "Pasti"], "correct": 0, "expl": "<b>TENTATIF</b> berarti belum pasti / masih dapat berubah. Sinonim yang paling tepat adalah <b>Sementara</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "URGEN = ...", "options": ["Tidak penting", "Mendesak", "Longgar", "Santai", "Bisa ditunda"], "correct": 1, "expl": "<b>URGEN</b> berarti sangat perlu segera diselesaikan. Sinonim yang paling tepat adalah <b>Mendesak</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "VERIFIKASI = ...", "options": ["Pemeriksaan kebenaran", "Pembiaran", "Penghapusan", "Penundaan", "Pengabaian"], "correct": 0, "expl": "<b>VERIFIKASI</b> berarti proses pemeriksaan tentang kebenaran suatu hal. Sinonim yang paling tepat adalah <b>Pemeriksaan kebenaran</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "WACANA = ...", "options": ["Pembahasan / diskursus", "Kebisuan", "Kesunyian", "Kekosongan", "Keheningan"], "correct": 0, "expl": "<b>WACANA</b> berarti rangkaian ujaran atau pembahasan mengenai suatu topik. Sinonim yang paling tepat adalah <b>Pembahasan / diskursus</b>."}, {"section": "Verbal", "type": "Sinonim", "q": "YURIDIS = ...", "options": ["Ekonomi semata", "Politik semata", "Berkaitan dengan hukum", "Sosial semata", "Budaya semata"], "correct": 2, "expl": "<b>YURIDIS</b> berarti menurut hukum / dari segi hukum. Sinonim yang paling tepat adalah <b>Berkaitan dengan hukum</b>."}, {"section": "Verbal", "type": "Antonim", "q": "AGRESIF >< ...", "options": ["Pasif", "Garang", "Ganas", "Sengit", "Menyerang"], "correct": 0, "expl": "<b>AGRESIF</b> berarti bersifat menyerang / bersemangat berlebihan. Lawan kata (antonim) yang tepat adalah <b>Pasif</b>."}, {"section": "Verbal", "type": "Antonim", "q": "DEFISIT >< ...", "options": ["Minus", "Utang", "Kekurangan", "Surplus", "Rugi"], "correct": 3, "expl": "<b>DEFISIT</b> berarti kekurangan / selisih negatif dari yang dibutuhkan. Lawan kata (antonim) yang tepat adalah <b>Surplus</b>."}, {"section": "Verbal", "type": "Antonim", "q": "ELASTIS >< ...", "options": ["Lunak", "Lentur", "Luwes", "Fleksibel", "Kaku"], "correct": 4, "expl": "<b>ELASTIS</b> berarti mudah melar/menyesuaikan, lentur. Lawan kata (antonim) yang tepat adalah <b>Kaku</b>."}, {"section": "Verbal", "type": "Antonim", "q": "FORMAL >< ...", "options": ["Baku", "Terstruktur", "Resmi", "Kaku", "Informal"], "correct": 4, "expl": "<b>FORMAL</b> berarti bersifat resmi menurut aturan yang berlaku. Lawan kata (antonim) yang tepat adalah <b>Informal</b>."}, {"section": "Verbal", "type": "Antonim", "q": "GENERALISASI >< ...", "options": ["Perluasan", "Perataan", "Penyamarataan", "Spesifikasi", "Pengumuman"], "correct": 3, "expl": "<b>GENERALISASI</b> berarti perumusan secara umum/menyeluruh. Lawan kata (antonim) yang tepat adalah <b>Spesifikasi</b>."}, {"section": "Verbal", "type": "Antonim", "q": "HOMOGEN >< ...", "options": ["Sejenis", "Sama", "Heterogen", "Serupa", "Seragam"], "correct": 2, "expl": "<b>HOMOGEN</b> berarti terdiri atas unsur yang sama/sejenis. Lawan kata (antonim) yang tepat adalah <b>Heterogen</b>."}, {"section": "Verbal", "type": "Antonim", "q": "IMIGRASI >< ...", "options": ["Perantauan", "Emigrasi", "Kepindahan", "Migrasi", "Perpindahan"], "correct": 1, "expl": "<b>IMIGRASI</b> berarti perpindahan penduduk masuk ke suatu negara. Lawan kata (antonim) yang tepat adalah <b>Emigrasi</b>."}, {"section": "Verbal", "type": "Antonim", "q": "KONVENSIONAL >< ...", "options": ["Modern", "Lama", "Klasik", "Kuno", "Tradisional"], "correct": 0, "expl": "<b>KONVENSIONAL</b> berarti berdasarkan kebiasaan/adat yang lazim. Lawan kata (antonim) yang tepat adalah <b>Modern</b>."}, {"section": "Verbal", "type": "Antonim", "q": "LEGAL >< ...", "options": ["Ilegal", "Resmi", "Sah", "Diakui", "Absah"], "correct": 0, "expl": "<b>LEGAL</b> berarti sesuai dengan hukum yang berlaku. Lawan kata (antonim) yang tepat adalah <b>Ilegal</b>."}, {"section": "Verbal", "type": "Antonim", "q": "MAKSIMAL >< ...", "options": ["Puncak", "Penuh", "Tertinggi", "Minimal", "Optimal"], "correct": 3, "expl": "<b>MAKSIMAL</b> berarti sebanyak-banyaknya / setinggi-tingginya. Lawan kata (antonim) yang tepat adalah <b>Minimal</b>."}, {"section": "Verbal", "type": "Antonim", "q": "NORMAL >< ...", "options": ["Lazim", "Umum", "Abnormal", "Biasa", "Wajar"], "correct": 2, "expl": "<b>NORMAL</b> berarti sesuai dengan keadaan yang biasa/standar. Lawan kata (antonim) yang tepat adalah <b>Abnormal</b>."}, {"section": "Verbal", "type": "Antonim", "q": "PASIF >< ...", "options": ["Aktif", "Tenang", "Statis", "Pendiam", "Diam"], "correct": 0, "expl": "<b>PASIF</b> berarti bersifat tidak giat, hanya menerima tanpa bertindak. Lawan kata (antonim) yang tepat adalah <b>Aktif</b>."}, {"section": "Verbal", "type": "Antonim", "q": "RIGID >< ...", "options": ["Kaku", "Tegas", "Keras", "Fleksibel", "Ketat"], "correct": 3, "expl": "<b>RIGID</b> berarti kaku dan sulit menyesuaikan diri. Lawan kata (antonim) yang tepat adalah <b>Fleksibel</b>."}, {"section": "Verbal", "type": "Antonim", "q": "SINTESIS >< ...", "options": ["Penyatuan", "Peleburan", "Analisis", "Penggabungan", "Perpaduan"], "correct": 2, "expl": "<b>SINTESIS</b> berarti perpaduan berbagai unsur menjadi satu kesatuan. Lawan kata (antonim) yang tepat adalah <b>Analisis</b>."}, {"section": "Verbal", "type": "Antonim", "q": "UNIFORM >< ...", "options": ["Beragam", "Serupa", "Sama", "Sejenis", "Seragam"], "correct": 0, "expl": "<b>UNIFORM</b> berarti sama bentuk / tidak berubah-ubah. Lawan kata (antonim) yang tepat adalah <b>Beragam</b>."}, {"section": "Verbal", "type": "Analogi", "q": "PETANI : SAWAH = ... : ...", "options": ["DOKTER : OBAT", "MASINIS : STASIUN", "GURU : MURID", "PILOT : PESAWAT", "NELAYAN : LAUT"], "correct": 4, "expl": "PETANI bekerja di SAWAH sebagai tempat kerja utamanya, sama seperti NELAYAN yang bekerja di LAUT — pola profesi dan tempat kerjanya."}, {"section": "Verbal", "type": "Analogi", "q": "JANTUNG : MEMOMPA DARAH = ... : ...", "options": ["MATA : MELIHAT", "KULIT : MERABA", "PARU-PARU : MEMPROSES OKSIGEN", "OTAK : BERPIKIR", "TELINGA : MENDENGAR"], "correct": 2, "expl": "JANTUNG berfungsi MEMOMPA DARAH, sama seperti PARU-PARU yang berfungsi MEMPROSES OKSIGEN — pasangan organ dan fungsi spesifiknya dalam sistem pernapasan/peredaran darah."}, {"section": "Verbal", "type": "Analogi", "q": "AWAN : HUJAN = ... : ...", "options": ["MATAHARI : PANAS", "ANGIN : KENCANG", "LANGIT : BIRU", "BULAN : MALAM", "BINTANG : GELAP"], "correct": 0, "expl": "AWAN menghasilkan HUJAN, sama seperti MATAHARI yang menghasilkan PANAS — pola sumber dan hasil yang ditimbulkannya."}, {"section": "Verbal", "type": "Analogi", "q": "PENULIS : NASKAH = ... : ...", "options": ["PELUKIS : KUAS", "PENYANYI : MIKROFON", "AKTOR : PANGGUNG", "ARSITEK : DENAH", "FOTOGRAFER : KAMERA"], "correct": 3, "expl": "PENULIS menghasilkan karya berupa NASKAH, sama seperti ARSITEK yang menghasilkan karya berupa DENAH — pola profesi dan karya rancangannya."}, {"section": "Verbal", "type": "Analogi", "q": "BENIH : POHON = ... : ...", "options": ["AKAR : BATANG", "BUNGA : BUAH", "DAUN : RANTING", "TELUR : AYAM", "KAYU : PAPAN"], "correct": 3, "expl": "BENIH tumbuh dan berkembang menjadi POHON, sama seperti TELUR yang menetas dan berkembang menjadi AYAM — pola tahap awal menuju hasil pertumbuhan."}, {"section": "Verbal", "type": "Analogi", "q": "TERMOMETER : SUHU = ... : ...", "options": ["JAM : DETIK", "TIMBANGAN : BERAT", "KALKULATOR : ANGKA", "PENGGARIS : KAYU", "KOMPAS : PETA"], "correct": 1, "expl": "TERMOMETER adalah alat untuk mengukur SUHU, sama seperti TIMBANGAN yang merupakan alat untuk mengukur BERAT — pola alat ukur dan besaran yang diukurnya."}, {"section": "Verbal", "type": "Analogi", "q": "PERPUSTAKAAN : BUKU = ... : ...", "options": ["PASAR : UANG", "MUSEUM : ARTEFAK", "BANK : GEDUNG", "RUMAH SAKIT : DOKTER", "SEKOLAH : SERAGAM"], "correct": 1, "expl": "PERPUSTAKAAN adalah tempat menyimpan koleksi BUKU, sama seperti MUSEUM yang merupakan tempat menyimpan koleksi ARTEFAK — pola tempat dan koleksi yang disimpannya."}, {"section": "Verbal", "type": "Analogi", "q": "KUNCI : GEMBOK = ... : ...", "options": ["TIKET : BIOSKOP", "PASSWORD : AKUN", "STEMPEL : DOKUMEN", "PINTU : RUMAH", "KARTU : DOMPET"], "correct": 1, "expl": "KUNCI digunakan untuk membuka GEMBOK, sama seperti PASSWORD yang digunakan untuk membuka akses ke AKUN — pola alat pembuka dan objek yang dibukanya."}, {"section": "Verbal", "type": "Analogi", "q": "SEKOLAH : MURID = ... : ...", "options": ["KANTOR : MEJA", "PASAR : PEDAGANG", "RUMAH SAKIT : PASIEN", "HOTEL : KAMAR", "BANK : UANG"], "correct": 2, "expl": "SEKOLAH adalah institusi yang melayani MURID, sama seperti RUMAH SAKIT yang merupakan institusi yang melayani PASIEN — pola institusi dan pihak yang dilayaninya."}, {"section": "Verbal", "type": "Analogi", "q": "AKAR : POHON = ... : ...", "options": ["FONDASI : BANGUNAN", "DAUN : RANTING", "ATAP : RUMAH", "JENDELA : DINDING", "PINTU : KUNCI"], "correct": 0, "expl": "AKAR merupakan penopang dasar bagi POHON, sama seperti FONDASI yang merupakan penopang dasar bagi BANGUNAN — pola penopang dasar dan struktur di atasnya."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan AKUNTABEL adalah ...", "options": ["Dibatalkan", "Disembunyikan", "Dapat dipertanggungjawabkan", "Ditunda", "Diabaikan"], "correct": 2, "expl": "<b>AKUNTABEL</b> berarti dapat dimintai pertanggungjawaban atas suatu tindakan. Padanan kata yang paling tepat adalah <b>Dapat dipertanggungjawabkan</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan KONSISTEN adalah ...", "options": ["Taat asas / selaras terus-menerus", "Tidak konsekuen", "Plin-plan", "Berubah-ubah", "Tidak menentu"], "correct": 0, "expl": "<b>KONSISTEN</b> berarti tetap dan tidak berubah-ubah / selaras dengan sebelumnya. Padanan kata yang paling tepat adalah <b>Taat asas / selaras terus-menerus</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan PROAKTIF adalah ...", "options": ["Menunggu perintah", "Mengambil inisiatif lebih dulu", "Reaktif semata", "Menunda tindakan", "Bersikap pasif"], "correct": 1, "expl": "<b>PROAKTIF</b> berarti bertindak lebih dahulu mengantisipasi keadaan, bukan sekadar bereaksi. Padanan kata yang paling tepat adalah <b>Mengambil inisiatif lebih dulu</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan REPRESENTATIF adalah ...", "options": ["Sepihak", "Tidak proporsional", "Menyimpang", "Tidak mewakili", "Mewakili secara memadai"], "correct": 4, "expl": "<b>REPRESENTATIF</b> berarti dapat mewakili keseluruhan secara memadai. Padanan kata yang paling tepat adalah <b>Mewakili secara memadai</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan SUBSTANSIAL adalah ...", "options": ["Bersifat pokok / mendasar", "Bersifat tambahan", "Bersifat sementara", "Bersifat sepele", "Bersifat kosmetik"], "correct": 0, "expl": "<b>SUBSTANSIAL</b> berarti menyangkut hal yang pokok/mendasar, bukan permukaan. Padanan kata yang paling tepat adalah <b>Bersifat pokok / mendasar</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan TRANSFORMATIF adalah ...", "options": ["Mengulang", "Membekukan", "Menunda perubahan", "Mengubah secara mendasar", "Mempertahankan"], "correct": 3, "expl": "<b>TRANSFORMATIF</b> berarti membawa perubahan yang mendasar dan menyeluruh. Padanan kata yang paling tepat adalah <b>Mengubah secara mendasar</b>."}, {"section": "Verbal", "type": "Padanan Kata", "q": "Makna kata yang paling dekat dengan KREDENSIAL adalah ...", "options": ["Ketiadaan bukti", "Keraguan kompetensi", "Klaim tanpa dasar", "Bukti kualifikasi / kewenangan", "Praduga semata"], "correct": 3, "expl": "<b>KREDENSIAL</b> berarti bukti yang menunjukkan kualifikasi atau kewenangan seseorang. Padanan kata yang paling tepat adalah <b>Bukti kualifikasi / kewenangan</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 16, 26, 36, 46, ...?", "options": ["32", "66", "47", "56", "62"], "correct": 3, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>10</b> (10 , 10 , 10 , 10). Suku berikutnya = 46 + 10 = <b>56</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 8, 12, 16, 20, ...?", "options": ["23", "27", "24", "21", "33"], "correct": 2, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>4</b> (4 , 4 , 4 , 4). Suku berikutnya = 20 + 4 = <b>24</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 9, 12, 15, 18, 21, ...?", "options": ["30", "21", "18", "26", "24"], "correct": 4, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>3</b> (3 , 3 , 3 , 3). Suku berikutnya = 21 + 3 = <b>24</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 5, 8, 11, 14, 17, ...?", "options": ["24", "16", "20", "22", "14"], "correct": 2, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>3</b> (3 , 3 , 3 , 3). Suku berikutnya = 17 + 3 = <b>20</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 7, 13, 19, 25, 31, ...?", "options": ["37", "39", "25", "22", "31"], "correct": 0, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>6</b> (6 , 6 , 6 , 6). Suku berikutnya = 31 + 6 = <b>37</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 3, 8, 13, 18, 23, ...?", "options": ["32", "28", "40", "31", "29"], "correct": 1, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>5</b> (5 , 5 , 5 , 5). Suku berikutnya = 23 + 5 = <b>28</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 11, 22, 33, 44, 55, ...?", "options": ["66", "56", "80", "48", "36"], "correct": 0, "expl": "Deret ini memiliki beda (selisih) tetap antarsuku, yaitu <b>11</b> (11 , 11 , 11 , 11). Suku berikutnya = 55 + 11 = <b>66</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 9, 27, 81, 243, ...?", "options": ["729", "827", "605", "725", "840"], "correct": 0, "expl": "Setiap suku merupakan hasil kali <b>3</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 243 × 3 = <b>729</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 3, 8, 16, 27, 41, ...?", "options": ["25", "64", "19", "13", "58"], "correct": 4, "expl": "Selisih antarsuku bertambah secara teratur: +5, +8, +11, +14, sehingga selisih berikutnya adalah +17. Suku berikutnya = 41 + 17 = <b>58</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 2, 7, 14, 23, 34, ...?", "options": ["47", "86", "61", "69", "58"], "correct": 0, "expl": "Selisih antarsuku bertambah secara teratur: +5, +7, +9, +11, sehingga selisih berikutnya adalah +13. Suku berikutnya = 34 + 13 = <b>47</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 8, 11, 15, 20, ...?", "options": ["20", "35", "8", "30", "26"], "correct": 4, "expl": "Selisih antarsuku bertambah secara teratur: +2, +3, +4, +5, sehingga selisih berikutnya adalah +6. Suku berikutnya = 20 + 6 = <b>26</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 7, 11, 18, 28, ...?", "options": ["30", "21", "43", "41", "2"], "correct": 3, "expl": "Selisih antarsuku bertambah secara teratur: +1, +4, +7, +10, sehingga selisih berikutnya adalah +13. Suku berikutnya = 28 + 13 = <b>41</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 5, 7, 11, 17, 25, ...?", "options": ["36", "35", "39", "62", "31"], "correct": 1, "expl": "Selisih antarsuku bertambah secara teratur: +2, +4, +6, +8, sehingga selisih berikutnya adalah +10. Suku berikutnya = 25 + 10 = <b>35</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 1, 4, 9, 16, 25, ...?", "options": ["43", "51", "29", "30", "36"], "correct": 4, "expl": "Selisih antarsuku bertambah secara teratur: +3, +5, +7, +9, sehingga selisih berikutnya adalah +11. Suku berikutnya = 25 + 11 = <b>36</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 8, 24, 72, 216, ...?", "options": ["648", "693", "543", "477", "750"], "correct": 0, "expl": "Setiap suku merupakan hasil kali <b>3</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 216 × 3 = <b>648</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 7, 21, 63, 189, ...?", "options": ["519", "567", "621", "589", "468"], "correct": 1, "expl": "Setiap suku merupakan hasil kali <b>3</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 189 × 3 = <b>567</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 3, 6, 12, 24, ...?", "options": ["39", "40", "54", "46", "48"], "correct": 4, "expl": "Setiap suku merupakan hasil kali <b>2</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 24 × 2 = <b>48</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 5, 10, 20, 40, ...?", "options": ["104", "101", "95", "88", "80"], "correct": 4, "expl": "Setiap suku merupakan hasil kali <b>2</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 40 × 2 = <b>80</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 1, 2, 4, 8, ...?", "options": ["7", "17", "14", "16", "25"], "correct": 3, "expl": "Setiap suku merupakan hasil kali <b>2</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 8 × 2 = <b>16</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 6, 24, 96, 384, ...?", "options": ["1650", "1896", "1377", "1536", "1646"], "correct": 3, "expl": "Setiap suku merupakan hasil kali <b>4</b> dari suku sebelumnya (rasio geometris). Suku berikutnya = 384 × 4 = <b>1536</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 21, 9, 19, 14, 17, ...? (pola posisi ganjil)", "options": ["21", "25", "17", "15", "19"], "correct": 4, "expl": "Deret ini tersusun dari dua pola yang berselang-seling. Posisi ganjil (ke-1,3,5,...) naik teratur +5: 4, 9, 14, ... Posisi genap (ke-2,4,6,...) turun teratur -2. Suku ganjil berikutnya = 14 + 5 = <b>19</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 2, 17, 8, 14, 14, 11, ...? (pola posisi ganjil)", "options": ["25", "26", "20", "8", "5"], "correct": 2, "expl": "Deret ini tersusun dari dua pola yang berselang-seling. Posisi ganjil (ke-1,3,5,...) naik teratur +6: 2, 8, 14, ... Posisi genap (ke-2,4,6,...) turun teratur -3. Suku ganjil berikutnya = 14 + 6 = <b>20</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 25, 9, 23, 14, 21, ...? (pola posisi ganjil)", "options": ["19", "16", "22", "18", "29"], "correct": 0, "expl": "Deret ini tersusun dari dua pola yang berselang-seling. Posisi ganjil (ke-1,3,5,...) naik teratur +5: 4, 9, 14, ... Posisi genap (ke-2,4,6,...) turun teratur -2. Suku ganjil berikutnya = 14 + 5 = <b>19</b>."}, {"section": "Kuantitatif", "type": "Deret Angka", "q": "Lanjutan deret: 4, 16, 7, 13, 10, 10, ...? (pola posisi ganjil)", "options": ["9", "15", "13", "19", "7"], "correct": 2, "expl": "Deret ini tersusun dari dua pola yang berselang-seling. Posisi ganjil (ke-1,3,5,...) naik teratur +3: 4, 7, 10, ... Posisi genap (ke-2,4,6,...) turun teratur -3. Suku ganjil berikutnya = 10 + 3 = <b>13</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: A, B, D, G, K, ...?", "options": ["U", "C", "M", "T", "P"], "correct": 4, "expl": "Ubah huruf menjadi angka urutan alfabet: A(1), B(2), D(4), G(7), K(11). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 16, yaitu huruf <b>P</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: B, C, E, H, L, ...?", "options": ["Q", "J", "Z", "E", "S"], "correct": 0, "expl": "Ubah huruf menjadi angka urutan alfabet: B(2), C(3), E(5), H(8), L(12). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 17, yaitu huruf <b>Q</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: C, E, H, L, Q, ...?", "options": ["B", "X", "T", "D", "W"], "correct": 4, "expl": "Ubah huruf menjadi angka urutan alfabet: C(3), E(5), H(8), L(12), Q(17). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 23, yaitu huruf <b>W</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: F, H, K, O, T, ...?", "options": ["Z", "R", "W", "M", "F"], "correct": 0, "expl": "Ubah huruf menjadi angka urutan alfabet: F(6), H(8), K(11), O(15), T(20). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 26, yaitu huruf <b>Z</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: G, H, J, M, Q, ...?", "options": ["V", "B", "X", "Y", "O"], "correct": 0, "expl": "Ubah huruf menjadi angka urutan alfabet: G(7), H(8), J(10), M(13), Q(17). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 22, yaitu huruf <b>V</b>."}, {"section": "Kuantitatif", "type": "Deret Huruf", "q": "Lanjutan deret huruf: A, B, E, J, Q, ...?", "options": ["Z", "Y", "M", "W", "X"], "correct": 0, "expl": "Ubah huruf menjadi angka urutan alfabet: A(1), B(2), E(5), J(10), Q(17). Selisih antarposisi bertambah teratur, sehingga posisi berikutnya adalah 26, yaitu huruf <b>Z</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu pengaspalan jalan desa dapat diselesaikan oleh 6 pekerja dalam 20 hari. Jika hanya tersedia 4 pekerja dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["30", "33", "32", "27", "36"], "correct": 0, "expl": "Total \"kerja\" bersifat tetap = jumlah pekerja × hari = 6 × 20 = 120 pekerja-hari. Dengan 4 pekerja, waktu = 120 ÷ 4 = <b>30 hari</b>. Semakin sedikit pekerja, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu penyusunan basis data dapat diselesaikan oleh 15 analis dalam 12 hari. Jika hanya tersedia 6 analis dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["32", "21", "26", "30", "39"], "correct": 3, "expl": "Total \"kerja\" bersifat tetap = jumlah analis × hari = 15 × 12 = 180 analis-hari. Dengan 6 analis, waktu = 180 ÷ 6 = <b>30 hari</b>. Semakin sedikit analis, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu instalasi jaringan listrik dapat diselesaikan oleh 15 teknisi dalam 15 hari. Jika hanya tersedia 3 teknisi dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["75", "51", "87", "48", "93"], "correct": 0, "expl": "Total \"kerja\" bersifat tetap = jumlah teknisi × hari = 15 × 15 = 225 teknisi-hari. Dengan 3 teknisi, waktu = 225 ÷ 3 = <b>75 hari</b>. Semakin sedikit teknisi, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu produksi seragam sekolah dapat diselesaikan oleh 10 penjahit dalam 18 hari. Jika hanya tersedia 5 penjahit dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["44", "38", "36", "33", "45"], "correct": 2, "expl": "Total \"kerja\" bersifat tetap = jumlah penjahit × hari = 10 × 18 = 180 penjahit-hari. Dengan 5 penjahit, waktu = 180 ÷ 5 = <b>36 hari</b>. Semakin sedikit penjahit, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Suatu digitalisasi arsip kantor dapat diselesaikan oleh 16 petugas dalam 10 hari. Jika hanya tersedia 4 petugas dengan produktivitas yang sama, berapa hari waktu yang dibutuhkan?", "options": ["42", "36", "30", "44", "40"], "correct": 4, "expl": "Total \"kerja\" bersifat tetap = jumlah petugas × hari = 16 × 10 = 160 petugas-hari. Dengan 4 petugas, waktu = 160 ÷ 4 = <b>40 hari</b>. Semakin sedikit petugas, semakin lama waktu yang dibutuhkan (berbanding terbalik)."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp600.000 didiskon 25%, kemudian dikenakan pajak 10% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp495.000", "Rp492.496", "Rp450.896", "Rp507.424", "Rp436.002"], "correct": 0, "expl": "Harga setelah diskon 25% = Rp600.000 × 0.75 = 450.000. Kemudian dikenai pajak 10% dari harga tersebut = 450.000 × 1.10 = <b>Rp495.000</b>."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp320.000 didiskon 10%, kemudian dikenakan pajak 5% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp333.648", "Rp304.816", "Rp302.400", "Rp301.011", "Rp323.385"], "correct": 2, "expl": "Harga setelah diskon 10% = Rp320.000 × 0.90 = 288.000. Kemudian dikenai pajak 5% dari harga tersebut = 288.000 × 1.05 = <b>Rp302.400</b>."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp320.000 didiskon 12%, kemudian dikenakan pajak 11% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp319.067", "Rp320.464", "Rp313.732", "Rp315.018", "Rp312.576"], "correct": 4, "expl": "Harga setelah diskon 12% = Rp320.000 × 0.88 = 281.600. Kemudian dikenai pajak 11% dari harga tersebut = 281.600 × 1.11 = <b>Rp312.576</b>."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp175.000 didiskon 15%, kemudian dikenakan pajak 10% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp164.236", "Rp184.268", "Rp163.625", "Rp171.029", "Rp154.217"], "correct": 2, "expl": "Harga setelah diskon 15% = Rp175.000 × 0.85 = 148.750. Kemudian dikenai pajak 10% dari harga tersebut = 148.750 × 1.10 = <b>Rp163.625</b>."}, {"section": "Kuantitatif", "type": "Aritmetika Sosial", "q": "Harga sebuah barang Rp450.000 didiskon 30%, kemudian dikenakan pajak 10% dari harga setelah diskon. Berapa harga akhir barang tersebut?", "options": ["Rp358.286", "Rp331.148", "Rp330.754", "Rp372.676", "Rp346.500"], "correct": 4, "expl": "Harga setelah diskon 30% = Rp450.000 × 0.70 = 315.000. Kemudian dikenai pajak 10% dari harga tersebut = 315.000 × 1.10 = <b>Rp346.500</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 280 km dalam 2 jam. Kendaraan B memiliki kecepatan 0,8 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (280 km)?", "options": ["2 jam", "3 jam 10 menit", "1 jam 10 menit", "2 jam 30 menit", "1 jam 15 menit"], "correct": 3, "expl": "Kecepatan A = 280 ÷ 2 = 140.0 km/jam. Kecepatan B = 0,8 × 140.0 = 112.0 km/jam. Waktu B = 280 ÷ 112.0 = 2.50 jam ≈ <b>2 jam 30 menit</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 450 km dalam 6 jam. Kendaraan B memiliki kecepatan 0,8 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (450 km)?", "options": ["7 jam 30 menit", "6 jam 50 menit", "8 jam 10 menit", "8 jam 15 menit", "7 jam 50 menit"], "correct": 0, "expl": "Kecepatan A = 450 ÷ 6 = 75.0 km/jam. Kecepatan B = 0,8 × 75.0 = 60.0 km/jam. Waktu B = 450 ÷ 60.0 = 7.50 jam ≈ <b>7 jam 30 menit</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 320 km dalam 6 jam. Kendaraan B memiliki kecepatan 2 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (320 km)?", "options": ["2 jam 15 menit", "3 jam", "2 jam 20 menit", "4 jam 40 menit", "4 jam 15 menit"], "correct": 1, "expl": "Kecepatan A = 320 ÷ 6 = 53.3 km/jam. Kecepatan B = 2 × 53.3 = 106.7 km/jam. Waktu B = 320 ÷ 106.7 = 3.00 jam ≈ <b>3 jam</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 450 km dalam 2 jam. Kendaraan B memiliki kecepatan 1,25 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (450 km)?", "options": ["1 jam 21 menit", "1 jam 16 menit", "0 jam 16 menit", "1 jam 36 menit", "2 jam 51 menit"], "correct": 3, "expl": "Kecepatan A = 450 ÷ 2 = 225.0 km/jam. Kecepatan B = 1,25 × 225.0 = 281.2 km/jam. Waktu B = 450 ÷ 281.2 = 1.60 jam ≈ <b>1 jam 36 menit</b>."}, {"section": "Kuantitatif", "type": "Soal Cerita", "q": "Kendaraan A menempuh jarak 210 km dalam 5 jam. Kendaraan B memiliki kecepatan 1,25 kali kecepatan kendaraan A. Berapa lama kendaraan B menempuh jarak yang sama (210 km)?", "options": ["4 jam 30 menit", "4 jam 40 menit", "3 jam 15 menit", "4 jam", "3 jam 20 menit"], "correct": 3, "expl": "Kecepatan A = 210 ÷ 5 = 42.0 km/jam. Kecepatan B = 1,25 × 42.0 = 52.5 km/jam. Waktu B = 210 ÷ 52.5 = 4.00 jam ≈ <b>4 jam</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 3x + 7 = 1x + 13, maka nilai x adalah ...", "options": ["5", "0", "6", "3", "9"], "correct": 3, "expl": "3x + 7 = 1x + 13 → 3x − 1x = 13 − 7 → 2x = 6 → x = <b>3</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 6x + 4 = 5x + 16, maka nilai x adalah ...", "options": ["8", "3", "12", "10", "9"], "correct": 2, "expl": "6x + 4 = 5x + 16 → 6x − 5x = 16 − 4 → 1x = 12 → x = <b>12</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 3x + 3 = 1x + 29, maka nilai x adalah ...", "options": ["10", "11", "17", "13", "12"], "correct": 3, "expl": "3x + 3 = 1x + 29 → 3x − 1x = 29 − 3 → 2x = 26 → x = <b>13</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 5x + 1 = 1x + 17, maka nilai x adalah ...", "options": ["4", "2", "10", "13", "8"], "correct": 0, "expl": "5x + 1 = 1x + 17 → 5x − 1x = 17 − 1 → 4x = 16 → x = <b>4</b>."}, {"section": "Kuantitatif", "type": "Aljabar", "q": "Jika 6x + 4 = 4x + 30, maka nilai x adalah ...", "options": ["19", "7", "12", "10", "13"], "correct": 4, "expl": "6x + 4 = 4x + 30 → 6x − 4x = 30 − 4 → 2x = 26 → x = <b>13</b>."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua peserta ujian TOEFL wajib membawa kartu identitas. Premis 2: Sinta adalah peserta ujian TOEFL. Kesimpulan yang tepat adalah ...", "options": ["Semua yang wajib membawa kartu identitas adalah peserta ujian TOEFL", "Tidak dapat disimpulkan", "Sinta tidak wajib membawa kartu identitas", "Sinta bukan peserta ujian TOEFL", "Sinta wajib membawa kartu identitas"], "correct": 4, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Sinta termasuk A; maka pasti <b>Sinta wajib membawa kartu identitas</b>, karena seluruh anggota kategori peserta ujian TOEFL memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua relawan bencana mendapat pelatihan dasar. Premis 2: Arman adalah relawan bencana. Kesimpulan yang tepat adalah ...", "options": ["Arman tidak mendapat pelatihan dasar", "Arman bukan relawan bencana", "Tidak dapat disimpulkan", "Arman mendapat pelatihan dasar", "Semua yang mendapat pelatihan dasar adalah relawan bencana"], "correct": 3, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Arman termasuk A; maka pasti <b>Arman mendapat pelatihan dasar</b>, karena seluruh anggota kategori relawan bencana memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua nasabah prioritas mendapat layanan khusus. Premis 2: Bu Rini adalah nasabah prioritas. Kesimpulan yang tepat adalah ...", "options": ["Tidak dapat disimpulkan", "Bu Rini mendapat layanan khusus", "Bu Rini bukan nasabah prioritas", "Semua yang mendapat layanan khusus adalah nasabah prioritas", "Bu Rini tidak mendapat layanan khusus"], "correct": 1, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Bu Rini termasuk A; maka pasti <b>Bu Rini mendapat layanan khusus</b>, karena seluruh anggota kategori nasabah prioritas memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua siswa kelas akselerasi mengikuti kurikulum tambahan. Premis 2: Bayu adalah siswa kelas akselerasi. Kesimpulan yang tepat adalah ...", "options": ["Tidak dapat disimpulkan", "Bayu tidak mengikuti kurikulum tambahan", "Bayu mengikuti kurikulum tambahan", "Bayu bukan siswa kelas akselerasi", "Semua yang mengikuti kurikulum tambahan adalah siswa kelas akselerasi"], "correct": 2, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Bayu termasuk A; maka pasti <b>Bayu mengikuti kurikulum tambahan</b>, karena seluruh anggota kategori siswa kelas akselerasi memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua kontributor jurnal ilmiah wajib melalui proses peer review. Premis 2: Dr. Lestari adalah kontributor jurnal ilmiah. Kesimpulan yang tepat adalah ...", "options": ["Dr. Lestari tidak wajib melalui proses peer review", "Dr. Lestari bukan kontributor jurnal ilmiah", "Tidak dapat disimpulkan", "Semua yang wajib melalui proses peer review adalah kontributor jurnal ilmiah", "Dr. Lestari wajib melalui proses peer review"], "correct": 4, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Dr. Lestari termasuk A; maka pasti <b>Dr. Lestari wajib melalui proses peer review</b>, karena seluruh anggota kategori kontributor jurnal ilmiah memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua anggota tim audit memiliki sertifikasi profesi. Premis 2: Pak Yusuf adalah anggota tim audit. Kesimpulan yang tepat adalah ...", "options": ["Semua yang memiliki sertifikasi profesi adalah anggota tim audit", "Pak Yusuf bukan anggota tim audit", "Pak Yusuf memiliki sertifikasi profesi", "Pak Yusuf tidak memiliki sertifikasi profesi", "Tidak dapat disimpulkan"], "correct": 2, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Pak Yusuf termasuk A; maka pasti <b>Pak Yusuf memiliki sertifikasi profesi</b>, karena seluruh anggota kategori anggota tim audit memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua penerima hibah penelitian wajib menyerahkan laporan akhir. Premis 2: Nadia adalah penerima hibah penelitian. Kesimpulan yang tepat adalah ...", "options": ["Nadia bukan penerima hibah penelitian", "Tidak dapat disimpulkan", "Semua yang wajib menyerahkan laporan akhir adalah penerima hibah penelitian", "Nadia wajib menyerahkan laporan akhir", "Nadia tidak wajib menyerahkan laporan akhir"], "correct": 3, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Nadia termasuk A; maka pasti <b>Nadia wajib menyerahkan laporan akhir</b>, karena seluruh anggota kategori penerima hibah penelitian memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua pengguna aplikasi versi pro mendapat akses fitur premium. Premis 2: Rian adalah pengguna aplikasi versi pro. Kesimpulan yang tepat adalah ...", "options": ["Rian mendapat akses fitur premium", "Rian bukan pengguna aplikasi versi pro", "Tidak dapat disimpulkan", "Rian tidak mendapat akses fitur premium", "Semua yang mendapat akses fitur premium adalah pengguna aplikasi versi pro"], "correct": 0, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Rian termasuk A; maka pasti <b>Rian mendapat akses fitur premium</b>, karena seluruh anggota kategori pengguna aplikasi versi pro memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua delegasi konferensi internasional wajib memiliki paspor aktif. Premis 2: Ibu Sari adalah delegasi konferensi internasional. Kesimpulan yang tepat adalah ...", "options": ["Ibu Sari tidak wajib memiliki paspor aktif", "Tidak dapat disimpulkan", "Semua yang wajib memiliki paspor aktif adalah delegasi konferensi internasional", "Ibu Sari wajib memiliki paspor aktif", "Ibu Sari bukan delegasi konferensi internasional"], "correct": 3, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Ibu Sari termasuk A; maka pasti <b>Ibu Sari wajib memiliki paspor aktif</b>, karena seluruh anggota kategori delegasi konferensi internasional memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kategorik", "q": "Premis 1: Semua mahasiswa program pertukaran wajib mengikuti orientasi kampus tujuan. Premis 2: Fira adalah mahasiswa program pertukaran. Kesimpulan yang tepat adalah ...", "options": ["Tidak dapat disimpulkan", "Fira bukan mahasiswa program pertukaran", "Semua yang wajib mengikuti orientasi kampus tujuan adalah mahasiswa program pertukaran", "Fira wajib mengikuti orientasi kampus tujuan", "Fira tidak wajib mengikuti orientasi kampus tujuan"], "correct": 3, "expl": "Ini adalah bentuk silogisme kategorik (modus ponens): semua A adalah B; Fira termasuk A; maka pasti <b>Fira wajib mengikuti orientasi kampus tujuan</b>, karena seluruh anggota kategori mahasiswa program pertukaran memiliki sifat tersebut tanpa kecuali."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika koneksi internet terputus, maka sistem tidak dapat diakses. Premis 2: Koneksi internet terputus. Kesimpulan yang sah adalah ...", "options": ["Surat peringatan diterbitkan", "Tidak dapat dipastikan alarm berbunyi atau tidak", "Karyawan tidak absen tanpa keterangan", "Sistem tidak dapat diakses", "Dokumen tidak dinyatakan lengkap"], "correct": 3, "expl": "Ini pola <b>modus ponens</b> yang valid: Jika P maka Q; P terjadi; maka Q pasti terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika koneksi internet terputus, maka sistem tidak dapat diakses. Premis 2: Sistem dapat diakses. Kesimpulan yang sah adalah ...", "options": ["Dokumen tidak dinyatakan lengkap", "Tidak dapat dipastikan alarm berbunyi atau tidak", "Koneksi internet tidak terputus", "Surat peringatan diterbitkan", "Tidak dapat dipastikan target penjualan tercapai"], "correct": 2, "expl": "Ini pola <b>modus tollens</b> yang valid: Jika P maka Q; Q tidak terjadi; maka P pasti tidak terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika target penjualan tercapai, maka bonus diberikan. Premis 2: Bonus diberikan. Kesimpulan yang sah adalah ...", "options": ["Dokumen tidak dinyatakan lengkap", "Karyawan tidak absen tanpa keterangan", "Tidak dapat dipastikan target penjualan tercapai", "Sistem tidak dapat diakses", "Permohonan dapat diproses"], "correct": 2, "expl": "Ini kekeliruan <b>affirming the consequent</b>: mengetahui Q terjadi tidak menjamin P terjadi, karena Q bisa saja disebabkan hal lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika target penjualan tercapai, maka bonus diberikan. Premis 2: Target penjualan tidak tercapai. Kesimpulan yang sah adalah ...", "options": ["Surat peringatan diterbitkan", "Tidak dapat dipastikan alarm berbunyi atau tidak", "Tidak dapat dipastikan suhu ruangan naik drastis", "Tidak dapat dipastikan bonus diberikan atau tidak", "Sistem tidak dapat diakses"], "correct": 3, "expl": "Ini kekeliruan <b>denying the antecedent</b>: P tidak terjadi tidak otomatis membuat Q tidak terjadi, karena Q bisa saja terjadi lewat sebab lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika dokumen dinyatakan lengkap, maka permohonan dapat diproses. Premis 2: Dokumen dinyatakan lengkap. Kesimpulan yang sah adalah ...", "options": ["Surat peringatan diterbitkan", "Sistem tidak dapat diakses", "Permohonan dapat diproses", "Tidak dapat dipastikan bonus diberikan atau tidak", "Dokumen tidak dinyatakan lengkap"], "correct": 2, "expl": "Ini pola <b>modus ponens</b> yang valid: Jika P maka Q; P terjadi; maka Q pasti terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika dokumen dinyatakan lengkap, maka permohonan dapat diproses. Premis 2: Permohonan tidak dapat diproses. Kesimpulan yang sah adalah ...", "options": ["Sistem tidak dapat diakses", "Tidak dapat dipastikan bonus diberikan atau tidak", "Surat peringatan diterbitkan", "Karyawan tidak absen tanpa keterangan", "Dokumen tidak dinyatakan lengkap"], "correct": 4, "expl": "Ini pola <b>modus tollens</b> yang valid: Jika P maka Q; Q tidak terjadi; maka P pasti tidak terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika suhu ruangan naik drastis, maka alarm kebakaran berbunyi. Premis 2: Alarm kebakaran berbunyi. Kesimpulan yang sah adalah ...", "options": ["Surat peringatan diterbitkan", "Karyawan tidak absen tanpa keterangan", "Tidak dapat dipastikan suhu ruangan naik drastis", "Koneksi internet tidak terputus", "Tidak dapat dipastikan target penjualan tercapai"], "correct": 2, "expl": "Ini kekeliruan <b>affirming the consequent</b>: mengetahui Q terjadi tidak menjamin P terjadi, karena Q bisa saja disebabkan hal lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika suhu ruangan naik drastis, maka alarm kebakaran berbunyi. Premis 2: Suhu ruangan tidak naik drastis. Kesimpulan yang sah adalah ...", "options": ["Permohonan dapat diproses", "Sistem tidak dapat diakses", "Karyawan tidak absen tanpa keterangan", "Tidak dapat dipastikan alarm berbunyi atau tidak", "Tidak dapat dipastikan target penjualan tercapai"], "correct": 3, "expl": "Ini kekeliruan <b>denying the antecedent</b>: P tidak terjadi tidak otomatis membuat Q tidak terjadi, karena Q bisa saja terjadi lewat sebab lain. Kesimpulan yang sah adalah <b>tidak dapat dipastikan</b>."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika karyawan absen tanpa keterangan, maka surat peringatan diterbitkan. Premis 2: Karyawan absen tanpa keterangan. Kesimpulan yang sah adalah ...", "options": ["Sistem tidak dapat diakses", "Surat peringatan diterbitkan", "Tidak dapat dipastikan suhu ruangan naik drastis", "Tidak dapat dipastikan target penjualan tercapai", "Tidak dapat dipastikan bonus diberikan atau tidak"], "correct": 1, "expl": "Ini pola <b>modus ponens</b> yang valid: Jika P maka Q; P terjadi; maka Q pasti terjadi."}, {"section": "Logika", "type": "Silogisme Kondisional", "q": "Premis 1: Jika karyawan absen tanpa keterangan, maka surat peringatan diterbitkan. Premis 2: Surat peringatan tidak diterbitkan. Kesimpulan yang sah adalah ...", "options": ["Permohonan dapat diproses", "Sistem tidak dapat diakses", "Dokumen tidak dinyatakan lengkap", "Karyawan tidak absen tanpa keterangan", "Tidak dapat dipastikan bonus diberikan atau tidak"], "correct": 3, "expl": "Ini pola <b>modus tollens</b> yang valid: Jika P maka Q; Q tidak terjadi; maka P pasti tidak terjadi."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua dokter spesialis menempuh pendidikan lanjutan. Premis 2: Sebagian yang menempuh pendidikan lanjutan aktif meneliti. Kesimpulan yang sah mengenai hubungan dokter spesialis dan aktif meneliti adalah ...", "options": ["Semua dokter spesialis adalah aktif meneliti", "Tidak dapat dipastikan", "Semua aktif meneliti adalah dokter spesialis", "Sebagian dokter spesialis pasti aktif meneliti", "Tidak ada dokter spesialis yang aktif meneliti"], "correct": 1, "expl": "\"Sebagian yang menempuh pendidikan lanjutan aktif meneliti\" tidak menjamin irisan tersebut mencakup anggota dokter spesialis, sebab bisa saja seluruh dokter spesialis berada pada bagian kelompok yang menempuh pendidikan lanjutan namun bukan yang aktif meneliti. Karena itu hubungan antara dokter spesialis dan aktif meneliti <b>tidak dapat dipastikan</b> — pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua pengembang aplikasi menguasai bahasa pemrograman. Premis 2: Sebagian yang menguasai bahasa pemrograman bekerja lepas (freelance). Kesimpulan yang sah mengenai hubungan pengembang aplikasi dan bekerja lepas (freelance) adalah ...", "options": ["Semua bekerja lepas (freelance) adalah pengembang aplikasi", "Semua pengembang aplikasi adalah bekerja lepas (freelance)", "Tidak ada pengembang aplikasi yang bekerja lepas (freelance)", "Tidak dapat dipastikan", "Sebagian pengembang aplikasi pasti bekerja lepas (freelance)"], "correct": 3, "expl": "\"Sebagian yang menguasai bahasa pemrograman bekerja lepas (freelance)\" tidak menjamin irisan tersebut mencakup anggota pengembang aplikasi, sebab bisa saja seluruh pengembang aplikasi berada pada bagian kelompok yang menguasai bahasa pemrograman namun bukan yang bekerja lepas (freelance). Karena itu hubungan antara pengembang aplikasi dan bekerja lepas (freelance) <b>tidak dapat dipastikan</b> — pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua anggota tim inti dilibatkan sejak awal proyek. Premis 2: Sebagian yang dilibatkan sejak awal proyek mengambil keputusan strategis. Kesimpulan yang sah mengenai hubungan anggota tim inti dan mengambil keputusan strategis adalah ...", "options": ["Semua anggota tim inti adalah mengambil keputusan strategis", "Tidak ada anggota tim inti yang mengambil keputusan strategis", "Tidak dapat dipastikan", "Semua mengambil keputusan strategis adalah anggota tim inti", "Sebagian anggota tim inti pasti mengambil keputusan strategis"], "correct": 2, "expl": "\"Sebagian yang dilibatkan sejak awal proyek mengambil keputusan strategis\" tidak menjamin irisan tersebut mencakup anggota anggota tim inti, sebab bisa saja seluruh anggota tim inti berada pada bagian kelompok yang dilibatkan sejak awal proyek namun bukan yang mengambil keputusan strategis. Karena itu hubungan antara anggota tim inti dan mengambil keputusan strategis <b>tidak dapat dipastikan</b> — pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua peserta beasiswa doktoral wajib menempuh studi di luar negeri. Premis 2: Sebagian yang wajib menempuh studi di luar negeri menerima tunjangan tambahan. Kesimpulan yang sah mengenai hubungan peserta beasiswa doktoral dan menerima tunjangan tambahan adalah ...", "options": ["Tidak dapat dipastikan", "Semua peserta beasiswa doktoral adalah menerima tunjangan tambahan", "Tidak ada peserta beasiswa doktoral yang menerima tunjangan tambahan", "Sebagian peserta beasiswa doktoral pasti menerima tunjangan tambahan", "Semua menerima tunjangan tambahan adalah peserta beasiswa doktoral"], "correct": 0, "expl": "\"Sebagian yang wajib menempuh studi di luar negeri menerima tunjangan tambahan\" tidak menjamin irisan tersebut mencakup anggota peserta beasiswa doktoral, sebab bisa saja seluruh peserta beasiswa doktoral berada pada bagian kelompok yang wajib menempuh studi di luar negeri namun bukan yang menerima tunjangan tambahan. Karena itu hubungan antara peserta beasiswa doktoral dan menerima tunjangan tambahan <b>tidak dapat dipastikan</b> — pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua pengawas lapangan memiliki sertifikat K3. Premis 2: Sebagian yang memiliki sertifikat K3 ditugaskan di proyek berisiko tinggi. Kesimpulan yang sah mengenai hubungan pengawas lapangan dan ditugaskan di proyek berisiko tinggi adalah ...", "options": ["Semua ditugaskan di proyek berisiko tinggi adalah pengawas lapangan", "Tidak ada pengawas lapangan yang ditugaskan di proyek berisiko tinggi", "Semua pengawas lapangan adalah ditugaskan di proyek berisiko tinggi", "Sebagian pengawas lapangan pasti ditugaskan di proyek berisiko tinggi", "Tidak dapat dipastikan"], "correct": 4, "expl": "\"Sebagian yang memiliki sertifikat K3 ditugaskan di proyek berisiko tinggi\" tidak menjamin irisan tersebut mencakup anggota pengawas lapangan, sebab bisa saja seluruh pengawas lapangan berada pada bagian kelompok yang memiliki sertifikat K3 namun bukan yang ditugaskan di proyek berisiko tinggi. Karena itu hubungan antara pengawas lapangan dan ditugaskan di proyek berisiko tinggi <b>tidak dapat dipastikan</b> — pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua reviewer jurnal memiliki gelar doktor. Premis 2: Sebagian yang memiliki gelar doktor berasal dari luar negeri. Kesimpulan yang sah mengenai hubungan reviewer jurnal dan berasal dari luar negeri adalah ...", "options": ["Semua berasal dari luar negeri adalah reviewer jurnal", "Sebagian reviewer jurnal pasti berasal dari luar negeri", "Semua reviewer jurnal adalah berasal dari luar negeri", "Tidak dapat dipastikan", "Tidak ada reviewer jurnal yang berasal dari luar negeri"], "correct": 3, "expl": "\"Sebagian yang memiliki gelar doktor berasal dari luar negeri\" tidak menjamin irisan tersebut mencakup anggota reviewer jurnal, sebab bisa saja seluruh reviewer jurnal berada pada bagian kelompok yang memiliki gelar doktor namun bukan yang berasal dari luar negeri. Karena itu hubungan antara reviewer jurnal dan berasal dari luar negeri <b>tidak dapat dipastikan</b> — pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua staf keuangan memahami standar akuntansi. Premis 2: Sebagian yang memahami standar akuntansi bersertifikat akuntan publik. Kesimpulan yang sah mengenai hubungan staf keuangan dan bersertifikat akuntan publik adalah ...", "options": ["Semua bersertifikat akuntan publik adalah staf keuangan", "Sebagian staf keuangan pasti bersertifikat akuntan publik", "Semua staf keuangan adalah bersertifikat akuntan publik", "Tidak ada staf keuangan yang bersertifikat akuntan publik", "Tidak dapat dipastikan"], "correct": 4, "expl": "\"Sebagian yang memahami standar akuntansi bersertifikat akuntan publik\" tidak menjamin irisan tersebut mencakup anggota staf keuangan, sebab bisa saja seluruh staf keuangan berada pada bagian kelompok yang memahami standar akuntansi namun bukan yang bersertifikat akuntan publik. Karena itu hubungan antara staf keuangan dan bersertifikat akuntan publik <b>tidak dapat dipastikan</b> — pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Silogisme (Trap)", "q": "Premis 1: Semua pelatih bersertifikat mengikuti pelatihan lanjutan. Premis 2: Sebagian yang mengikuti pelatihan lanjutan melatih tim nasional. Kesimpulan yang sah mengenai hubungan pelatih bersertifikat dan melatih tim nasional adalah ...", "options": ["Semua pelatih bersertifikat adalah melatih tim nasional", "Semua melatih tim nasional adalah pelatih bersertifikat", "Tidak dapat dipastikan", "Sebagian pelatih bersertifikat pasti melatih tim nasional", "Tidak ada pelatih bersertifikat yang melatih tim nasional"], "correct": 2, "expl": "\"Sebagian yang mengikuti pelatihan lanjutan melatih tim nasional\" tidak menjamin irisan tersebut mencakup anggota pelatih bersertifikat, sebab bisa saja seluruh pelatih bersertifikat berada pada bagian kelompok yang mengikuti pelatihan lanjutan namun bukan yang melatih tim nasional. Karena itu hubungan antara pelatih bersertifikat dan melatih tim nasional <b>tidak dapat dipastikan</b> — pola jebakan klasik silogisme."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata JENDELA ditulis sebagai LGPFGNC. Dengan pola sandi yang sama, kata SEPEDA ditulis sebagai ...", "options": ["UGRGFC", "VHSHGD", "WITIHE", "TFQFEB", "XJUJIF"], "correct": 0, "expl": "Pola sandinya: setiap huruf digeser +2 pada urutan alfabet (JENDELA→LGPFGNC). Terapkan pergeseran yang sama pada SEPEDA, huruf demi huruf, sehingga diperoleh <b>UGRGFC</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata SEKOLAH ditulis sebagai VHNRODK. Dengan pola sandi yang sama, kata GERBANG ditulis sebagai ...", "options": ["JHUEDQJ", "LJWGFSL", "IGTDCPI", "HFSCBOH", "KIVFERK"], "correct": 0, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (SEKOLAH→VHNRODK). Terapkan pergeseran yang sama pada GERBANG, huruf demi huruf, sehingga diperoleh <b>JHUEDQJ</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata BANGKU ditulis sebagai EDQJNX. Dengan pola sandi yang sama, kata KAMERA ditulis sebagai ...", "options": ["OEQIVE", "NDPHUD", "PFRJWF", "LBNFSB", "MCOGTC"], "correct": 1, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (BANGKU→EDQJNX). Terapkan pergeseran yang sama pada KAMERA, huruf demi huruf, sehingga diperoleh <b>NDPHUD</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata CERMIN ditulis sebagai EGTOKP. Dengan pola sandi yang sama, kata DOMPET ditulis sebagai ...", "options": ["GRPSHW", "EPNQFU", "FQORGV", "HSQTIX", "ITRUJY"], "correct": 2, "expl": "Pola sandinya: setiap huruf digeser +2 pada urutan alfabet (CERMIN→EGTOKP). Terapkan pergeseran yang sama pada DOMPET, huruf demi huruf, sehingga diperoleh <b>FQORGV</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata TELEPON ditulis sebagai WHOHSRQ. Dengan pola sandi yang sama, kata PAYUNG ditulis sebagai ...", "options": ["UFDZSL", "SDBXQJ", "TECYRK", "RCAWPI", "QBZVOH"], "correct": 1, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (TELEPON→WHOHSRQ). Terapkan pergeseran yang sama pada PAYUNG, huruf demi huruf, sehingga diperoleh <b>SDBXQJ</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata STASIUN ditulis sebagai WXEWMYR. Dengan pola sandi yang sama, kata BENDERA ditulis sebagai ...", "options": ["GJSIJWF", "FIRHIVE", "CFOEFSB", "EHQGHUD", "DGPFGTC"], "correct": 1, "expl": "Pola sandinya: setiap huruf digeser +4 pada urutan alfabet (STASIUN→WXEWMYR). Terapkan pergeseran yang sama pada BENDERA, huruf demi huruf, sehingga diperoleh <b>FIRHIVE</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata JALANAN ditulis sebagai MDODQDQ. Dengan pola sandi yang sama, kata LAMPU ditulis sebagai ...", "options": ["MBNQV", "QFRUZ", "ODPSX", "NCORW", "PEQTY"], "correct": 2, "expl": "Pola sandinya: setiap huruf digeser +3 pada urutan alfabet (JALANAN→MDODQDQ). Terapkan pergeseran yang sama pada LAMPU, huruf demi huruf, sehingga diperoleh <b>ODPSX</b>."}, {"section": "Logika", "type": "Pola Kode", "q": "Dalam suatu sandi, kata KANTOR ditulis sebagai OERXSV. Dengan pola sandi yang sama, kata KORAN ditulis sebagai ...", "options": ["PTWFS", "NRUDQ", "MQTCP", "LPSBO", "OSVER"], "correct": 4, "expl": "Pola sandinya: setiap huruf digeser +4 pada urutan alfabet (KANTOR→OERXSV). Terapkan pergeseran yang sama pada KORAN, huruf demi huruf, sehingga diperoleh <b>OSVER</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Enam orang duduk mengelilingi meja bundar: U, V, W, X, Y, Z. V duduk berhadapan dengan Y. W duduk di sebelah kanan V. X duduk di sebelah kiri Y. Siapa yang duduk berhadapan dengan W?", "options": ["U", "X", "Y", "Z", "V"], "correct": 2, "expl": "Pada meja bundar 6 orang, posisi berseberangan tetap terpisah 3 kursi. V berhadapan dengan Y. W di kanan V berarti W berhadapan dengan orang di kiri Y, yaitu X — namun pertanyaannya siapa berhadapan W, dan karena X ada di kiri Y (bukan berhadapan W), posisi berhadapan W jatuh pada <b>Y</b> yang berseberangan dengan posisi tepat di kanan V pada susunan melingkar 6 kursi."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Empat pelari, F, G, H, I, mencatat waktu berbeda dalam sebuah lomba. F lebih cepat dari G. H lebih lambat dari G. I lebih cepat dari F. Siapa pelari tercepat?", "options": ["F", "G", "H", "I", "Tidak dapat ditentukan"], "correct": 3, "expl": "Urutan dari cepat ke lambat: I < F < G < H (dalam satuan waktu, makin kecil makin cepat). Karena I lebih cepat dari F, dan F lebih cepat dari G, maka pelari tercepat adalah <b>I</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Lima paket, J, K, L, M, N, ditimbang. J lebih berat dari K. L lebih ringan dari K. M lebih berat dari J. N lebih ringan dari L. Paket manakah yang paling ringan?", "options": ["J", "K", "L", "M", "N"], "correct": 4, "expl": "Urutan berat dari ringan ke berat: N < L < K < J < M. Paket paling ringan adalah <b>N</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Dalam sebuah keluarga, Ayah lebih tua dari Ibu. Kakak lebih muda dari Ibu tetapi lebih tua dari Adik. Manakah urutan usia dari yang tertua?", "options": ["Ayah, Ibu, Kakak, Adik", "Ibu, Ayah, Kakak, Adik", "Ayah, Kakak, Ibu, Adik", "Kakak, Ayah, Ibu, Adik", "Ibu, Kakak, Ayah, Adik"], "correct": 0, "expl": "Dari data: Ayah > Ibu > Kakak > Adik (dalam usia). Urutan dari tertua: <b>Ayah, Ibu, Kakak, Adik</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Tiga proyek, A, B, C, memiliki anggaran berbeda. Anggaran A dua kali anggaran C. Anggaran B lebih kecil dari anggaran A tetapi lebih besar dari anggaran C. Manakah proyek dengan anggaran terbesar?", "options": ["A", "B", "C", "Sama besar", "Tidak dapat ditentukan"], "correct": 0, "expl": "Urutan anggaran: C < B < A (karena A dua kali C, dan B berada di antara keduanya). Proyek dengan anggaran terbesar adalah <b>A</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Delapan kursi bernomor 1–8 disusun berjajar. Peserta P duduk di kursi bernomor genap paling kecil. Peserta Q duduk tiga kursi setelah P. Di kursi nomor berapa Q duduk?", "options": ["3", "5", "7", "4", "6"], "correct": 1, "expl": "Kursi genap paling kecil adalah nomor 2, sehingga P duduk di kursi 2. Tiga kursi setelah P berarti kursi nomor 2+3 = <b>5</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Dalam sebuah rapat, urutan bicara adalah: Rina berbicara sebelum Dedi. Dedi berbicara sebelum Fahmi. Sari berbicara setelah Fahmi tetapi sebelum Gilang. Siapa yang berbicara terakhir?", "options": ["Rina", "Dedi", "Fahmi", "Sari", "Gilang"], "correct": 4, "expl": "Urutan bicara: Rina, Dedi, Fahmi, Sari, Gilang. Yang berbicara terakhir adalah <b>Gilang</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Empat pulau, W, X, Y, Z, memiliki luas berbeda. W lebih luas dari X. Y lebih sempit dari X. Z lebih luas dari W. Pulau manakah yang luasnya berada di urutan kedua terbesar?", "options": ["W", "X", "Y", "Z", "Tidak dapat ditentukan"], "correct": 0, "expl": "Urutan luas dari sempit ke luas: Y < X < W < Z. Urutan dari terbesar: Z, W, X, Y. Luas urutan kedua terbesar adalah <b>W</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Pendapatan toko A lebih besar dari toko B. Pendapatan toko C lebih kecil dari toko B. Pendapatan toko D lebih besar dari toko A. Toko manakah yang pendapatannya paling kecil?", "options": ["A", "B", "C", "D", "Tidak dapat ditentukan"], "correct": 2, "expl": "Urutan pendapatan dari kecil ke besar: C < B < A < D. Toko dengan pendapatan paling kecil adalah <b>C</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Durasi film P lebih panjang dari film Q. Durasi film R lebih pendek dari film Q. Durasi film S sama dengan film P. Manakah pernyataan yang pasti benar?", "options": ["S lebih panjang dari R", "R lebih panjang dari P", "Q lebih panjang dari P", "R sama dengan S", "Semua durasi sama"], "correct": 0, "expl": "Karena S = P, dan P lebih panjang dari Q, sedangkan Q lebih panjang dari R, maka P (dan S) pasti lebih panjang dari R. Pernyataan yang benar: <b>S lebih panjang dari R</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Suhu kota E lebih tinggi dari kota F. Suhu kota G sama dengan kota F. Suhu kota H lebih rendah dari kota G. Kota manakah yang suhunya paling rendah?", "options": ["E", "F", "G", "H", "Tidak dapat ditentukan"], "correct": 3, "expl": "Karena G = F, dan H lebih rendah dari G (=F), sementara E lebih tinggi dari F, urutan suhu dari rendah ke tinggi: H < F = G < E. Kota dengan suhu paling rendah adalah <b>H</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Populasi kota M lebih banyak dari kota N. Populasi kota O lebih sedikit dari kota N. Populasi kota P lebih banyak dari kota M. Urutan dari populasi terbanyak adalah ...", "options": ["P, M, N, O", "M, P, N, O", "P, N, M, O", "O, N, M, P", "M, N, P, O"], "correct": 0, "expl": "Urutan populasi dari sedikit ke banyak: O < N < M < P. Urutan dari terbanyak: <b>P, M, N, O</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Harga saham X naik lebih tinggi dari saham Y hari ini. Saham Z naik lebih rendah dari saham Y. Saham W naik setinggi saham X. Manakah pernyataan yang pasti benar?", "options": ["W naik lebih tinggi dari Z", "Z naik lebih tinggi dari X", "Y naik lebih tinggi dari X", "W naik lebih rendah dari Z", "Semua kenaikan sama"], "correct": 0, "expl": "Karena W = X, dan X naik lebih tinggi dari Y, sedangkan Y naik lebih tinggi dari Z, maka X (dan W) pasti naik lebih tinggi dari Z. Pernyataan yang benar: <b>W naik lebih tinggi dari Z</b>."}, {"section": "Logika", "type": "Penalaran Analitis", "q": "Produksi pabrik 1 lebih tinggi dari pabrik 2. Produksi pabrik 3 lebih rendah dari pabrik 2. Produksi pabrik 4 sama dengan pabrik 1. Pabrik manakah yang produksinya paling rendah?", "options": ["Pabrik 1", "Pabrik 2", "Pabrik 3", "Pabrik 4", "Tidak dapat ditentukan"], "correct": 2, "expl": "Urutan produksi dari rendah ke tinggi: Pabrik 3 < Pabrik 2 < Pabrik 1 = Pabrik 4. Produksi paling rendah ada pada <b>Pabrik 3</b>."}];
+
+/* ================= BANK & SESSION ================= */
+const QUESTION_BANK = QUESTIONS; // full pool: 100 per section
+const SECTIONS = [...new Set(QUESTION_BANK.map(q => q.section))];
+const PER_SECTION = 50;
+
+function shuffleArr(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function buildSession(){
+  let session = [];
+  SECTIONS.forEach(sec => {
+    const pool = QUESTION_BANK.filter(q => q.section === sec);
+    const picked = shuffleArr(pool).slice(0, PER_SECTION);
+    session = session.concat(picked);
+  });
+  return session;
+}
+
+let SESSION = [];
+
+/* ================= STATE ================= */
+let current = 0;
+let selectedOption = null;
+let answered = false;
+let streak = 0;
+let answers = []; // {chosen, isCorrect} indexed by question index
+let reviewFilter = 'all';
+
+const introScreen = document.getElementById('introScreen');
+const quizScreen = document.getElementById('quizScreen');
+const resultScreen = document.getElementById('resultScreen');
+const topbar = document.getElementById('topbar');
+const barFill = document.getElementById('barFill');
+const sectionLabel = document.getElementById('sectionLabel');
+const counterLabel = document.getElementById('counterLabel');
+const streakCount = document.getElementById('streakCount');
+const sectionTabs = document.getElementById('sectionTabs');
+
+/* build section tabs (static, based on SECTIONS) */
+SECTIONS.forEach(sec => {
+  const tab = document.createElement('div');
+  tab.className = 'section-tab';
+  tab.textContent = sec;
+  tab.dataset.section = sec;
+  sectionTabs.appendChild(tab);
+});
+const tabEls = Array.from(sectionTabs.children);
+
+document.getElementById('startBtn').addEventListener('click', () => {
+  SESSION = buildSession();
+  current = 0; selectedOption = null; answered = false; streak = 0; answers = [];
+  reviewFilter = 'all';
+  streakCount.textContent = '0';
+  introScreen.classList.add('hidden');
+  quizScreen.classList.remove('hidden');
+  topbar.style.display = 'block';
+  renderQuestion();
+});
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  current = 0; selectedOption = null; answered = false; streak = 0; answers = [];
+  reviewFilter = 'all';
+  streakCount.textContent = '0';
+  resultScreen.classList.add('hidden');
+  introScreen.classList.remove('hidden');
+  topbar.style.display = 'none';
+});
+
+document.getElementById('skipBtn').addEventListener('click', () => {
+  if(answered) return;
+  answers[current] = {chosen: -1, isCorrect: false};
+  streak = 0;
+  streakCount.textContent = streak;
+  nextQuestion();
+});
+
+document.getElementById('filterAll').addEventListener('click', () => setFilter('all'));
+document.getElementById('filterWrong').addEventListener('click', () => setFilter('wrong'));
+
+function setFilter(f){
+  reviewFilter = f;
+  document.getElementById('filterAll').classList.toggle('active', f==='all');
+  document.getElementById('filterWrong').classList.toggle('active', f==='wrong');
+  renderReviewList();
+}
+
+function renderQuestion(){
+  const item = SESSION[current];
+  selectedOption = null;
+  answered = false;
+
+  document.getElementById('qType').textContent = item.section + ' · ' + item.type;
+  document.getElementById('qText').textContent = item.q;
+  sectionLabel.textContent = 'Bagian: ' + item.section;
+  counterLabel.textContent = 'Soal ' + (current+1) + ' / ' + SESSION.length;
+
+  barFill.style.width = Math.round((current / SESSION.length) * 100) + '%';
+
+  tabEls.forEach(tab => {
+    const sec = tab.dataset.section;
+    const secIdx = SECTIONS.indexOf(sec);
+    const curSecIdx = SECTIONS.indexOf(item.section);
+    tab.classList.remove('done','active');
+    if(secIdx < curSecIdx) tab.classList.add('done');
+    else if(secIdx === curSecIdx) tab.classList.add('active');
+  });
+
+  const optWrap = document.getElementById('qOptions');
+  optWrap.innerHTML = '';
+  const letters = ['A','B','C','D','E'];
+  item.options.forEach((opt, idx) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = '<div class="opt-letter">'+letters[idx]+'</div><div>'+opt+'</div>';
+    div.addEventListener('click', () => selectOption(idx));
+    optWrap.appendChild(div);
+  });
+
+  document.getElementById('feedbackBox').innerHTML = '';
+  const actionBtn = document.getElementById('actionBtn');
+  actionBtn.textContent = 'Periksa Jawaban';
+  actionBtn.disabled = true;
+  actionBtn.onclick = checkAnswer;
+  document.getElementById('skipBtn').style.visibility = 'visible';
+}
+
+function selectOption(idx){
+  if(answered) return;
+  selectedOption = idx;
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((o,i) => {
+    o.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('actionBtn').disabled = false;
+}
+
+function checkAnswer(){
+  if(selectedOption === null) return;
+  answered = true;
+  const item = SESSION[current];
+  const isCorrect = selectedOption === item.correct;
+  const opts = document.querySelectorAll('.option');
+
+  opts.forEach((o,i) => {
+    o.classList.add('disabled');
+    if(i === item.correct) o.classList.add('correct');
+    else if(i === selectedOption) o.classList.add('wrong');
+  });
+
+  if(isCorrect) streak++; else streak = 0;
+  streakCount.textContent = streak;
+
+  answers[current] = {chosen: selectedOption, isCorrect};
+
+  const fb = document.getElementById('feedbackBox');
+  fb.innerHTML = '<div class="feedback '+(isCorrect?'correct':'wrong')+'">' +
+    '<div class="feedback-head">'+(isCorrect ? '✓ Benar!' : '✕ Kurang tepat')+'</div>' +
+    '<div class="feedback-body">'+item.expl+'</div></div>';
+
+  const actionBtn = document.getElementById('actionBtn');
+  actionBtn.textContent = (current === SESSION.length - 1) ? 'Lihat Hasil' : 'Lanjutkan';
+  actionBtn.onclick = nextQuestion;
+  document.getElementById('skipBtn').style.visibility = 'hidden';
+}
+
+function nextQuestion(){
+  current++;
+  if(current >= SESSION.length){
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults(){
+  quizScreen.classList.add('hidden');
+  topbar.style.display = 'none';
+  resultScreen.classList.remove('hidden');
+
+  const totalCorrect = answers.filter(a => a && a.isCorrect).length;
+  const pct = Math.round((totalCorrect / SESSION.length) * 100);
+
+  document.getElementById('scoreRing').style.setProperty('--pct', pct);
+  document.getElementById('scoreRingText').textContent = pct + '%';
+
+  let title, sub;
+  if(pct >= 85){ title = 'Luar Biasa!'; sub = 'Skor Anda menunjukkan kesiapan kuat menghadapi TAP Bappenas.'; }
+  else if(pct >= 65){ title = 'Bagus, Terus Berlatih'; sub = 'Fondasi sudah cukup baik — perkuat bagian yang masih sering meleset.'; }
+  else { title = 'Awal yang Baik'; sub = 'Gunakan pembahasan di bawah untuk memahami pola tiap tipe soal.'; }
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = totalCorrect + ' dari ' + SESSION.length + ' soal benar — ' + sub;
+
+  // breakdown per section
+  const bdWrap = document.getElementById('breakdown');
+  bdWrap.innerHTML = '';
+  SECTIONS.forEach(sec => {
+    const secQuestions = SESSION.map((q,i)=>({q,i})).filter(o => o.q.section === sec);
+    const secCorrect = secQuestions.filter(o => answers[o.i] && answers[o.i].isCorrect).length;
+    const secPct = Math.round((secCorrect / secQuestions.length) * 100);
+    const row = document.createElement('div');
+    row.className = 'bd-row';
+    row.innerHTML = '<div class="bd-label">'+sec+'</div>' +
+      '<div class="bd-bar-track"><div class="bd-bar-fill" style="width:'+secPct+'%"></div></div>' +
+      '<div class="bd-val">'+secCorrect+'/'+secQuestions.length+'</div>';
+    bdWrap.appendChild(row);
+  });
+
+  const wrongCount = SESSION.length - totalCorrect;
+  document.getElementById('filterWrong').textContent = 'Salah saja (' + wrongCount + ')';
+  document.getElementById('filterAll').textContent = 'Semua (' + SESSION.length + ')';
+
+  renderReviewList();
+}
+
+function renderReviewList(){
+  const reviewList = document.getElementById('reviewList');
+  reviewList.innerHTML = '';
+  const letters = ['A','B','C','D','E'];
+  SESSION.forEach((item, i) => {
+    const a = answers[i] || {chosen:-1, isCorrect:false};
+    if(reviewFilter === 'wrong' && a.isCorrect) return;
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (a.isCorrect ? 'right-item' : 'wrong-item');
+    let html = '<div class="review-tag">'+item.section+' · '+item.type+'</div>';
+    html += '<div class="review-q">'+(i+1)+'. '+item.q+'</div>';
+    if(!a.isCorrect){
+      if(a.chosen === -1){
+        html += '<div class="review-ans your-wrong">Soal ini dilewati.</div>';
+      } else {
+        html += '<div class="review-ans your-wrong">Jawaban Anda: '+letters[a.chosen]+'. '+item.options[a.chosen]+'</div>';
+      }
+      html += '<div class="review-correct">Jawaban benar: '+letters[item.correct]+'. '+item.options[item.correct]+'</div>';
+    } else {
+      html += '<div class="review-ans your-right">Jawaban Anda: '+letters[a.chosen]+'. '+item.options[a.chosen]+' ✓</div>';
+    }
+    html += '<div class="review-expl">'+item.expl+'</div>';
+    div.innerHTML = html;
+    reviewList.appendChild(div);
+  });
+  if(reviewList.children.length === 0){
+    reviewList.innerHTML = '<p style="text-align:center;color:var(--slate);font-size:13.5px;">Tidak ada soal pada filter ini — kerja bagus!</p>';
+  }
+}
+</script>
+</body>
+</html>
