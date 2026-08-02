@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Test Bootcamp Data Science Practitioner (CDSP)</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #ca8a04;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(37,99,235,0.2);
+        }
+        .header h1 { font-size: 1.5rem; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 0.95rem; }
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        input[type="text"], input[type="email"] {
+            width: 100%; padding: 12px 14px;
+            border: 2px solid var(--border); border-radius: 8px;
+            font-size: 1rem; transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: var(--primary); }
+        .btn {
+            display: inline-block; padding: 12px 28px;
+            background: var(--primary); color: white;
+            border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #15803d; }
+        .timer {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--card);
+            padding: 12px 20px; border-radius: 0 0 12px 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between;
+            align-items: center; margin: -20px -20px 20px -20px;
+            border-bottom: 2px solid var(--border);
+        }
+        .timer-badge {
+            background: var(--primary); color: white;
+            padding: 6px 14px; border-radius: 20px;
+            font-weight: 700; font-size: 0.9rem;
+        }
+        .timer-badge.warning { background: var(--warning); color: white; }
+        .timer-badge.danger { background: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+        .question {
+            margin-bottom: 20px; padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .question:last-child { border-bottom: none; }
+        .q-number {
+            display: inline-block; background: var(--primary);
+            color: white; width: 28px; height: 28px;
+            border-radius: 50%; text-align: center;
+            line-height: 28px; font-size: 0.85rem; font-weight: 700;
+            margin-right: 8px;
+        }
+        .q-text { font-weight: 600; font-size: 1.05rem; margin-bottom: 12px; }
+        .options label {
+            display: block; padding: 10px 14px;
+            background: var(--bg); border: 2px solid var(--border);
+            border-radius: 8px; margin-bottom: 8px;
+            cursor: pointer; transition: all 0.15s;
+            font-weight: 500;
+        }
+        .options label:hover { border-color: var(--primary); background: #eff6ff; }
+        .options input[type="radio"] { margin-right: 10px; accent-color: var(--primary); }
+        .options label.selected { border-color: var(--primary); background: #eff6ff; }
+        .progress-bar {
+            width: 100%; height: 8px; background: var(--border);
+            border-radius: 4px; margin-top: 8px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: var(--success);
+            border-radius: 4px; transition: width 0.3s;
+        }
+        .hidden { display: none !important; }
+        .result-box { text-align: center; padding: 40px 20px; }
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 2.5rem; font-weight: 800;
+            color: white; background: conic-gradient(var(--success) calc(var(--pct)*1%), var(--border) 0);
+        }
+        .score-inner { width: 110px; height: 110px; border-radius: 50%;
+            background: white; display: flex; align-items: center;
+            justify-content: center; color: var(--text); }
+        .status-pass { color: var(--success); font-weight: 700; font-size: 1.2rem; }
+        .status-fail { color: var(--danger); font-weight: 700; font-size: 1.2rem; }
+        .spinner {
+            border: 3px solid var(--border); border-top: 3px solid var(--primary);
+            border-radius: 50%; width: 24px; height: 24px;
+            animation: spin 1s linear infinite; display: inline-block;
+            vertical-align: middle; margin-right: 8px;
+        }
+        @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+        .error-msg { color: var(--danger); font-size: 0.9rem; margin-top: 4px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .review-item { text-align: left; margin-bottom: 12px; padding: 12px; background: var(--bg); border-radius: 8px; }
+        .review-item.correct { border-left: 4px solid var(--success); }
+        .review-item.wrong { border-left: 4px solid var(--danger); }
+        @media (max-width: 600px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.2rem; }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <!-- Landing Page -->
+        <div id="landing">
+            <div class="header">
+                <h1>🎯 Pre-Test Bootcamp CDSP</h1>
+                <p>Certified Data Science Practitioner (DSP-210)</p>
+                <p style="margin-top:8px; font-size:0.85rem;">5 Hari Intensive Bootcamp | 35 Soal | 60 Menit</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom:12px;">📋 Petunjuk</h3>
+                <ul style="padding-left:18px; color:var(--text-light);">
+                    <li>Pre-test terdiri dari <strong>35 soal pilihan ganda</strong> yang diacak secara random.</li>
+                    <li>Waktu pengerjaan <strong>45 menit</strong>.</li>
+                    <li>Setiap peserta mendapatkan urutan soal yang berbeda.</li>
+                    <li>Nilai minimal kelulusan <strong>50%</strong>.</li>
+                    <li>Pastikan koneksi internet stabil sebelum memulai.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom:16px;">📝 Identitas Peserta</h3>
+                <div class="form-group">
+                    <label for="nama">Nama Lengkap</label>
+                    <input type="text" id="nama" placeholder="Masukkan nama lengkap Anda">
+                    <div class="error-msg hidden" id="err-nama">Nama wajib diisi</div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Masukkan email aktif Anda">
+                    <div class="error-msg hidden" id="err-email">Email valid wajib diisi</div>
+                </div>
+                <button class="btn btn-success" onclick="startTest()" style="width:100%;">Mulai Pre-Test</button>
+            </div>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quiz" class="hidden">
+            <div class="timer">
+                <div><strong>⏱️ Sisa Waktu:</strong> <span id="timer" class="timer-badge">60:00</span></div>
+                <div><strong>Soal:</strong> <span id="answered">0</span>/35</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+            <div id="questions-container"></div>
+            <div class="card" style="text-align:center; position:sticky; bottom:20px; z-index:50;">
+                <button class="btn btn-success" onclick="submitTest()" id="btn-submit" style="width:100%;">
+                    Kirim Jawaban
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Page -->
+        <div id="result" class="hidden">
+            <div class="header">
+                <h1>🎉 Pre-Test Selesai</h1>
+                <p>Terima kasih telah mengikuti pre-test</p>
+            </div>
+            <div class="card result-box">
+                <div class="score-circle" id="score-circle" style="--pct:0">
+                    <div class="score-inner"><span id="score-pct">0%</span></div>
+                </div>
+                <div id="status-text" class="status-pass">Status</div>
+                <p style="margin-top:12px; color:var(--text-light);">
+                    <strong id="score-val">0</strong> / 35 soal benar
+                </p>
+                <div class="info-grid" style="margin-top:20px; text-align:left;">
+                    <div class="card" style="padding:14px;">
+                        <div style="font-size:0.8rem; color:var(--text-light);">Nama</div>
+                        <div style="font-weight:700;" id="res-nama">-</div>
+                    </div>
+                    <div class="card" style="padding:14px;">
+                        <div style="font-size:0.8rem; color:var(--text-light);">Email</div>
+                        <div style="font-weight:700;" id="res-email">-</div>
+                    </div>
+                </div>
+                <div id="review-section" style="margin-top:20px; text-align:left;"></div>
+                <p style="font-size:0.85rem; color:var(--text-light); margin-top:16px;">
+                    Hasil telah disimpan. Silakan screenshot halaman ini untuk arsip Anda.
+                </p>
+                <button class="btn" onclick="location.reload()" style="margin-top:16px;">Kembali ke Awal</button>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading" class="hidden" style="position:fixed; inset:0; background:rgba(255,255,255,0.95); z-index:200; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+            <div class="spinner" style="width:40px; height:40px; margin-bottom:12px;"></div>
+            <p style="font-weight:600; color:var(--text-light);">Mengirim jawaban...</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION - GANTI URL INI
+        // ============================================
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby54uftrJkO97O9EZyip6-hxWWiaZ3bTrfndRZA6td7Yxr1pJFEXJHP8sDf7uuUgacP/exec";
+        const TOTAL_QUESTIONS = 35;
+        const TIME_MINUTES = 45;
+
+        // ============================================
+        // BANK SOAL (40 soal dengan ID unik)
+        // ============================================
+        const QUESTION_BANK = [
+            { id: 1,  q: "Menurut materi CDSP, data science adalah disiplin yang mencakup kecuali...", options: ["Mengumpulkan data","Menganalisis data","Menghapus semua data mentah","Mengekstrak nilai dari data"] },
+            { id: 2,  q: "Apa fokus utama dari Design Thinking dalam konteks data science?", options: ["Mengurangi biaya proyek","Kebutuhan manusia dan inovasi","Mempercepat training model","Mengotomatisasi ETL"] },
+            { id: 3,  q: "'Scope Creep' dalam manajemen proyek data science mengacu pada...", options: ["Penambahan fitur model secara bertahap","Proyek yang terus berkembang melebihi batas yang ditetapkan","Perubahan arsitektur database","Penurunan akurasi model"] },
+            { id: 4,  q: "Apa perbedaan utama antara Proof of Concept (POC) dan Minimum Viable Product (MVP)?", options: ["POC untuk internal, MVP untuk early adopters","POC lebih besar skalanya","MVP tidak memerlukan data","POC dan MVP identik"] },
+            { id: 5,  q: "KPI (Key Performance Indicator) dalam proyek data science berfungsi sebagai...", options: ["Dokumen legal proyek","Cara utama mengukur keberhasilan proyek","Format penyimpanan data","Jenis algoritma machine learning"] },
+            { id: 6,  q: "Manakah yang BUKAN termasuk kategori stakeholder dalam proyek data science?", options: ["Customers/end users","Sponsors/champions","Algorithm optimizer","Program/project managers"] },
+            { id: 7,  q: "Data Democratization bertujuan untuk membuat data menjadi accessible, understandable, dan...", options: ["actionable","immutable","centralized","encrypted"] },
+            { id: 8,  q: "Apa yang dimaksud dengan Data Literacy?", options: ["Kemampuan membaca kode Python","Kemampuan menginterpretasi data dan mendapatkan insight","Kemampuan menginstall database","Kemampuan membuat presentasi"] },
+            { id: 9,  q: "ETL dalam data science merupakan singkatan dari...", options: ["Evaluate, Train, Load","Extract, Transform, Load","Extract, Test, Label","Evaluate, Transform, Learn"] },
+            { id: 10, q: "Data yang tersimpan dalam spreadsheet atau database dengan kolom dan baris yang jelas disebut...", options: ["Unstructured data","Semi-structured data","Structured data","Raw data"] },
+            { id: 11, q: "Contoh unstructured data adalah...", options: ["Tabel SQL","File CSV","Gambar dan video","JSON dengan schema tetap"] },
+            { id: 12, q: "Dalam dataset, kolom yang digunakan model untuk membuat estimasi disebut...", options: ["Record","Instance","Feature / Attribute","Value"] },
+            { id: 13, q: "Jumlah total feature yang berbeda dalam sebuah dataset menentukan...", options: ["Volume data","Dimensions","Velocity","Variety"] },
+            { id: 14, q: "Data Governance bertujuan untuk...", options: ["Meningkatkan kecepatan internet","Memastikan pengelolaan data sesuai strategi organisasi","Menghapus data lama otomatis","Mengganti database legacy"] },
+            { id: 15, q: "PII (Personally Identifiable Information) adalah data yang...", options: ["Hanya bisa diakses admin","Dapat digunakan untuk mengidentifikasi individu","Berisi informasi produk","Tersedia untuk publik"] },
+            { id: 16, q: "Format mana yang umum dianggap sebagai semi-structured data?", options: ["Relational database","CSV flat file","XML dan JSON","Binary executable"] },
+            { id: 17, q: "Tujuan utama Exploratory Data Analysis (EDA) adalah...", options: ["Men-deploy model ke production","Mengungkap insight yang dapat menggerakkan keputusan bisnis","Menulis kode Python","Membuat database baru"] },
+            { id: 18, q: "Visualisasi apa yang paling cocok untuk melihat distribusi frekuensi data numerik?", options: ["Pie chart","Histogram","Scatter plot","Line chart"] },
+            { id: 19, q: "Outlier adalah...", options: ["Data point yang sangat berbeda dari data lainnya","Data yang hilang","Data yang terduplikasi","Data dengan format salah"] },
+            { id: 20, q: "Apa tujuan dari Data Preprocessing?", options: ["Membuat data menjadi siap dan sesuai untuk modeling","Menghapus semua data kategorikal","Mengubah data menjadi unstructured","Mengurangi jumlah baris data"] },
+            { id: 21, q: "Korelasi mengukur...", options: ["Jumlah data yang hilang","Hubungan antara dua variabel","Kecepatan query database","Akurasi model"] },
+            { id: 22, q: "Normalisasi data bertujuan untuk...", options: ["Mengubah data ke dalam skala standar tertentu","Menghapus outlier","Mengisi missing value","Mengubah tipe data"] },
+            { id: 23, q: "Missing value pada dataset dapat ditangani dengan metode berikut KECUALI...", options: ["Imputasi dengan mean/median","Penghapusan baris","Imputasi dengan modus","Menambahkan noise acak"] },
+            { id: 24, q: "Dalam supervised learning, 'label' atau 'ground truth' berfungsi sebagai...", options: ["Data input mentah","Jawaban yang benar untuk melatih model","Hyperparameter","Feature engineering"] },
+            { id: 25, q: "Classification adalah jenis model yang menghasilkan...", options: ["Nilai numerik kontinu","Kategori atau kelas label","Cluster tanpa label","Reward signal"] },
+            { id: 26, q: "Regression digunakan ketika target variabel yang diprediksi bersifat...", options: ["Kategorikal","Numerik kontinu","Biner saja","Teks bebas"] },
+            { id: 27, q: "Overfitting terjadi ketika model...", options: ["Tidak bisa dilatih","Performa baik di training tapi buruk di test data","Terlalu sederhana","Memerlukan lebih banyak data"] },
+            { id: 28, q: "Train-Test Split dilakukan untuk...", options: ["Menggabungkan dataset","Mengevaluasi performa model pada data yang belum pernah dilihat","Membersihkan data","Mengurangi dimensi"] },
+            { id: 29, q: "Confusion Matrix digunakan untuk mengevaluasi model...", options: ["Regresi","Clustering","Klasifikasi","Reinforcement Learning"] },
+            { id: 30, q: "Hyperparameter Tuning adalah proses...", options: ["Mengoptimalkan parameter yang tidak dipelajari model selama training","Mengubah struktur data","Membersihkan missing value","Menggabungkan dataset"] },
+            { id: 31, q: "Clustering termasuk dalam kategori learning mode...", options: ["Supervised learning","Unsupervised learning","Semi-supervised learning","Reinforcement learning"] },
+            { id: 32, q: "Perbedaan utama Classification dan Clustering adalah...", options: ["Classification memiliki predefined labels, clustering tidak","Clustering lebih akurat","Classification hanya untuk gambar","Clustering memerlukan lebih banyak data"] },
+            { id: 33, q: "Reinforcement Learning melibatkan...", options: ["Agent yang belajar melalui reward dari environment","Dataset yang sepenuhnya berlabel","Pengelompokan data tanpa target","Prediksi nilai kontinu"] },
+            { id: 34, q: "Semi-supervised learning merupakan kombinasi dari...", options: ["Dua algoritma clustering","Data berlabel dan tidak berlabel","Training dan testing secara bersamaan","Dua model neural network"] },
+            { id: 35, q: "Tahap 'Finalize the Project' dalam data science process bertujuan untuk...", options: ["Menghapus data sementara","Mempresentasikan model dan mendeploy ke production","Mengganti algoritma","Mengurangi jumlah fitur"] },
+            { id: 36, q: "Production Pipeline dalam data science adalah...", options: ["Proses otomatis untuk men-deploy dan menjalankan model","Dokumen laporan akhir","Presentasi kepada stakeholder","Proses cleaning data"] },
+            { id: 37, q: "Mengapa model monitoring penting setelah deployment?", options: ["Untuk mengubah database","Untuk melacak performa model seiring waktu","Untuk menghapus log","Untuk mengganti programming language"] },
+            { id: 38, q: "Dalam konteks data science, stochastic mengacu pada...", options: ["Model yang deterministik","Sifat acak pada data sample dan model","Proses ETL","Visualisasi data"] },
+            { id: 39, q: "Apa itu Data Wrangling?", options: ["Membuat visualisasi grafik","Transformasi data ke bentuk yang lebih usable","Menghapus database lama","Membuat laporan untuk stakeholder"] },
+            { id: 40, q: "Manakah yang termasuk kebijakan privasi data yang relevan untuk data science?", options: ["GDPR, HIPAA, CCPA","HTML, CSS, JS","CPU, GPU, RAM","SQL, NoSQL, Graph"] }
+        ];
+
+        let selectedQuestions = [];
+        let answers = {}; // key: questionId, value: optionIndex
+        let timerInterval;
+        let timeLeft = TIME_MINUTES * 60;
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startTest() {
+            const nama = document.getElementById('nama').value.trim();
+            const email = document.getElementById('email').value.trim();
+            let valid = true;
+            if (!nama) { document.getElementById('err-nama').classList.remove('hidden'); valid = false; }
+            else { document.getElementById('err-nama').classList.add('hidden'); }
+            if (!email || !email.includes('@')) { document.getElementById('err-email').classList.remove('hidden'); valid = false; }
+            else { document.getElementById('err-email').classList.add('hidden'); }
+            if (!valid) return;
+
+            selectedQuestions = shuffle(QUESTION_BANK).slice(0, TOTAL_QUESTIONS);
+            answers = {};
+            document.getElementById('landing').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            renderQuestions();
+            startTimer();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            selectedQuestions.forEach((item, idx) => {
+                const qNum = idx + 1;
+                const div = document.createElement('div');
+                div.className = 'card question';
+                div.dataset.qid = item.id;
+                div.innerHTML = `
+                    <div class="q-text"><span class="q-number">${qNum}</span>${escapeHtml(item.q)}</div>
+                    <div class="options" id="opts-${item.id}">
+                        ${item.options.map((opt, oIdx) => `
+                            <label onclick="selectOption(${item.id}, ${oIdx})">
+                                <input type="radio" name="q${item.id}" value="${oIdx}" onchange="selectOption(${item.id}, ${oIdx})">
+                                ${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function selectOption(qId, oIdx) {
+            answers[qId] = oIdx;
+            const opts = document.getElementById(`opts-${qId}`).querySelectorAll('label');
+            opts.forEach((el, i) => {
+                el.classList.toggle('selected', i === oIdx);
+            });
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(answers).length;
+            document.getElementById('answered').textContent = answered;
+            document.getElementById('progress').style.width = (answered / TOTAL_QUESTIONS * 100) + '%';
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) { clearInterval(timerInterval); submitTest(true); }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            const el = document.getElementById('timer');
+            el.textContent = `${m}:${s}`;
+            el.className = 'timer-badge';
+            if (timeLeft < 300) el.classList.add('danger');
+            else if (timeLeft < 600) el.classList.add('warning');
+        }
+
+        async function submitTest(auto = false) {
+            if (!auto && Object.keys(answers).length < TOTAL_QUESTIONS) {
+                const unanswered = TOTAL_QUESTIONS - Object.keys(answers).length;
+                if (!confirm(`Anda belum menjawab ${unanswered} soal. Yakin ingin mengirim?`)) return;
+            }
+            clearInterval(timerInterval);
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('btn-submit').disabled = true;
+
+            const payload = {
+                nama: document.getElementById('nama').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                answers: answers,
+                submittedAt: new Date().toISOString(),
+                timeRemaining: timeLeft
+            };
+
+            try {
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                showResult(result);
+            } catch (err) {
+                alert('Gagal mengirim jawaban: ' + err.message + '\\nPastikan URL Apps Script sudah benar dan sudah di-deploy.');
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('btn-submit').disabled = false;
+            }
+        }
+
+        function showResult(result) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+
+            const pct = Math.round((result.score / result.total) * 100);
+            document.getElementById('score-val').textContent = result.score;
+            document.getElementById('score-pct').textContent = pct + '%';
+            document.getElementById('score-circle').style.setProperty('--pct', pct);
+            document.getElementById('res-nama').textContent = result.nama || '-';
+            document.getElementById('res-email').textContent = result.email || '-';
+
+            const statusEl = document.getElementById('status-text');
+            if (pct >= 70) { statusEl.textContent = '✅ LULUS'; statusEl.className = 'status-pass'; }
+            else { statusEl.textContent = '❌ BELUM LULUS'; statusEl.className = 'status-fail'; }
+
+            // Review section
+            const reviewDiv = document.getElementById('review-section');
+            if (result.details && result.details.length > 0) {
+                let html = '<h3 style="margin-bottom:12px;">📊 Pembahasan Singkat</h3>';
+                result.details.forEach((d, i) => {
+                    const cls = d.isCorrect ? 'correct' : 'wrong';
+                    const icon = d.isCorrect ? '✅' : '❌';
+                    html += `<div class="review-item ${cls}">
+                        <div><strong>${icon} Soal ${i+1}:</strong> ${escapeHtml(d.question)}</div>
+                        <div style="font-size:0.85rem; color:var(--text-light); margin-top:4px;">
+                            Jawaban Anda: <strong>${String.fromCharCode(65+d.userAnswer)}. ${escapeHtml(d.userAnswerText)}</strong> |
+                            Benar: <strong>${String.fromCharCode(65+d.correctAnswer)}. ${escapeHtml(d.correctAnswerText)}</strong>
+                        </div>
+                    </div>`;
+                });
+                reviewDiv.innerHTML = html;
+            }
+        }
+    </script>
+</body>
+</html>
