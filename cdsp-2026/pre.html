@@ -156,10 +156,11 @@
                 <h3 style="margin-bottom:12px;">📋 Petunjuk</h3>
                 <ul style="padding-left:18px; color:var(--text-light);">
                     <li>Pre-test terdiri dari <strong>35 soal pilihan ganda</strong> yang diacak secara random.</li>
-                    <li>Waktu pengerjaan <strong>45 menit</strong>.</li>
+                    <li>Waktu pengerjaan <strong>60 menit</strong>.</li>
                     <li>Setiap peserta mendapatkan urutan soal yang berbeda.</li>
-                    <li>Nilai minimal kelulusan <strong>50%</strong>.</li>
+                    <li>Nilai minimal kelulusan <strong>70%</strong> (24/35 soal benar).</li>
                     <li>Pastikan koneksi internet stabil sebelum memulai.</li>
+                    <li>Jawaban akan dikirim ke server dan disimpan di Google Sheet.</li>
                 </ul>
             </div>
             <div class="card">
@@ -234,11 +235,14 @@
 
     <script>
         // ============================================
-        // CONFIGURATION - GANTI URL INI
+        // CONFIGURATION - WAJIB GANTI URL INI
         // ============================================
+        // 1. Deploy Apps Script sebagai Web App (bukan Test deployment)
+        // 2. Execute as: Me | Who has access: ANYONE
+        // 3. Copy URL deployment ke bawah ini
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPdt7RPa28BqCM7FsP3Zd3hC8UEiqCnspU-tn04t_q8BUCNP1fD5bTU6ZQrOFUbMQE/exec";
         const TOTAL_QUESTIONS = 35;
-        const TIME_MINUTES = 45;
+        const TIME_MINUTES = 60;
 
         // ============================================
         // BANK SOAL (40 soal dengan ID unik)
@@ -399,16 +403,50 @@
             };
 
             try {
+                // Fetch dengan timeout 15 detik
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 15000);
+
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status);
+                }
+
                 const result = await response.json();
+                if (result.status === 'error') {
+                    throw new Error(result.message || 'Server error');
+                }
                 showResult(result);
             } catch (err) {
-                alert('Gagal mengirim jawaban: ' + err.message + '\\nPastikan URL Apps Script sudah benar dan sudah di-deploy.');
+                let msg = 'Gagal mengirim jawaban.
+
+';
+                if (err.name === 'AbortError') {
+                    msg += 'Koneksi timeout. Periksa koneksi internet Anda.';
+                } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+                    msg += 'Error CORS / Network.
+
+Pastikan:
+';
+                    msg += '1. URL Apps Script sudah BENAR
+';
+                    msg += '2. Apps Script sudah di-DEPLOY ULANG setelah edit
+';
+                    msg += '3. Permission: Execute as Me, Access: ANYONE
+';
+                    msg += '4. Buka Apps Script → Deploy → New deployment (bukan Test deployment)';
+                } else {
+                    msg += err.message;
+                }
+                alert(msg);
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('btn-submit').disabled = false;
             }
