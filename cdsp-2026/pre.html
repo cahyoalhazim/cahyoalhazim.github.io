@@ -156,7 +156,7 @@
                 <h3 style="margin-bottom:12px;">Petunjuk</h3>
                 <ul style="padding-left:18px; color:var(--text-light);">
                     <li>Pre-test terdiri dari <strong>35 soal pilihan ganda</strong> yang diacak secara random.</li>
-                    <li>Waktu pengerjaan <strong>45 menit</strong>.</li>
+                    <li>Waktu pengerjaan <strong>60 menit</strong>.</li>
                     <li>Setiap peserta mendapatkan urutan soal yang berbeda.</li>
                     <li>Nilai minimal kelulusan <strong>70%</strong> (24/35 soal benar).</li>
                 </ul>
@@ -240,7 +240,7 @@
         // 3. Copy URL deployment ke bawah ini
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPdt7RPa28BqCM7FsP3Zd3hC8UEiqCnspU-tn04t_q8BUCNP1fD5bTU6ZQrOFUbMQE/exec";
         const TOTAL_QUESTIONS = 35;
-        const TIME_MINUTES = 45;
+        const TIME_MINUTES = 40;
 
         // ============================================
         // BANK SOAL (40 soal dengan ID unik)
@@ -409,7 +409,6 @@
                 const response = await fetch(APPS_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'cors',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload),
                     signal: controller.signal
                 });
@@ -428,12 +427,12 @@
                 let msg = 'Gagal mengirim jawaban.\n\n';
                 if (err.name === 'AbortError') {
                     msg += 'Koneksi timeout. Periksa koneksi internet Anda.';
-                } else if (err.message.indexOf('Failed to fetch') !== -1 || err.message.indexOf('NetworkError') !== -1) {
-                    msg += 'Error CORS / Network.\n\nPastikan:\n';
+                } else if (err.message.indexOf('Failed to fetch') !== -1 || err.message.indexOf('NetworkError') !== -1 || err.message.indexOf('CORS') !== -1) {
+                    msg += 'Error CORS.\n\nPastikan:\n';
                     msg += '1. URL Apps Script sudah BENAR\n';
-                    msg += '2. Apps Script sudah di-DEPLOY ULANG setelah edit\n';
-                    msg += '3. Permission: Execute as Me, Access: ANYONE\n';
-                    msg += '4. Buka Apps Script -> Deploy -> New deployment (bukan Test deployment)';
+                    msg += '2. Apps Script sudah di-DEPLOY ULANG (Deploy -> New deployment)\n';
+                    msg += '3. Execute as: Me | Access: ANYONE\n';
+                    msg += '4. Jangan pakai Test deployment!';
                 } else {
                     msg += err.message;
                 }
