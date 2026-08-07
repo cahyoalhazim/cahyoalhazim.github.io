@@ -74,7 +74,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 <div class="container">
 <div class="header" id="header" style="display:none">
 <div class="logo">CDSP Exam</div>
-<div class="hearts" id="hearts">❤️❤️❤️❤️❤️</div>
+<div style="font-size:14px;color:var(--text-light);font-weight:600">CDSP 210</div>
 </div>
 <div class="screen active" id="start-screen">
 <div class="start-screen">
@@ -133,7 +133,6 @@ const allQuestions = [{"id": 1, "q": "A data scientist is working with a dataset
 let examQuestions = [];
 let currentIndex = 0;
 let score = 0;
-let hearts = 5;
 let timer = null;
 let timeLeft = 60;
 let userAnswers = [];
@@ -152,7 +151,7 @@ function shuffle(array) {
 
 function startExam(){
   examQuestions = shuffle(allQuestions).slice(0,TOTAL_QUESTIONS);
-  currentIndex=0;score=0;hearts=5;userAnswers=[];streak=0;maxStreak=0;startTime=Date.now();
+  currentIndex=0;score=0;userAnswers=[];streak=0;maxStreak=0;startTime=Date.now();
   document.getElementById('header').style.display='flex';
   document.getElementById('total-q').textContent=TOTAL_QUESTIONS;
   showScreen('quiz-screen');
@@ -162,12 +161,6 @@ function startExam(){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-}
-
-function updateHearts(){
-  const h = document.getElementById('hearts');
-  h.innerHTML = '❤️'.repeat(hearts) + '🖤'.repeat(5-hearts);
-  h.querySelectorAll('span, .heart').forEach((el,i)=>{el.classList.toggle('lost',i>=hearts)});
 }
 
 function updateProgress(){
@@ -197,17 +190,14 @@ function startTimer(){
 
 function handleTimeout(){
   const q = examQuestions[currentIndex];
-  hearts--;
   streak=0;
-  updateHearts();
   userAnswers.push({q:q, selected:null, correct:false, timeOut:true});
   document.querySelectorAll('.option').forEach((opt,idx)=>{
     opt.classList.add('disabled');
     if(idx===q.answer) opt.classList.add('correct');
   });
   document.getElementById('next-btn').disabled=false;
-  if(hearts<=0) setTimeout(endExam,1500);
-}
+  }
 
 function loadQuestion(){
   updateProgress();
@@ -244,17 +234,13 @@ function selectOption(idx){
     if(streak>maxStreak) maxStreak=streak;
     document.querySelector('.option.correct').classList.add('pop');
   }else{
-    hearts--;
-    streak=0;
-    updateHearts();
-    if(idx>=0 && idx<opts.length) opts[idx].classList.add('shake');
+  streak=0;
+      if(idx>=0 && idx<opts.length) opts[idx].classList.add('shake');
   }
 
   userAnswers.push({q:q, selected:idx, correct:correct, timeOut:false});
   document.getElementById('next-btn').disabled=false;
-
-  if(hearts<=0) setTimeout(endExam,1500);
-}
+  }
 
 function nextQuestion(){
   currentIndex++;
