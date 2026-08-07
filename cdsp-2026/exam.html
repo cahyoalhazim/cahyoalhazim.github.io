@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDSP Certification - Interactive Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#58cc02;--primary-dark:#58a700;--secondary:#1cb0f6;--danger:#ff4b4b;--warning:#ffc800;--bg:#f7f7f7;--card:#fff;--text:#3c3c3c;--text-light:#777;--border:#e5e5e5;--correct:#d7ffb8;--correct-border:#58cc02;--wrong:#ffdfe0;--wrong-border:#ff4b4b;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.container{max-width:800px;margin:0 auto;padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:2px solid var(--border);margin-bottom:20px}
+.logo{font-size:24px;font-weight:800;color:var(--primary)}
+.hearts{display:flex;gap:5px;font-size:22px}
+.heart{transition:transform .3s}.heart.lost{filter:grayscale(1);transform:scale(.8)}
+.progress-container{margin-bottom:25px}
+.progress-bar-bg{height:16px;background:#e5e5e5;border-radius:20px;overflow:hidden;border:2px solid #e5e5e5}
+.progress-bar-fill{height:100%;background:var(--primary);width:0%;transition:width .5s;border-radius:20px}
+.progress-text{text-align:right;font-size:14px;color:var(--text-light);margin-top:5px;font-weight:600}
+.timer-container{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;font-size:20px;font-weight:700}
+.timer-ring{width:60px;height:60px;border-radius:50%;border:4px solid var(--border);border-top-color:var(--primary);display:flex;align-items:center;justify-content:center;animation:spin 1s linear infinite;position:relative}
+.timer-ring.urgent{border-top-color:var(--danger);animation-duration:.5s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.timer-text{position:absolute;font-size:16px}
+.card{background:var(--card);border-radius:16px;padding:25px;box-shadow:0 4px 20px rgba(0,0,0,.08);border:2px solid var(--border);margin-bottom:20px;transition:transform .2s}
+.question-number{font-size:14px;color:var(--text-light);font-weight:700;text-transform:uppercase;margin-bottom:10px}
+.question-text{font-size:18px;font-weight:700;line-height:1.5;margin-bottom:20px}
+.options{display:flex;flex-direction:column;gap:12px}
+.option{padding:16px 20px;border-radius:12px;border:2px solid var(--border);cursor:pointer;font-weight:600;font-size:16px;transition:all .2s;display:flex;align-items:center;gap:12px;background:#fff;position:relative;overflow:hidden}
+.option:hover:not(.disabled){border-color:var(--secondary);background:#f0f9ff;transform:translateY(-2px)}
+.option .letter{width:32px;height:32px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;color:var(--text-light)}
+.option.correct{background:var(--correct);border-color:var(--correct-border)}
+.option.wrong{background:var(--wrong);border-color:var(--wrong-border)}
+.option.disabled{pointer-events:none}
+.option .check{margin-left:auto;font-size:20px;display:none}
+.option.correct .check,.option.wrong .check{display:block}
+.btn{width:100%;padding:16px;border-radius:16px;border:none;font-size:18px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .2s;margin-top:15px;box-shadow:0 4px 0 rgba(0,0,0,.1)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 rgba(0,0,0,.1)}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-dark)}
+.btn-secondary{background:var(--secondary);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.screen{display:none}.screen.active{display:block;animation:fadeIn .5s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.start-screen{text-align:center;padding:40px 20px}
+.start-screen h1{font-size:36px;color:var(--primary);margin-bottom:15px}
+.start-screen p{font-size:18px;color:var(--text-light);margin-bottom:30px;line-height:1.6}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:30px 0}
+.stat-box{background:#fff;padding:20px;border-radius:16px;border:2px solid var(--border)}
+.stat-box .number{font-size:32px;font-weight:800;color:var(--secondary)}
+.stat-box .label{font-size:14px;color:var(--text-light);font-weight:600}
+.result-circle{width:150px;height:150px;border-radius:50%;background:conic-gradient(var(--primary) calc(var(--pct)*1%),#e5e5e5 0);display:flex;align-items:center;justify-content:center;margin:20px auto;position:relative}
+.result-circle::before{content:'';width:120px;height:120px;background:#fff;border-radius:50%;position:absolute}
+.result-score{position:relative;z-index:1;font-size:36px;font-weight:800;color:var(--text)}
+.result-message{font-size:24px;font-weight:700;margin:15px 0}
+.result-details{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:20px 0}
+.detail-box{background:#fff;padding:15px;border-radius:12px;border:2px solid var(--border)}
+.review-item{margin-bottom:20px;padding:20px;border-radius:16px;border:2px solid var(--border);background:#fff}
+.review-item.correct-review{border-left:5px solid var(--correct-border)}
+.review-item.wrong-review{border-left:5px solid var(--wrong-border)}
+.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.review-status{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;text-transform:uppercase}
+.status-correct{background:var(--correct);color:var(--correct-border)}
+.status-wrong{background:var(--wrong);color:var(--wrong-border)}
+.review-explanation{background:#f8f9fa;padding:15px;border-radius:12px;margin-top:10px;font-size:14px;line-height:1.6;color:var(--text-light)}
+.shake{animation:shake .5s}@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-10px)}80%{transform:translateX(10px)}}
+.pop{animation:pop .3s}@keyframes pop{0%{transform:scale(.8)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr}.question-text{font-size:16px}.option{font-size:14px;padding:14px}}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="container">
+<div class="header" id="header" style="display:none">
+<div class="logo">CDSP Exam</div>
+<div class="hearts" id="hearts">❤️❤️❤️❤️❤️</div>
+</div>
+<div class="screen active" id="start-screen">
+<div class="start-screen">
+<div style="font-size:64px;margin-bottom:10px">📊</div>
+<h1>CDSP Certification<br>Practice Exam</h1>
+<p>Uji kemampuanmu dengan 50 soal pilihan ganda acak dari bank soal CDSP. Setiap soal memiliki waktu 1 menit. Siap?</p>
+<div class="stats-grid">
+<div class="stat-box"><div class="number">50</div><div class="label">Soal</div></div>
+<div class="stat-box"><div class="number">60s</div><div class="label">Per Soal</div></div>
+<div class="stat-box"><div class="number">162</div><div class="label">Bank Soal</div></div>
+</div>
+<button class="btn btn-primary" onclick="startExam()">Mulai Ujian</button>
+</div>
+</div>
+<div class="screen" id="quiz-screen">
+<div class="progress-container">
+<div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
+<div class="progress-text"><span id="current-q">1</span> / <span id="total-q">50</span></div>
+</div>
+<div class="timer-container">
+<div class="timer-ring" id="timer-ring"><span class="timer-text" id="timer-text">60</span></div>
+<span>detik tersisa</span>
+</div>
+<div class="card">
+<div class="question-number">Soal <span id="q-num">1</span></div>
+<div class="question-text" id="q-text">Loading...</div>
+<div class="options" id="options"></div>
+</div>
+<button class="btn btn-secondary" id="next-btn" onclick="nextQuestion()" disabled>Lanjutkan</button>
+</div>
+<div class="screen" id="result-screen">
+<div class="start-screen">
+<div style="font-size:64px;margin-bottom:10px">🏆</div>
+<h1>Ujian Selesai!</h1>
+<div class="result-circle" id="result-circle"><div class="result-score" id="result-score">0%</div></div>
+<div class="result-message" id="result-message">Kerja bagus!</div>
+<div class="result-details">
+<div class="detail-box"><div class="number" id="correct-count" style="color:var(--primary)">0</div><div class="label">Benar</div></div>
+<div class="detail-box"><div class="number" id="wrong-count" style="color:var(--danger)">0</div><div class="label">Salah</div></div>
+<div class="detail-box"><div class="number" id="time-count" style="color:var(--secondary)">0</div><div class="label">Waktu (menit)</div></div>
+<div class="detail-box"><div class="number" id="streak-count" style="color:var(--warning)">0</div><div class="label">Streak Terbaik</div></div>
+</div>
+<button class="btn btn-primary" onclick="showReview()">Lihat Pembahasan</button>
+<button class="btn btn-secondary" onclick="location.reload()" style="margin-top:10px;background:var(--warning);color:#3c3c3c">Ulangi Ujian</button>
+</div>
+</div>
+<div class="screen" id="review-screen">
+<h1 style="text-align:center;margin-bottom:20px;color:var(--primary)">Review & Pembahasan</h1>
+<div id="review-list"></div>
+<button class="btn btn-primary" onclick="location.reload()" style="margin-top:20px">Kembali ke Awal</button>
+</div>
+</div>
+<script>
+
+const allQuestions = [{"id": 1, "q": "A data scientist is working with a dataset of salaries of current employees at an advertising agency. The majority of the staff make between $65,000 and $150,000 with the CEO earning more than $300,000. There are some null values in the salary column. How should the data scientist correct the null values?", "options": ["Leave them blank", "Mean of the dataset", "Median of the dataset", "Interpolation"], "answer": 2, "explanation": "Median is robust to outliers. With the CEO's extreme salary, mean would be skewed."}, {"id": 2, "q": "Which of the following is the LEAST likely barrier to improving data literacy across an organization?", "options": ["Limited information available", "Limited resources to invest in initiatives", "Organization leaders do not buy in", "Siloed mentality"], "answer": 0, "explanation": "Data literacy is about skills, not information availability. The other options are classic barriers."}, {"id": 3, "q": "A data scientist wants to generate summary statistics of a dataframe in Python. Which method should they use?", "options": ["describe()", "recap()", "summarize()", "summary()"], "answer": 0, "explanation": "pandas.DataFrame.describe() generates summary statistics."}, {"id": 4, "q": "When preparing a dataset for a regression model, what is a key step when dealing with categorical variables?", "options": ["Normalize the categorical variables", "Apply logarithmic transformation", "Encode the categorical variables", "Standardize the categorical variables"], "answer": 2, "explanation": "Categorical variables must be encoded into numerical form for regression models."}, {"id": 5, "q": "One benefit of data augmentation is the REDUCTION of:", "options": ["Costs of collecting and labelling data", "Generalization ability", "Rare event prediction", "Training data size"], "answer": 0, "explanation": "Data augmentation artificially expands the dataset, reducing collection and labeling costs."}, {"id": 6, "q": "Which of the following functions from scikit-learn is a feature scaling method?", "options": ["add_dummy_feature()", "LabelEncoder()", "MinMaxScaler()", "RangeScaler()"], "answer": 2, "explanation": "MinMaxScaler scales features to a given range (typically 0-1)."}, {"id": 7, "q": "You are working on a classification problem with a highly imbalanced dataset. One class represents only 7% of the data. Which feature engineering technique is MOST likely to improve performance?", "options": ["Standardize all numerical features", "Apply PCA", "Oversample the minority class", "Discretize continuous features"], "answer": 2, "explanation": "Oversampling the minority class helps balance the dataset and improves model performance."}, {"id": 8, "q": "Which statistical test investigates the association between two categorical variables?", "options": ["Chi-squared test", "t-test", "F-test", "ANOVA"], "answer": 0, "explanation": "Chi-squared test tests independence between categorical variables."}, {"id": 9, "q": "Hyperparameter tuning is used to:", "options": ["Increase overfitting", "Make retraining unnecessary", "Maximize model performance", "Reduce training time"], "answer": 2, "explanation": "Hyperparameter tuning optimizes model configuration to maximize performance."}, {"id": 10, "q": "Which security measures are used to protect data pipelines?", "options": ["Automated patching, pen testing, endpoint protection", "Encryption, access controls, network segmentation", "Encryption, access controls, next-gen antivirus", "Whitelisting, endpoint protection, network segmentation"], "answer": 1, "explanation": "Encryption, access controls, and network segmentation are core data pipeline security measures."}, {"id": 11, "q": "In a music recommendation system, history contains categorical features like artist genre and song mood with many unique values. What is the BEST approach?", "options": ["Discard them", "One-hot encode all values", "Group into broader categories", "Use word-embedding techniques like Word2vec"], "answer": 3, "explanation": "Word embeddings capture semantic relationships and handle high cardinality better."}, {"id": 12, "q": "Grid search is a technique used to:", "options": ["Evaluate on limited data", "Find optimal hyperparameters", "Oversample data", "Undersample data"], "answer": 1, "explanation": "Grid search exhaustively searches parameter grids to find optimal hyperparameters."}, {"id": 13, "q": "A credit scoring model reveals that stable income mitigates default risk despite poor credit history. Which explainability technique was used?", "options": ["Counterfactual Instances", "LIME", "Morris sensitivity analysis", "Tree surrogate"], "answer": 1, "explanation": "LIME provides local explanations for individual predictions, showing feature contributions."}, {"id": 14, "q": "Which pivot function transforms df with Item as index and CType as columns?", "options": ["df.pivot(index='CType', columns='CType')", "df.pivot(index='Item', columns='CType')", "df.pivot(index='EU', columns='CType')", "df.pivot(index='USD', columns='CType')"], "answer": 1, "explanation": "pivot() requires correct index and columns parameters to reshape the dataframe."}, {"id": 15, "q": "Which is NOT considered a preprocessing task?", "options": ["Removing stop words", "Sentiment analysis", "Stemming and lemmatization", "Tokenization"], "answer": 1, "explanation": "Sentiment analysis is a modeling task, not preprocessing. The others are text preprocessing."}, {"id": 16, "q": "The CPRA defines a category of data related to but not directly identifying an individual that may cause harm if public. Which category?", "options": ["NPI", "PII", "SCI", "SPI"], "answer": 3, "explanation": "CPRA defines Sensitive Personal Information (SPI) as data that could cause harm if disclosed."}, {"id": 17, "q": "In the mtcars correlation matrix, which pair is highly correlated?", "options": ["drat and hp", "wt and mpg", "wt and disp", "qsec and wt", "carb and drat"], "answer": 2, "explanation": "In mtcars, wt and disp have correlation ~0.89, indicating high correlation."}, {"id": 18, "q": "Which technique is crucial for understanding model performance across different complexity and training data sizes?", "options": ["Learning curve", "Confusion matrix", "Feature importance", "Attention mechanisms"], "answer": 0, "explanation": "Learning curves plot training and validation scores vs dataset size to diagnose bias/variance."}, {"id": 19, "q": "Which are TRUE about classification and clustering? (Select all)", "options": ["Classification is supervised", "Clustering is supervised", "Customer segmentation is classification", "Classification has predefined classes", "Logistic regression is clustering", "Clustering discovers classes"], "answer": [0, 3, 5], "explanation": "Classification is supervised with predefined classes. Clustering discovers classes. Logistic regression is classification."}, {"id": 20, "q": "For data democratization, what will a company provide? (Select all)", "options": ["More data scientists", "Platform to browse data", "Revised privacy policies", "Role-based training", "Self-service analytics tools", "Universal access"], "answer": [1, 2, 3, 4, 5], "explanation": "Data democratization involves platforms, policies, training, tools, and access."}, {"id": 21, "q": "Predicting future purchase trends. Which transformation is most appropriate?", "options": ["Normalize quantity to 0-1", "Convert timestamp to day/time features", "Log transform age", "One-hot encode categories"], "answer": 1, "explanation": "Temporal features capture purchasing patterns and seasonality."}, {"id": 22, "q": "Which are end-to-end platforms for deploying production ML pipelines? (Select all)", "options": ["Airflow", "Anaconda", "Jupyter", "Kubeflow", "MLflow"], "answer": [3, 4], "explanation": "Kubeflow and MLflow are end-to-end ML platforms. Airflow is orchestration. Anaconda and Jupyter are dev tools."}, {"id": 23, "q": "Which pandas function reads an Excel file (.xlsx)?", "options": ["read_csv()", "read_excel()", "to_csv()", "to_excel()"], "answer": 1, "explanation": "pandas.read_excel() reads Excel files."}, {"id": 24, "q": "Which defines a full outer join?", "options": ["All from left, matched from right", "All from right, matched from left", "All records when match in either table", "Only matching records"], "answer": 2, "explanation": "Full outer join returns all records when there is a match in either table."}, {"id": 25, "q": "Which pandas code removes numbers and punctuation from comments?", "options": ["str.findall('1.!')", "str.slice('1.!')", "str.split('1.!')", "str.strip('1.!')"], "answer": 3, "explanation": "None are perfect; strip removes from ends. For thorough cleaning, regex replace is needed."}, {"id": 26, "q": "Balanced accuracy for balanced datasets equals:", "options": ["Accuracy", "Average F1", "Average precision", "Average recall"], "answer": 0, "explanation": "For balanced datasets, balanced accuracy equals standard accuracy."}, {"id": 27, "q": "Which methods are used for feature engineering in text classification? (Select two)", "options": ["CNN", "Discrete Fourier transforms", "Moving averages", "TF-IDF vectorization", "Word embeddings"], "answer": [3, 4], "explanation": "TF-IDF and word embeddings are standard text feature engineering techniques."}, {"id": 28, "q": "Minimize 'not spam' emails classified as 'spam'. Which metric?", "options": ["Accuracy", "Precision", "Recall", "Specificity"], "answer": 1, "explanation": "Precision minimizes false positives (not spam marked as spam)."}, {"id": 29, "q": "A grocery store collects purchase history from its customers. What data type?", "options": ["First party data", "Second-party data", "Third-party data", "Zero-party data"], "answer": 0, "explanation": "Data collected directly by the company from its customers is first-party data."}, {"id": 30, "q": "Which describes skip-gram in Word2vec?", "options": ["Normalizes word frequency", "Embedding in transformer", "Predicts missing words from context", "Predicts surrounding words from input word"], "answer": 3, "explanation": "Skip-gram predicts context words from a target word. CBOW does the reverse."}, {"id": 31, "q": "Which model handles seasonal trends and autocorrelation?", "options": ["ARIMA", "XGBoost classifier", "Random forest regression", "SVM"], "answer": 0, "explanation": "ARIMA handles time series with seasonality and autocorrelation."}, {"id": 32, "q": "Which is Bayes theorem?", "options": ["P(A|B)=P(B,A)/P(A)", "P(A|B)=P(B,A)/P(B)", "P(A|B)=P(B,A)P(A)/P(B)", "P(A|B)=P(B|A)P(A)/P(B)"], "answer": 3, "explanation": "Bayes' theorem: P(A|B) = P(B|A) * P(A) / P(B)."}, {"id": 33, "q": "Which metric calculates similarity between two image vectors?", "options": ["Cosine similarity", "k-nearest neighbour", "Sigmoid distance", "Tan similarity"], "answer": 0, "explanation": "Cosine similarity measures the angle between vectors, commonly used for image similarity."}, {"id": 34, "q": "Which CANNOT be used for dimension reduction?", "options": ["CBOW", "PCA", "t-SNE", "UMAP"], "answer": 0, "explanation": "CBOW is word embedding, not a dimensionality reduction technique per se."}, {"id": 35, "q": "Which query returns average salary by gender?", "options": ["SELECT COUNT(*) FROM Employee GROUP BY Gender", "SELECT Dept, AVG(Salary) FROM Employee GROUP BY Gender", "SELECT Gender, AVG(Salary) FROM Employee GROUP BY Dept", "SELECT Gender, AVG(Salary) FROM Employee GROUP BY Gender"], "answer": 3, "explanation": "Correct SQL groups by Gender and calculates AVG(Salary)."}, {"id": 36, "q": "A column has only 'Yes' and 'No'. How to handle it?", "options": ["Leave as is", "One-hot encode", "Label encode", "Remove feature"], "answer": 2, "explanation": "Label encoding is efficient for binary categorical variables."}, {"id": 37, "q": "A fairness metric requires same FPR and TPR across groups. Which metric?", "options": ["Equality of Opportunity", "Equalized Odds", "False Positive Parity", "False Negative Parity"], "answer": 1, "explanation": "Equalized Odds requires equal TPR and FPR across groups."}, {"id": 38, "q": "Stratified splitting is used to:", "options": ["Balance imbalanced data", "Have different class proportions", "Have same class proportions in train/test", "Shuffle dataset"], "answer": 2, "explanation": "Stratified splitting maintains class distribution between train and test."}, {"id": 39, "q": "Which compare data lakes and warehouses? (Select all)", "options": ["Lakes store raw/unstructured data", "Lakes store structured data", "Lakes use ELT, warehouses ETL", "Warehouses store raw data", "Warehouses store structured data", "Warehouses use ELT, lakes ETL"], "answer": [0, 2, 4], "explanation": "Lakes store raw data and use ELT; warehouses store structured data and use ETL."}, {"id": 40, "q": "Best encoding for high-cardinality categorical variables?", "options": ["Hash encoding", "One-hot encoding", "Label encoding", "Target encoding"], "answer": 0, "explanation": "Hash encoding handles high cardinality efficiently."}, {"id": 41, "q": "Building sentiment analysis with text reviews and numerical ratings. Best approach?", "options": ["Train separate models", "Focus only on reviews", "Convert reviews to numerical and combine with rating", "Exclude numerical feature"], "answer": 2, "explanation": "Combining text embeddings with numerical ratings provides richer features."}, {"id": 42, "q": "Difference between data lake and data fabric?", "options": ["Lake for real-time, fabric for batch", "Lake stores raw data, fabric provides unified access", "Lake for batch, fabric for real-time", "Lake provides unified access, fabric stores raw"], "answer": 1, "explanation": "Data lake = raw storage; Data fabric = unified access layer."}, {"id": 43, "q": "Concluding a treatment is effective when it is not. What error?", "options": ["Type I Error", "Type II Error", "Sampling Error", "Measurement Error"], "answer": 0, "explanation": "Type I error (false positive): rejecting null when it is true."}, {"id": 44, "q": "Which is TRUE about k-NN?", "options": ["Distance-based algorithm", "Unsupervised learning", "Not sensitive to outliers", "Efficient with high dimensions"], "answer": 0, "explanation": "k-NN is distance-based supervised learning, sensitive to outliers and dimensions."}, {"id": 45, "q": "What does R-squared represent?", "options": ["Variance of independent explained by dependent in classification", "Variance of dependent explained by independent in regression", "Variance of independent explained by dependent in regression", "Variance of dependent explained by independent in classification"], "answer": 1, "explanation": "R^2 measures variance of dependent variable explained by independent variables in regression."}, {"id": 46, "q": "Vehicle Type: Sedan, SUV, Truck. Best encoding without ordinal assumption?", "options": ["Label encoding", "Hash encoding", "One-hot encoding", "Count encoding"], "answer": 2, "explanation": "One-hot encoding creates binary columns without imposing ordinal relationships."}, {"id": 47, "q": "Which model assumes normal distribution of independent variables?", "options": ["Y=b0+b1X1+...", "Y=b1X/(b2+X)", "Y=C+b1X-b2X^2", "Y=X^2/C"], "answer": 0, "explanation": "Linear regression assumes normally distributed errors and independent variables."}, {"id": 48, "q": "ETL pipeline with CSV files of unknown size. How to avoid out-of-memory?", "options": ["Concatenate all files first", "Read in chunk size", "Read individually then concatenate", "Read and analyze each file whole"], "answer": 1, "explanation": "Chunking allows processing large files in memory-efficient pieces."}, {"id": 49, "q": "Which reduce overfitting? (Select all)", "options": ["Decrease features", "Increase features", "Decrease regularization", "Increase regularization"], "answer": [0, 3], "explanation": "Reducing features and increasing regularization help prevent overfitting."}, {"id": 50, "q": "Which is NOT advisable for handling missing data?", "options": ["Mean/median imputation", "Remove rows", "Model-based imputation", "Replace with random values"], "answer": 3, "explanation": "Random imputation destroys data distribution and relationships."}, {"id": 51, "q": "Proper code to load CSV to DataFrame?", "options": ["pd.read_csv(sample_file.csv)", "pd.read_csv('sample_file.csv')", "pd.read_csv('sample_file.xlsx')", "pd.read_excel('sample_file.csv')"], "answer": 1, "explanation": "File names must be strings in read_csv()."}, {"id": 52, "q": "Which visualization identifies outliers?", "options": ["Bar chart", "Box plot", "Heatmap", "Pie chart"], "answer": 1, "explanation": "Box plots display quartiles and clearly show outliers."}, {"id": 53, "q": "Which describes TF-IDF?", "options": ["Binary feature per category", "Feature space by vocabulary with count values", "Frequency in row weighted by commonness in corpus", "Pre-trained word embeddings"], "answer": 2, "explanation": "TF-IDF weights word frequency by inverse document frequency."}, {"id": 54, "q": "Scale probabilities (3% to 94%) to max/min. Which scaling?", "options": ["Absolute max scaling", "Normalization (Min-Max)", "Robust scaling", "Standardization"], "answer": 1, "explanation": "Min-Max normalization scales to a specified range using min and max."}, {"id": 55, "q": "Age feature with values '18-24', '25-34', etc. How to handle?", "options": ["Leave as is", "Convert to average age", "Create individual age features", "One-hot encode"], "answer": 3, "explanation": "One-hot encoding preserves categorical nature without false ordinality."}, {"id": 56, "q": "Tagging reviews as positive/negative/neutral is what problem?", "options": ["Reinforcement learning", "Sentiment analysis", "Time series", "Recommender systems"], "answer": 1, "explanation": "Classifying text sentiment is sentiment analysis, an NLP task."}, {"id": 57, "q": "Evaluation metric for linear regression?", "options": ["Accuracy", "AUC-ROC", "F1-score", "R-squared"], "answer": 3, "explanation": "R-squared is the standard metric for linear regression."}, {"id": 58, "q": "'Distance to school' highly correlates with 'school district rating'. How to handle?", "options": ["Keep both", "Remove distance", "Combine into single metric", "Impute distance using rating"], "answer": 2, "explanation": "Combining correlated features reduces multicollinearity."}, {"id": 59, "q": "Primary purpose of hyperparameter tuning?", "options": ["Increase inference speed", "Expose to augmented data", "Diversify algorithms", "Balance bias-variance trade-off"], "answer": 3, "explanation": "Hyperparameter tuning optimizes the bias-variance trade-off."}, {"id": 60, "q": "Visualize distribution of social media checks per hour?", "options": ["Pie chart", "Histogram", "Gauge chart", "Scatterplot"], "answer": 1, "explanation": "Histograms show frequency distribution of numerical data."}, {"id": 61, "q": "Which is beyond necessary steps for deep learning prep?", "options": ["Impute missing values", "Encode categoricals", "Scale numerical features", "Manual feature transformation"], "answer": 3, "explanation": "Deep learning can learn representations automatically, making manual feature engineering less critical."}, {"id": 62, "q": "E-commerce wants to increase revenue. Best KPI?", "options": ["Page clicks", "Page views", "Website traffic", "Purchase conversions"], "answer": 3, "explanation": "Purchase conversions directly measure revenue generation."}, {"id": 63, "q": "Critical step for production ML model effectiveness?", "options": ["Dynamic scaling", "Periodic re-evaluation with updated data", "Store training data separately", "Store training data with model"], "answer": 1, "explanation": "Periodic re-evaluation detects model drift."}, {"id": 64, "q": "Best approach for missing email addresses before promo?", "options": ["Leave blank", "Impute with frequent domain", "Impute with ML model", "Remove rows"], "answer": 3, "explanation": "Missing emails cannot be reliably imputed; removing ensures valid outreach."}, {"id": 65, "q": "Differences between Bagging and Boosting? (Select all)", "options": ["Bagging parallel, Boosting sequential", "Bagging equal weights, Boosting weighted by performance", "Bagging sequential, Boosting parallel", "Bagging weighted, Boosting equal", "Bagging influenced by previous models", "Boosting influenced by previous models"], "answer": [0, 1, 5], "explanation": "Bagging trains in parallel with equal weights. Boosting trains sequentially focusing on errors."}, {"id": 66, "q": "Tool to monitor operational model performance regularly?", "options": ["MLflow", "PyTorch", "scikit-learn", "TensorFlow"], "answer": 0, "explanation": "MLflow tracks and monitors ML models in production."}, {"id": 67, "q": "Best practice for missing values in time series?", "options": ["Ignore them", "Apply appropriate imputation based on nature", "Delete sections", "Use most frequent value"], "answer": 1, "explanation": "Time series imputation should respect temporal patterns."}, {"id": 68, "q": "Identify patients at high risk of chronic disease in 5 years. What problem?", "options": ["Regression", "Binary classification", "Multi-class classification", "Cluster analysis"], "answer": 1, "explanation": "Predicting high risk vs not is binary classification."}, {"id": 69, "q": "Dataframe with user_id, gender, dob, tenure_years, referral. Data types?", "options": ["1 object, 1 datetime, 1 float, 2 bool", "2 objects, 1 datetime, 1 float, 1 bool", "2 objects, 1 timedelta, 1 float, 1 bool", "3 objects, 1 datetime, 1 float"], "answer": 1, "explanation": "user_id and gender are objects, dob is datetime, tenure is float, referral is bool."}, {"id": 70, "q": "Open-source framework for building APIs in Python?", "options": ["Apache Wicket", "Eagle", "Flask", "Spring"], "answer": 2, "explanation": "Flask is a lightweight open-source Python web framework."}, {"id": 71, "q": "Deleting location data because 98% are US, missing Canadian spending. What bias?", "options": ["Exclusion bias", "Measurement bias", "Observer bias", "Sampling bias"], "answer": 0, "explanation": "Exclusion bias occurs when meaningful minority data is systematically removed."}, {"id": 72, "q": "Which assumption to AVOID in simple linear regression?", "options": ["Heteroscedasticity", "Independence of observations", "Normal distribution of residuals", "Linear relationship"], "answer": 0, "explanation": "Linear regression assumes homoscedasticity (equal variance). Heteroscedasticity violates this."}, {"id": 73, "q": "Many purchases with $0.00 value. What to do FIRST?", "options": ["Calculate average excluding $0", "Investigate sample of $0 transactions", "Remove $0 transactions", "Impute with median"], "answer": 1, "explanation": "Always investigate anomalies before removing or transforming."}, {"id": 74, "q": "A/B test significant during holidays but effect didn't last. What was missed?", "options": ["Seasonal effects", "Multiple metrics", "Sanity checks", "Unrepeatable results"], "answer": 0, "explanation": "Holiday seasons create temporary behavioral changes."}, {"id": 75, "q": "Risk when evaluating third-party data brokers?", "options": ["Bought programmatically", "Not collected directly", "Collection methods unknown", "Shared with many companies"], "answer": 2, "explanation": "Understanding collection methodology ensures quality and compliance."}, {"id": 76, "q": "Transformers are based on which mechanism?", "options": ["GRU", "LSTM", "Multi-Head Attention", "RNN"], "answer": 2, "explanation": "Transformers use Multi-Head Self-Attention."}, {"id": 77, "q": "p-value = 0.25 at 95% CI, H1: >10% left-handed. Conclusion?", "options": ["Exactly 25% left-handed", ">10% left-handed", ">25% left-handed", "Cannot conclude >10%"], "answer": 3, "explanation": "p-value (0.25) > alpha (0.05), fail to reject null."}, {"id": 78, "q": "Which ensures same class proportion in each fold?", "options": ["Category encoding", "Dimensionality reduction", "One-hot encoding", "Stratified cross-validation"], "answer": 3, "explanation": "Stratified cross-validation preserves class proportions."}, {"id": 79, "q": "Relationship between house price, year built, sqft, bathrooms. Best analysis?", "options": ["Cluster sampling", "Logistic regression", "Multiple regression", "Simple linear regression"], "answer": 2, "explanation": "Multiple regression models one dependent vs multiple independent variables."}, {"id": 80, "q": "Which are optimization algorithms in deep learning? (Select all)", "options": ["Adam", "K-Means", "RMSprop", "SGD", "TF-IDF"], "answer": [0, 2, 3], "explanation": "Adam, RMSprop, SGD are optimizers. K-Means is clustering. TF-IDF is text vectorization."}, {"id": 81, "q": "Find account_ids WITH payments only. Which SQL keyword?", "options": ["FULL JOIN", "GROUP BY", "INNER JOIN", "LIKE"], "answer": 2, "explanation": "INNER JOIN returns only matching records from both tables."}, {"id": 82, "q": "Write dataframe to .tsv using pandas?", "options": ["df.to_csv('file.tsv')", "df.to_csv('file.tsv', index=False)", "df.to_csv('file.tsv', sep='\\t')", "df.to_tsv('file.tsv', sep='\\t')"], "answer": 2, "explanation": "Use to_csv with sep='\\t' for TSV format."}, {"id": 83, "q": "Which plot shows relationships among several variables simultaneously?", "options": ["Box plot", "Pair plot", "Scatter plot", "Violin plot"], "answer": 1, "explanation": "Pair plots show scatter plots for all pairs of variables."}, {"id": 84, "q": "Combine flat file and database table by customer ID. Best approach?", "options": ["Manual addition", "VLOOKUP in Excel", "Self join in SQL", "Custom Python script"], "answer": 3, "explanation": "Python script provides reproducibility and scalability."}, {"id": 85, "q": "Disadvantage of ReLU activation?", "options": ["It is differentiable", "It is non-linear", "It has vanishing gradient", "It is not zero-centered"], "answer": 3, "explanation": "ReLU is not zero-centered, causing potential optimization issues. (Note: ReLU solves vanishing gradient for positives)"}, {"id": 86, "q": "Best definition of an outlier?", "options": ["Value in Q3", "15 std from mean", ">1 IQR", ">1.5*IQR below Q1 or above Q3"], "answer": 3, "explanation": "The 1.5*IQR rule is the standard statistical definition."}, {"id": 87, "q": "Method to determine if variables are redundant?", "options": ["Anomaly detection", "Cluster analysis on features", "Pairwise correlation", "PCA"], "answer": 2, "explanation": "Pairwise correlation directly measures linear redundancy."}, {"id": 88, "q": "Outliers beyond 3 standard deviations. How to handle?", "options": ["Replace with mean", "Remove entirely", "Truncate extreme values", "Do nothing - may be valuable"], "answer": 3, "explanation": "Outliers may contain important information; investigate before removing."}, {"id": 89, "q": "Technique for performance stability across varying dataset sizes with limited data?", "options": ["K-fold cross-validation", "Bootstrapping", "LOOCV", "Random subsampling"], "answer": 0, "explanation": "K-fold CV is standard for limited data evaluation."}, {"id": 90, "q": "Selling personal info for undisclosed purposes. What type of data use?", "options": ["Authorized use", "Limited use", "Primary use", "Secondary use"], "answer": 3, "explanation": "Secondary use is using data for purposes other than originally disclosed."}, {"id": 91, "q": "How do dbt and Fivetran contribute to efficiency?", "options": ["Enhance GUI", "Automate extraction and transformation", "Enable advanced analytics directly", "Improve speed without quality loss"], "answer": 1, "explanation": "dbt and Fivetran automate ELT/ETL workflows."}, {"id": 92, "q": "TRUE statement about feature scaling?", "options": ["All algorithms sensitive to scale", "Distance-based least sensitive", "Tree-based least sensitive", "Tree-based most sensitive"], "answer": 2, "explanation": "Tree-based algorithms split on values and are insensitive to scaling."}, {"id": 93, "q": "Regex to split '1991Smith' into year and family?", "options": ["split('(\\d+)([A-Za-z]+)')", "split('(\\d+)([A-Za-z]*)')", "split('(\\d*)([A-Za-z]+)')", "split('(\\d*)([A-Za-z]*)')"], "answer": 0, "explanation": "(\\d+) captures digits; ([A-Za-z]+) captures letters."}, {"id": 94, "q": "Most appropriate method to load weather prediction data?", "options": ["Copy-paste", "Beautiful Soup from news site", "Connect to database", "Load CSV with pandas"], "answer": 3, "explanation": "CSV via pandas is standard for structured historical weather data."}, {"id": 95, "q": "Strategy to enhance statistical power?", "options": ["Decrease sample size", "Decrease population", "Increase sample size", "Increase population"], "answer": 2, "explanation": "Larger sample sizes increase statistical power."}, {"id": 96, "q": "Which statement about k-means is FALSE?", "options": ["Vector quantization method", "Partitions n observations into k clusters", "Not deterministic, requires iterations", "Same as k-nearest neighbor"], "answer": 3, "explanation": "k-means (clustering) and k-NN (classification) are different algorithms."}, {"id": 97, "q": "Difference between batch and stochastic gradient descent?", "options": ["Batch uses single batch, SGD uses all", "Batch uses all examples, SGD uses single/small batch", "Batch uses optimizers, SGD doesn't", "Batch doesn't use optimizers, SGD does"], "answer": 1, "explanation": "Batch GD uses entire dataset; SGD uses one sample or mini-batch."}, {"id": 98, "q": "Crucial transformation for linear regression with categorical variables?", "options": ["Encode numerical as categorical", "Time series analysis on date", "One-hot encode categoricals", "Apply ARIMA"], "answer": 2, "explanation": "Linear regression requires numerical input; categorical variables must be encoded."}, {"id": 99, "q": "Advantage of gathering more training examples?", "options": ["Identify common use cases", "Help generalize the model", "Save storage costs", "Less training time"], "answer": 1, "explanation": "More diverse training data improves generalization."}, {"id": 100, "q": "Best EDA technique for detecting extreme values?", "options": ["Chi-squared test", "t-tests", "PCA", "Box-and-whisker plots"], "answer": 3, "explanation": "Box plots are designed to identify outliers."}, {"id": 101, "q": "Purpose of Kubernetes and Docker in data science pipelines?", "options": ["Optimize real-time analysis", "Automate preprocessing", "Real-time streaming with APIs", "Encapsulate and scale deployment"], "answer": 3, "explanation": "Docker and Kubernetes standardize and scale deployment."}, {"id": 102, "q": "Best transformation to capture satisfaction trends over time?", "options": ["Mean per customer", "Moving average over time window", "PCA on features", "Normalize to z-score"], "answer": 1, "explanation": "Moving averages smooth time series and reveal trends."}, {"id": 103, "q": "Method to determine redundant variables?", "options": ["Anomaly detection", "Cluster analysis", "Pairwise correlation", "PCA"], "answer": 2, "explanation": "Pairwise correlation identifies linear redundancy."}, {"id": 104, "q": "Best way to extract features from product_type (clothing, food)?", "options": ["Drop column", "Label encoding", "One-hot encoding", "Word embeddings"], "answer": 2, "explanation": "One-hot encoding is ideal for low-cardinality nominal variables."}, {"id": 105, "q": "With tidy data, each variable...", "options": ["Has one attribute", "Is in different row", "Is in different table", "Is in one column"], "answer": 3, "explanation": "Tidy data: each variable is a column, each observation is a row."}, {"id": 106, "q": "Which describes TF-IDF?", "options": ["Binary feature per category", "Vocabulary counts per row", "Frequency in row weighted by corpus commonness", "Pre-trained embeddings"], "answer": 2, "explanation": "TF-IDF combines term frequency with inverse document frequency."}, {"id": 107, "q": "Why is PCA with TF-IDF discouraged?", "options": ["TF-IDF is categorical", "TF-IDF is sparse, PCA is slow on sparse", "TF-IDF too large for PCA", "TF-IDF numerical, PCA categorical only"], "answer": 1, "explanation": "PCA is computationally expensive on sparse high-dimensional TF-IDF matrices."}, {"id": 108, "q": "FALSE statement about bar charts and histograms?", "options": ["Histograms are not bar charts", "Bars reorderable in bar charts only", "Both show distributions", "Histograms plot quantitative, bar charts categorical"], "answer": 2, "explanation": "Bar charts compare categories; histograms show distributions. Different purposes."}, {"id": 109, "q": "Sigmoid function in final layer for which problems? (Select all)", "options": ["Binary classification", "Multi-class", "Multi-label", "Ridge regression", "Lasso regression"], "answer": [0], "explanation": "Sigmoid outputs probability for binary classification final layer."}, {"id": 110, "q": "Why split data into train and test?", "options": ["Faster training", "Evaluate on unseen data", "Increase dataset size", "Reduce validation need"], "answer": 1, "explanation": "Test set simulates unseen data to estimate generalization."}, {"id": 111, "q": "Implications of lack of data? (Select all)", "options": ["Difficulty accessing data", "Imbalanced data", "Inability to calculate parameters", "Lack of generalization", "Long training time"], "answer": [1, 2, 3], "explanation": "Insufficient data leads to poor parameter estimation and lack of generalization."}, {"id": 112, "q": "What does R-squared represent?", "options": ["Independent variance in classification", "Dependent variance in regression", "Independent variance in regression", "Dependent variance in classification"], "answer": 1, "explanation": "R^2 measures explained variance of dependent variable in regression."}, {"id": 113, "q": "Difference between standardization and log transformation?", "options": ["Log changes distribution shape; standardization keeps it", "Log for different scales; standardization for zero mean", "Log scales to [0,1]; standardization unbounded", "Log only for Gaussian; standardization any distribution"], "answer": 0, "explanation": "Log compresses skew; standardization only shifts and scales without changing shape."}, {"id": 114, "q": "Key advantage of data lake?", "options": ["Ideal for BI with consistent format", "Eliminates transformation need", "Enforces structure before storage", "Stores large volumes of raw unstructured data"], "answer": 3, "explanation": "Data lakes store vast amounts of raw data in native formats."}, {"id": 115, "q": "Techniques to improve generalization on limited image data? (Select all)", "options": ["Larger learning rate", "More hidden layers", "Data augmentation", "L1/L2 regularization", "Duplicate records"], "answer": [2, 3], "explanation": "Data augmentation and regularization combat overfitting on limited data."}, {"id": 116, "q": "Purpose of feature scaling?", "options": ["Convert to binary", "Balance with synthetic data", "Prevent large-scale features from dominating", "Remove outliers"], "answer": 2, "explanation": "Scaling prevents algorithms from being biased by feature magnitudes."}, {"id": 117, "q": "Large spike in negative sentiment on specific date. FIRST action?", "options": ["Ignore as outlier", "Calculate overall score", "Analyze posts around spike", "Exclude spike date posts"], "answer": 2, "explanation": "Investigate anomalies before deciding on inclusion/exclusion."}, {"id": 118, "q": "A/B test: associate orders with assigned group using?", "options": ["Cookie ID", "Customer ID", "Device ID", "IP address"], "answer": 1, "explanation": "Customer ID provides stable user-level assignment."}, {"id": 119, "q": "Customer rejects cookies but affirms marketing messages. Consent type?", "options": ["Explicit", "Implicit", "Passive", "Informed"], "answer": 0, "explanation": "Affirmative action constitutes explicit consent."}, {"id": 120, "q": "SQL keyword to retrieve data?", "options": ["FETCH", "GET", "PULL", "SELECT"], "answer": 3, "explanation": "SELECT is the standard SQL query command."}, {"id": 121, "q": "Fraud model has more false positives (model drift). Team gains insight into features causing shift. What is this?", "options": ["Ethical AI", "Explainable AI", "Responsible AI", "Trustworthy AI"], "answer": 1, "explanation": "Explainable AI provides insights into model behavior and feature contributions."}, {"id": 122, "q": "Only collecting necessary data. Which principle?", "options": ["Accountability", "Accuracy", "Minimization", "Purpose limitation"], "answer": 2, "explanation": "Data minimization limits collection to what is necessary."}, {"id": 123, "q": "Deleting location data (98% US), missing Canadian pattern. What bias?", "options": ["Exclusion bias", "Measurement bias", "Observer bias", "Sampling bias"], "answer": 0, "explanation": "Exclusion bias: removing meaningful minority data."}, {"id": 124, "q": "Most cost-effective third-party demographic source?", "options": ["Public census bureau", "Company's own data", "Private measurement company", "Delivery company data"], "answer": 0, "explanation": "Government census data is typically free/low-cost and comprehensive."}, {"id": 125, "q": "Purpose of production model feedback?", "options": ["Compare models", "Detect model drift", "Stakeholder insights", "Visualize results"], "answer": 1, "explanation": "Production feedback detects model drift and degradation."}, {"id": 126, "q": "Controls to mitigate risk with open datasets? (Select all)", "options": ["Open data standards", "Assess labeling errors", "Communicate with agencies", "Compare outputs to metrics", "Document data cards", "Automate governance"], "answer": [0, 2, 4], "explanation": "Standards, communication, and documentation mitigate open data risks."}, {"id": 127, "q": "'Number of bedrooms' has values 'studio', '4+BR'. Best preprocessing?", "options": ["Leave as is", "Replace with median", "Delete column", "One-hot encode"], "answer": 3, "explanation": "One-hot encoding handles mixed categorical representations."}, {"id": 128, "q": "Choosing preferred company from four options. Data type?", "options": ["Interval", "Ratio", "Nominal", "Continuous"], "answer": 2, "explanation": "Choosing from unordered categories is nominal data."}, {"id": 129, "q": "Satisfaction levels 'Low', 'Medium', 'High'. How to make ordinal?", "options": ["Bin then scale", "Dummy variables", "Map to numerical order", "Log transform"], "answer": 2, "explanation": "Ordinal encoding maps ordered categories to sequential integers."}, {"id": 130, "q": "Advantage of deleting missing data?", "options": ["Alters standard deviation", "Conservative results", "Non-duplicable results", "Reduces effect size"], "answer": 1, "explanation": "Listwise deletion produces conservative results."}, {"id": 131, "q": "Which metrics are resistant to outliers?", "options": ["Mean and IQR", "Mean and std dev", "Median and IQR", "Median and std dev"], "answer": 2, "explanation": "Median and IQR are robust statistics."}, {"id": 132, "q": "Ideal minimum test set size?", "options": ["10%", "18%", "20%", "Depends on dataset and problem"], "answer": 3, "explanation": "Test size depends on data size, noise, and complexity."}, {"id": 133, "q": "Web crawling HTML content. Disadvantage?", "options": ["Easily converted to JSON", "HTML structure changes break code", "Requires advanced HTML knowledge", "Data is structured"], "answer": 1, "explanation": "Web scraping is brittle to HTML structure changes."}, {"id": 134, "q": "Good format to store Python ML models?", "options": ["CSV", "pickle", "PMML", "XML"], "answer": 1, "explanation": "pickle serializes Python objects including trained models."}, {"id": 135, "q": "Small intentional changes to input to observe output. Which method?", "options": ["Optimization", "Perturbation", "Randomization", "Verification"], "answer": 1, "explanation": "Perturbation analysis tests sensitivity to input variations."}, {"id": 136, "q": "Transparency for AI credit rating. Which principles? (Select two)", "options": ["Accountability", "Explainability", "Fairness", "Interpretability", "Safety"], "answer": [1, 3], "explanation": "Explainability and interpretability address transparency."}, {"id": 137, "q": "Data observability includes? (Select two)", "options": ["Focus on individual elements", "Monitor pipelines for anomalies", "Visibility into data health", "Reactive issue resolution", "Validate against standards"], "answer": [1, 2], "explanation": "Observability focuses on pipeline monitoring and holistic health."}, {"id": 138, "q": "Python library for web scraping competitor prices?", "options": ["Beautiful Soup", "Seaborn", "Matplotlib", "NumPy"], "answer": 0, "explanation": "Beautiful Soup parses HTML for web scraping."}, {"id": 139, "q": "Open-source Python API framework?", "options": ["Apache Wicket", "Eagle", "Flask", "Spring"], "answer": 2, "explanation": "Flask is a Python micro web framework."}, {"id": 140, "q": "R-squared is used for?", "options": ["Classification", "Clustering", "Correlation", "Regression"], "answer": 3, "explanation": "R-squared is a regression evaluation metric."}, {"id": 141, "q": "Spam detection: avoid missing important emails. Best metric?", "options": ["Accuracy", "F1 score", "Precision", "Recall"], "answer": 3, "explanation": "Recall minimizes false negatives (missing important emails)."}, {"id": 142, "q": "Which p-value is significant at 95%?", "options": ["0.01", "0.06", "0.90", "0.98"], "answer": 0, "explanation": "p < 0.05 is significant at 95% confidence."}, {"id": 143, "q": "Accurate comparison: boosting vs bagging?", "options": ["Exactly the same", "Bagging: random with replacement; Boosting: weighted with replacement", "Bagging: without replacement; Boosting: oversampling", "Bagging serial, boosting parallel"], "answer": 1, "explanation": "Bagging uses bootstrap sampling; boosting reweights misclassified samples."}, {"id": 144, "q": "Steps BEFORE feature engineering? (Select all)", "options": ["Handle missing values", "Reduce dimensions using KNN", "Remove irrelevant columns", "Remove duplicates", "Remove low variance columns"], "answer": [0, 2, 3], "explanation": "Missing values, irrelevant columns, and duplicates should be addressed first."}, {"id": 145, "q": "Best metric for highly imbalanced classification?", "options": ["Accuracy", "Precision", "Recall", "F1 score"], "answer": 3, "explanation": "F1 balances precision and recall for imbalanced data."}, {"id": 146, "q": "Challenges in data validation? (Select all)", "options": ["Defining integrity rules", "Extracting from unstructured data", "Privacy compliance", "Matching fields during migration", "Sampling by volume/error rate"], "answer": [0, 2, 3, 4], "explanation": "All are common data validation challenges."}, {"id": 147, "q": "Why PCA with TF-IDF discouraged?", "options": ["TF-IDF categorical", "TF-IDF sparse, PCA slow", "TF-IDF too large", "TF-IDF numerical, PCA categorical"], "answer": 1, "explanation": "PCA is slow on sparse high-dimensional TF-IDF matrices."}, {"id": 148, "q": "Drawback of mean/median imputation?", "options": ["Computationally expensive", "Cannot use with continuous data", "Misses correlation with other features", "Too slow"], "answer": 2, "explanation": "Mean/median imputation ignores relationships with other variables."}, {"id": 149, "q": "Analysis reveals poor credit history contributes to default risk. Technique?", "options": ["Counterfactual instances", "Morris sensitivity", "SHAP", "Tree surrogate"], "answer": 2, "explanation": "SHAP provides feature-level contributions to predictions."}, {"id": 150, "q": "Loss functions for classification? (Select all)", "options": ["Cross-entropy", "Hinge", "MAE", "MSE", "Huber"], "answer": [0, 1], "explanation": "Cross-entropy and hinge loss are for classification. MAE, MSE, Huber are regression."}, {"id": 151, "q": "Audit finds bias from insufficient data. Which dataset mitigates bias and privacy?", "options": ["Mock data", "Randomized data", "Anonymized data", "AI-generated synthetic data"], "answer": 3, "explanation": "Synthetic data can balance representation while preserving privacy."}, {"id": 152, "q": "Data democratization: making data accessible and also?", "options": ["Accessible", "Available and flexible", "Interoperable and portable", "Scalable and extensible", "Understandable and actionable"], "answer": 4, "explanation": "True democratization requires data to be understandable and actionable."}, {"id": 153, "q": "Understanding reasons customers churn. Problem type?", "options": ["NLP", "Classification", "Time series", "Anomaly detection"], "answer": 1, "explanation": "Churn prediction is binary classification."}, {"id": 154, "q": "'Number of bedrooms' has unrealistic value 50. How to prepare?", "options": ["Remove as errors", "Replace with average", "Truncate to maximum", "Log transform"], "answer": 0, "explanation": "Unrealistic values are likely data entry errors."}, {"id": 155, "q": "AI credit rating transparency. Which two principles?", "options": ["Accountability", "Explainability", "Fairness", "Interpretability", "Safety"], "answer": [1, 3], "explanation": "Explainability and interpretability ensure transparency."}, {"id": 156, "q": "GDPR compliance requires?", "options": ["Identify personal data collected, manner, and purpose", "Identify non-personal data", "Publish public data access", "Publish private data access"], "answer": 0, "explanation": "GDPR requires transparency about personal data collection and purposes."}, {"id": 157, "q": "Gender-biased analogies from Wikipedia training. Bias type?", "options": ["Confirmation bias", "Group attribution bias", "Historical bias", "Reporting bias"], "answer": 2, "explanation": "Historical bias reflects societal biases present in training data."}, {"id": 158, "q": "Minimum test set size?", "options": ["10%", "18%", "20%", "Depends on dataset"], "answer": 3, "explanation": "Test size depends on data size and problem complexity."}, {"id": 159, "q": "TRUE statement about mean and median?", "options": ["Mean is average, median is most frequent", "Mean is midpoint, median is average", "Mean useful for skewed data", "Median useful for skewed data with outliers"], "answer": 3, "explanation": "Median is robust and useful for skewed data with outliers."}, {"id": 160, "q": "Method for 500 variables to avoid curse of dimensionality?", "options": ["Batch normalization", "PCA", "Segmentation", "SGD"], "answer": 1, "explanation": "PCA reduces dimensionality while preserving variance."}, {"id": 161, "q": "Which regression eliminates irrelevant features?", "options": ["Lasso", "Ridge", "Linear", "Logistic"], "answer": 0, "explanation": "Lasso (L1) regression can shrink coefficients to zero, eliminating features."}, {"id": 162, "q": "Imbalanced fraud data (2% positive). Optimal approach?", "options": ["Oversample fraud", "Undersample normal", "Random Forest", "SVM"], "answer": 2, "explanation": "Random Forest with class_weight handles imbalanced data well. Sampling techniques (a,b) are also valid but less optimal as standalone."}];
+let examQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let hearts = 5;
+let timer = null;
+let timeLeft = 60;
+let userAnswers = [];
+let streak = 0;
+let maxStreak = 0;
+let startTime = null;
+const TOTAL_QUESTIONS = 50;
+const TIME_PER_QUESTION = 60;
+const LETTERS = ['A','B','C','D','E','F'];
+
+function shuffle(array) {
+  const a = [...array];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+  return a;
+}
+
+function startExam(){
+  examQuestions = shuffle(allQuestions).slice(0,TOTAL_QUESTIONS);
+  currentIndex=0;score=0;hearts=5;userAnswers=[];streak=0;maxStreak=0;startTime=Date.now();
+  document.getElementById('header').style.display='flex';
+  document.getElementById('total-q').textContent=TOTAL_QUESTIONS;
+  showScreen('quiz-screen');
+  loadQuestion();
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateHearts(){
+  const h = document.getElementById('hearts');
+  h.innerHTML = '❤️'.repeat(hearts) + '🖤'.repeat(5-hearts);
+  h.querySelectorAll('span, .heart').forEach((el,i)=>{el.classList.toggle('lost',i>=hearts)});
+}
+
+function updateProgress(){
+  const pct = ((currentIndex)/TOTAL_QUESTIONS)*100;
+  document.getElementById('progress-bar').style.width=pct+'%';
+  document.getElementById('current-q').textContent=currentIndex+1;
+  document.getElementById('q-num').textContent=currentIndex+1;
+}
+
+function startTimer(){
+  clearInterval(timer);
+  timeLeft=TIME_PER_QUESTION;
+  const ring=document.getElementById('timer-ring');
+  const txt=document.getElementById('timer-text');
+  ring.classList.remove('urgent');
+  txt.textContent=timeLeft;
+  timer=setInterval(()=>{
+    timeLeft--;
+    txt.textContent=timeLeft;
+    if(timeLeft<=10) ring.classList.add('urgent');
+    if(timeLeft<=0){
+      clearInterval(timer);
+      handleTimeout();
+    }
+  },1000);
+}
+
+function handleTimeout(){
+  const q = examQuestions[currentIndex];
+  hearts--;
+  streak=0;
+  updateHearts();
+  userAnswers.push({q:q, selected:null, correct:false, timeOut:true});
+  document.querySelectorAll('.option').forEach((opt,idx)=>{
+    opt.classList.add('disabled');
+    if(idx===q.answer) opt.classList.add('correct');
+  });
+  document.getElementById('next-btn').disabled=false;
+  if(hearts<=0) setTimeout(endExam,1500);
+}
+
+function loadQuestion(){
+  updateProgress();
+  const q = examQuestions[currentIndex];
+  document.getElementById('q-text').textContent = q.q;
+  const optsDiv = document.getElementById('options');
+  optsDiv.innerHTML = '';
+  q.options.forEach((opt,idx)=>{
+    const div = document.createElement('div');
+    div.className='option';
+    div.innerHTML = `<div class="letter">${LETTERS[idx]}</div><div>${opt}</div><div class="check">${idx===q.answer?'✅':'❌'}</div>`;
+    div.onclick = ()=> selectOption(idx);
+    optsDiv.appendChild(div);
+  });
+  document.getElementById('next-btn').disabled=true;
+  startTimer();
+}
+
+function selectOption(idx){
+  clearInterval(timer);
+  const q = examQuestions[currentIndex];
+  const opts = document.querySelectorAll('.option');
+  const correct = (idx===q.answer);
+
+  opts.forEach((opt,i)=>{
+    opt.classList.add('disabled');
+    if(i===q.answer) opt.classList.add('correct');
+    else if(i===idx && !correct) opt.classList.add('wrong');
+  });
+
+  if(correct){
+    score++;
+    streak++;
+    if(streak>maxStreak) maxStreak=streak;
+    document.querySelector('.option.correct').classList.add('pop');
+  }else{
+    hearts--;
+    streak=0;
+    updateHearts();
+    if(idx>=0 && idx<opts.length) opts[idx].classList.add('shake');
+  }
+
+  userAnswers.push({q:q, selected:idx, correct:correct, timeOut:false});
+  document.getElementById('next-btn').disabled=false;
+
+  if(hearts<=0) setTimeout(endExam,1500);
+}
+
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex>=TOTAL_QUESTIONS){endExam();return;}
+  loadQuestion();
+}
+
+function endExam(){
+  clearInterval(timer);
+  const totalTime = Math.round((Date.now()-startTime)/60000);
+  const pct = Math.round((score/TOTAL_QUESTIONS)*100);
+  document.getElementById('result-score').textContent=pct+'%';
+  document.getElementById('result-circle').style.setProperty('--pct',pct);
+  document.getElementById('correct-count').textContent=score;
+  document.getElementById('wrong-count').textContent=TOTAL_QUESTIONS-score;
+  document.getElementById('time-count').textContent=totalTime;
+  document.getElementById('streak-count').textContent=maxStreak;
+
+  let msg = '';
+  if(pct>=90) msg='🌟 Luar biasa! Sempurna!';
+  else if(pct>=75) msg='👏 Kerja bagus! Hampir sempurna!';
+  else if(pct>=60) msg='💪 Cukup baik! Terus latihan!';
+  else msg='📚 Perlu latihan lagi. Jangan menyerah!';
+  document.getElementById('result-message').textContent=msg;
+
+  showScreen('result-screen');
+}
+
+function showReview(){
+  const container = document.getElementById('review-list');
+  container.innerHTML = '';
+  userAnswers.forEach((ua,idx)=>{
+    const q = ua.q;
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (ua.correct?'correct-review':'wrong-review');
+
+    let selectedText = ua.timeOut ? '⏱️ Waktu habis' : (ua.selected!==null ? LETTERS[ua.selected]+'. '+q.options[ua.selected] : '-');
+    let correctText = LETTERS[q.answer]+'. '+q.options[q.answer];
+
+    div.innerHTML = `
+      <div class="review-header">
+        <strong>Soal ${idx+1}</strong>
+        <span class="review-status ${ua.correct?'status-correct':'status-wrong'}">${ua.correct?'✅ Benar':'❌ Salah'}</span>
+      </div>
+      <div style="margin-bottom:10px;font-weight:600">${q.q}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:14px">
+        <div style="padding:10px;background:#fff;border-radius:8px;border:1px solid var(--border)">
+          <div style="color:var(--text-light);font-size:12px">Jawabanmu:</div>
+          <div style="font-weight:700;color:${ua.correct?'var(--correct-border)':'var(--wrong-border)'}">${selectedText}</div>
+        </div>
+        <div style="padding:10px;background:var(--correct);border-radius:8px;border:1px solid var(--correct-border)">
+          <div style="color:var(--text-light);font-size:12px">Jawaban benar:</div>
+          <div style="font-weight:700;color:var(--correct-border)">${correctText}</div>
+        </div>
+      </div>
+      <div class="review-explanation">
+        <strong>💡 Pembahasan:</strong><br>${q.explanation}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  showScreen('review-screen');
+}
+</script>
+</body>
+</html>
