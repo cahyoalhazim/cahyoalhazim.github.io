@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post-Test Bootcamp CDSP</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #ca8a04;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(37,99,235,0.2);
+        }
+        .header h1 { font-size: 1.5rem; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 0.95rem; }
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+        input[type="text"], input[type="email"] {
+            width: 100%; padding: 12px 14px;
+            border: 2px solid var(--border); border-radius: 8px;
+            font-size: 1rem; transition: border-color 0.2s;
+        }
+        input:focus { outline: none; border-color: var(--primary); }
+        .btn {
+            display: inline-block; padding: 12px 28px;
+            background: var(--primary); color: white;
+            border: none; border-radius: 8px;
+            font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #15803d; }
+        .timer {
+            position: sticky; top: 0; z-index: 100;
+            background: var(--card);
+            padding: 12px 20px; border-radius: 0 0 12px 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex; justify-content: space-between;
+            align-items: center; margin: -20px -20px 20px -20px;
+            border-bottom: 2px solid var(--border);
+        }
+        .timer-badge {
+            background: var(--primary); color: white;
+            padding: 6px 14px; border-radius: 20px;
+            font-weight: 700; font-size: 0.9rem;
+        }
+        .timer-badge.warning { background: var(--warning); color: white; }
+        .timer-badge.danger { background: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.7} }
+        .question {
+            margin-bottom: 20px; padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .question:last-child { border-bottom: none; }
+        .q-number {
+            display: inline-block; background: var(--primary);
+            color: white; width: 28px; height: 28px;
+            border-radius: 50%; text-align: center;
+            line-height: 28px; font-size: 0.85rem; font-weight: 700;
+            margin-right: 8px;
+        }
+        .q-text { font-weight: 600; font-size: 1.05rem; margin-bottom: 12px; }
+        .options label {
+            display: block; padding: 10px 14px;
+            background: var(--bg); border: 2px solid var(--border);
+            border-radius: 8px; margin-bottom: 8px;
+            cursor: pointer; transition: all 0.15s;
+            font-weight: 500;
+        }
+        .options label:hover { border-color: var(--primary); background: #eff6ff; }
+        .options input[type="radio"] { margin-right: 10px; accent-color: var(--primary); }
+        .options label.selected { border-color: var(--primary); background: #eff6ff; }
+        .progress-bar {
+            width: 100%; height: 8px; background: var(--border);
+            border-radius: 4px; margin-top: 8px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: var(--success);
+            border-radius: 4px; transition: width 0.3s;
+        }
+        .hidden { display: none !important; }
+        .result-box { text-align: center; padding: 40px 20px; }
+        .score-circle {
+            width: 140px; height: 140px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 2.5rem; font-weight: 800;
+            color: white; background: conic-gradient(var(--success) calc(var(--pct)*1%), var(--border) 0);
+        }
+        .score-inner { width: 110px; height: 110px; border-radius: 50%;
+            background: white; display: flex; align-items: center;
+            justify-content: center; color: var(--text); }
+        .status-pass { color: var(--success); font-weight: 700; font-size: 1.2rem; }
+        .status-fail { color: var(--danger); font-weight: 700; font-size: 1.2rem; }
+        .spinner {
+            border: 3px solid var(--border); border-top: 3px solid var(--primary);
+            border-radius: 50%; width: 24px; height: 24px;
+            animation: spin 1s linear infinite; display: inline-block;
+            vertical-align: middle; margin-right: 8px;
+        }
+        @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+        .error-msg { color: var(--danger); font-size: 0.9rem; margin-top: 4px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .review-item { text-align: left; margin-bottom: 12px; padding: 12px; background: var(--bg); border-radius: 8px; }
+        .review-item.correct { border-left: 4px solid var(--success); }
+        .review-item.wrong { border-left: 4px solid var(--danger); }
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .nav-dot {
+            width: 100%; aspect-ratio: 1;
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; font-weight: 600;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .nav-dot:hover { border-color: var(--primary); }
+        .nav-dot.answered { background: var(--success); color: white; border-color: var(--success); }
+        .nav-dot.current { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+        @media (max-width: 600px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.2rem; }
+            .nav-grid { grid-template-columns: repeat(8, 1fr); }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="container">
+        <!-- Landing Page -->
+        <div id="landing">
+            <div class="header">
+                <h1>Post-Test Bootcamp CDSP</h1>
+                <p>Certified Data Science Practitioner (DSP-210)</p>
+                <p style="margin-top:8px; font-size:0.85rem;">5 Hari Intensive Bootcamp | 40 Soal | 60 Menit</p>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom:12px;">Petunjuk Pengerjaan</h3>
+                <ul style="padding-left:18px; color:var(--text-light);">
+                    <li>Post-test terdiri dari <strong>40 soal pilihan ganda</strong> yang diacak urutannya.</li>
+                    <li>Waktu pengerjaan <strong>60 menit</strong> (1 jam).</li>
+                    <li>Setiap peserta mendapatkan urutan soal yang berbeda.</li>
+                    <li>Nilai minimal kelulusan <strong>70%</strong> (28/40 soal benar).</li>
+                    <li>Gunakan tombol nomor di atas untuk navigasi antar soal.</li>
+                    <li>Jawaban akan otomatis tersimpan di Google Sheet.</li>
+                </ul>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom:16px;">Identitas Peserta</h3>
+                <div class="form-group">
+                    <label for="nama">Nama Lengkap</label>
+                    <input type="text" id="nama" placeholder="Masukkan nama lengkap Anda">
+                    <div class="error-msg hidden" id="err-nama">Nama wajib diisi</div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="Masukkan email aktif Anda">
+                    <div class="error-msg hidden" id="err-email">Email valid wajib diisi</div>
+                </div>
+                <button class="btn btn-success" onclick="startTest()" style="width:100%;">Mulai Post-Test</button>
+            </div>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quiz" class="hidden">
+            <div class="timer">
+                <div><strong>Sisa Waktu:</strong> <span id="timer" class="timer-badge">60:00</span></div>
+                <div><strong>Soal:</strong> <span id="answered">0</span>/40</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+            <div class="card" style="padding:12px;">
+                <div class="nav-grid" id="nav-grid"></div>
+            </div>
+            <div id="questions-container"></div>
+            <div class="card" style="text-align:center; position:sticky; bottom:20px; z-index:50;">
+                <button class="btn btn-success" onclick="submitTest()" id="btn-submit" style="width:100%;">
+                    Kirim Jawaban
+                </button>
+            </div>
+        </div>
+
+        <!-- Result Page -->
+        <div id="result" class="hidden">
+            <div class="header">
+                <h1>Post-Test Selesai</h1>
+                <p>Terima kasih telah mengikuti post-test</p>
+            </div>
+            <div class="card result-box">
+                <div class="score-circle" id="score-circle" style="--pct:0">
+                    <div class="score-inner"><span id="score-pct">0%</span></div>
+                </div>
+                <div id="status-text" class="status-pass">Status</div>
+                <p style="margin-top:12px; color:var(--text-light);">
+                    <strong id="score-val">0</strong> / 40 soal benar
+                </p>
+                <div class="info-grid" style="margin-top:20px; text-align:left;">
+                    <div class="card" style="padding:14px;">
+                        <div style="font-size:0.8rem; color:var(--text-light);">Nama</div>
+                        <div style="font-weight:700;" id="res-nama">-</div>
+                    </div>
+                    <div class="card" style="padding:14px;">
+                        <div style="font-size:0.8rem; color:var(--text-light);">Email</div>
+                        <div style="font-weight:700;" id="res-email">-</div>
+                    </div>
+                </div>
+                <div id="review-section" style="margin-top:20px; text-align:left;"></div>
+                <p style="font-size:0.85rem; color:var(--text-light); margin-top:16px;">
+                    Hasil telah disimpan otomatis ke Google Sheet.
+                </p>
+                <button class="btn" onclick="location.reload()" style="margin-top:16px;">Kembali ke Awal</button>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading" class="hidden" style="position:fixed; inset:0; background:rgba(255,255,255,0.95); z-index:200; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+            <div class="spinner" style="width:40px; height:40px; margin-bottom:12px;"></div>
+            <p style="font-weight:600; color:var(--text-light);">Mengirim jawaban...</p>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION - GANTI URL INI
+        // ============================================
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7rzvSZr6EgadhXih4bhTDgCYBrw-BVuwNo0X6zpvaYSKMy1bIwGdXzCRr32NGga04/exec";
+        const TOTAL_QUESTIONS = 40;
+        const TIME_MINUTES = 60;
+
+        // ============================================
+        // BANK SOAL POST-TEST (40 soal, level medium)
+        // TANPA kunci jawaban - aman dari inspect element
+        // ============================================
+        const QUESTION_BANK = [
+            { id: 1,  q: "Apa tujuan utama dari data science dalam konteks bisnis?", options: ["Membuat website","Mengekstrak insight dan nilai dari data","Mengganti semua karyawan dengan robot","Mempercepat internet"] },
+            { id: 2,  q: "Manakah yang merupakan contoh structured data?", options: ["Video tutorial","Tabel database SQL","Foto produk","Email tidak terstruktur"] },
+            { id: 3,  q: "Apa kepanjangan dari ETL dalam pengolahan data?", options: ["Evaluate, Train, Load","Extract, Transform, Load","Extract, Test, Label","Evaluate, Transform, Learn"] },
+            { id: 4,  q: "Dalam supervised learning, apa peran dari label?", options: ["Menghapus data noise","Menjadi target/jawaban yang diprediksi model","Mengubah tipe data","Mempercepat training"] },
+            { id: 5,  q: "Apa perbedaan utama classification dan regression?", options: ["Classification memprediksi kategori, regression memprediksi angka","Classification lebih cepat","Regression hanya untuk gambar","Tidak ada perbedaan"] },
+            { id: 6,  q: "Manakah yang termasuk unsupervised learning?", options: ["Decision Tree","K-Means Clustering","Linear Regression","Random Forest"] },
+            { id: 7,  q: "Apa yang dimaksud dengan overfitting?", options: ["Model terlalu sederhana","Model terlalu cocok dengan data training tapi buruk di data baru","Kurangnya data training","Proses training terlalu cepat"] },
+            { id: 8,  q: "Mengapa train-test split penting dilakukan?", options: ["Menggandakan jumlah data","Mengevaluasi performa model pada data yang belum pernah dilihat","Mengurangi ukuran file","Mempercepat komputasi"] },
+            { id: 9,  q: "Apa fungsi dari confusion matrix?", options: ["Menghitung rata-rata data","Mengevaluasi performa model klasifikasi","Memvisualisasikan data time series","Menormalkan data"] },
+            { id: 10, q: "Dalam konteks data governance, apa tujuan utama kebijakan privasi data seperti GDPR?", options: ["Meningkatkan kecepatan internet","Melindungi data pribadi individu","Mengurangi biaya server","Mempercepat query database"] },
+            { id: 11, q: "Apa itu data wrangling?", options: ["Membuat grafik visualisasi","Proses membersihkan dan mentransformasi data mentah","Menghapus database lama","Membuat presentasi"] },
+            { id: 12, q: "Histogram paling cocok digunakan untuk...", options: ["Menunjukkan komposisi persentase","Melihat distribusi frekuensi data numerik","Membandingkan kategori","Menampilkan hubungan dua variabel"] },
+            { id: 13, q: "Apa yang dimaksud dengan missing value dalam dataset?", options: ["Data yang terlalu besar","Data yang hilang atau tidak tersedia","Data yang terduplikasi","Data yang sudah dienkripsi"] },
+            { id: 14, q: "Normalisasi data dilakukan untuk...", options: ["Menghapus outlier","Mengubah data ke skala tertentu agar sebanding","Mengisi data yang hilang","Mengubah data kategorikal"] },
+            { id: 15, q: "Manakah yang BUKAN merupakan teknik menangani missing value?", options: ["Imputasi mean","Penghapusan baris","Menambahkan noise acak","Imputasi modus"] },
+            { id: 16, q: "Apa peran dari feature dalam machine learning?", options: ["Kolom input yang digunakan model untuk membuat prediksi","Hasil prediksi model","Label target","Hyperparameter"] },
+            { id: 17, q: "Korelasi antara dua variabel mengukur...", options: ["Jumlah data","Kecepatan komputasi","Kekuatan dan arah hubungan linear","Ukuran file dataset"] },
+            { id: 18, q: "Outlier adalah data yang...", options: ["Sangat berbeda dari pola umum data lainnya","Memiliki nilai yang paling sering muncul","Berada di tengah distribusi","Selalu benar"] },
+            { id: 19, q: "Apa tujuan dari exploratory data analysis (EDA)?", options: ["Men-deploy model ke production","Memahami karakteristik data dan menemukan insight","Menulis kode backend","Membuat database baru"] },
+            { id: 20, q: "Scatter plot digunakan untuk...", options: ["Melihat hubungan antara dua variabel numerik","Menampilkan komposisi persentase","Melihat tren waktu","Menampilkan distribusi frekuensi"] },
+            { id: 21, q: "Apa yang dimaksud dengan data literacy?", options: ["Kemampuan membaca kode pemrograman","Kemampuan membaca, menginterpretasi, dan berkomunikasi dengan data","Kemampuan menginstall software","Kemampuan membuat animasi"] },
+            { id: 22, q: "Data democratization bertujuan agar data dapat diakses oleh...", options: ["Hanya data scientist","Hanya CEO","Semua orang di organisasi yang membutuhkan","Hanya IT department"] },
+            { id: 23, q: "Apa itu PII (Personally Identifiable Information)?", options: ["Data produk","Data yang dapat mengidentifikasi individu","Informasi internal perusahaan","Data yang sudah di-anonimkan"] },
+            { id: 24, q: "Manakah yang merupakan contoh semi-structured data?", options: ["Tabel Excel","File JSON","Video","File gambar"] },
+            { id: 25, q: "Apa kepanjangan dari POC dalam pengembangan proyek?", options: ["Proof of Concept","Point of Control","Process of Creation","Product of Company"] },
+            { id: 26, q: "MVP (Minimum Viable Product) digunakan untuk...", options: ["Menguji ide produk dengan fitur paling minimum pada pengguna awal","Membuat produk final yang sempurna","Menghapus semua bug","Mengganti seluruh sistem"] },
+            { id: 27, q: "Apa fungsi KPI dalam proyek data science?", options: ["Mengukur keberhasilan proyek","Menyimpan data","Membuat visualisasi","Menghapus data lama"] },
+            { id: 28, q: "Manakah yang BUKAN termasuk stakeholder proyek data science?", options: ["End users","Project sponsor","Compiler optimizer","Business analyst"] },
+            { id: 29, q: "Apa yang dimaksud dengan scope creep?", options: ["Proyek yang meluas melebihi batas yang telah ditetapkan","Proyek selesai lebih cepat","Pengurangan fitur proyek","Penambahan anggaran"] },
+            { id: 30, q: "Design Thinking dalam data science lebih fokus pada...", options: ["Kecepatan komputasi","Kebutuhan manusia dan solusi yang berorientasi pengguna","Biaya server termurah","Jumlah kode paling sedikit"] },
+            { id: 31, q: "Apa yang dilakukan pada tahap deployment model?", options: ["Menghapus data training","Membuat model tersedia untuk digunakan di production","Mengganti algoritma","Menulis ulang kode dari awal"] },
+            { id: 32, q: "Mengapa monitoring model penting setelah deployment?", options: ["Untuk mengganti database","Untuk memastikan model tetap perform dengan baik seiring waktu","Untuk menghapus log error","Untuk mengubah bahasa pemrograman"] },
+            { id: 33, q: "Apa itu production pipeline?", options: ["Proses otomatis untuk menjalankan model dari data input hingga output","Dokumen laporan akhir","Presentasi stakeholder","Proses manual cleaning data"] },
+            { id: 34, q: "Hyperparameter tuning adalah proses mengoptimalkan...", options: ["Parameter yang ditentukan sebelum training","Parameter yang dipelajari model selama training","Ukuran dataset","Kecepatan internet"] },
+            { id: 35, q: "Apa perbedaan training data dan testing data?", options: ["Training data untuk melatih model, testing data untuk evaluasi","Training data lebih kecil","Testing data tidak perlu label","Tidak ada perbedaan"] },
+            { id: 36, q: "Manakah yang termasuk kebijakan privasi data?", options: ["GDPR, HIPAA, CCPA","HTML, CSS, JavaScript","CPU, GPU, RAM","SQL, NoSQL, MongoDB"] },
+            { id: 37, q: "Apa yang dimaksud dengan data preprocessing?", options: ["Membuat data siap digunakan untuk modeling","Menghapus semua data","Mengubah data menjadi tidak terstruktur","Mengurangi jumlah fitur"] },
+            { id: 38, q: "Reinforcement learning melibatkan...", options: ["Agent yang belajar dari reward dan punishment dari environment","Dataset yang sepenuhnya berlabel","Pengelompokan data tanpa target","Prediksi nilai kontinu"] },
+            { id: 39, q: "Apa perbedaan utama supervised dan unsupervised learning?", options: ["Supervised menggunakan label, unsupervised tidak","Supervised lebih cepat","Unsupervised lebih akurat","Tidak ada perbedaan"] },
+            { id: 40, q: "Apa tujuan akhir dari sebuah proyek data science?", options: ["Menghasilkan insight dan solusi yang actionable untuk bisnis","Menulis kode sebanyak mungkin","Membuat database terbesar","Mengumpulkan data tanpa tujuan"] }
+        ];
+
+        let selectedQuestions = [];
+        let answers = {};
+        let timerInterval;
+        let timeLeft = TIME_MINUTES * 60;
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startTest() {
+            const nama = document.getElementById('nama').value.trim();
+            const email = document.getElementById('email').value.trim();
+            let valid = true;
+            if (!nama) { document.getElementById('err-nama').classList.remove('hidden'); valid = false; }
+            else { document.getElementById('err-nama').classList.add('hidden'); }
+            if (!email || !email.includes('@')) { document.getElementById('err-email').classList.remove('hidden'); valid = false; }
+            else { document.getElementById('err-email').classList.add('hidden'); }
+            if (!valid) return;
+
+            selectedQuestions = shuffle(QUESTION_BANK).slice(0, TOTAL_QUESTIONS);
+            answers = {};
+            document.getElementById('landing').classList.add('hidden');
+            document.getElementById('quiz').classList.remove('hidden');
+            renderNav();
+            renderQuestions();
+            startTimer();
+        }
+
+        function renderNav() {
+            const grid = document.getElementById('nav-grid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= TOTAL_QUESTIONS; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'nav-dot';
+                dot.id = 'nav-' + i;
+                dot.textContent = i;
+                dot.onclick = function() { scrollToQuestion(i); };
+                grid.appendChild(dot);
+            }
+        }
+
+        function scrollToQuestion(num) {
+            const el = document.getElementById('q-card-' + num);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            selectedQuestions.forEach((item, idx) => {
+                const qNum = idx + 1;
+                const div = document.createElement('div');
+                div.className = 'card question';
+                div.id = 'q-card-' + qNum;
+                div.dataset.qid = item.id;
+                div.innerHTML = `
+                    <div class="q-text"><span class="q-number">${qNum}</span>${escapeHtml(item.q)}</div>
+                    <div class="options" id="opts-${item.id}">
+                        ${item.options.map((opt, oIdx) => `
+                            <label onclick="selectOption(${item.id}, ${oIdx}, ${qNum})">
+                                <input type="radio" name="q${item.id}" value="${oIdx}" onchange="selectOption(${item.id}, ${oIdx}, ${qNum})">
+                                ${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function selectOption(qId, oIdx, qNum) {
+            answers[qId] = oIdx;
+            const opts = document.getElementById('opts-' + qId).querySelectorAll('label');
+            opts.forEach((el, i) => {
+                el.classList.toggle('selected', i === oIdx);
+            });
+            updateProgress();
+            updateNav(qNum);
+        }
+
+        function updateNav(qNum) {
+            const dot = document.getElementById('nav-' + qNum);
+            if (dot) dot.classList.add('answered');
+        }
+
+        function updateProgress() {
+            const answered = Object.keys(answers).length;
+            document.getElementById('answered').textContent = answered;
+            document.getElementById('progress').style.width = (answered / TOTAL_QUESTIONS * 100) + '%';
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) { clearInterval(timerInterval); submitTest(true); }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            const el = document.getElementById('timer');
+            el.textContent = m + ':' + s;
+            el.className = 'timer-badge';
+            if (timeLeft < 300) el.classList.add('danger');
+            else if (timeLeft < 600) el.classList.add('warning');
+        }
+
+        async function submitTest(auto) {
+            auto = auto || false;
+            if (!auto && Object.keys(answers).length < TOTAL_QUESTIONS) {
+                const unanswered = TOTAL_QUESTIONS - Object.keys(answers).length;
+                if (!confirm('Anda belum menjawab ' + unanswered + ' soal. Yakin ingin mengirim?')) return;
+            }
+            clearInterval(timerInterval);
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('btn-submit').disabled = true;
+
+            const payload = {
+                nama: document.getElementById('nama').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                answers: answers,
+                submittedAt: new Date().toISOString(),
+                timeRemaining: timeLeft
+            };
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(function() { controller.abort(); }, 15000);
+
+                const response = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error('Server returned ' + response.status);
+                }
+
+                const result = await response.json();
+                if (result.status === 'error') {
+                    throw new Error(result.message || 'Server error');
+                }
+                showResult(result);
+            } catch (err) {
+                let msg = 'Gagal mengirim jawaban.\n\n';
+                if (err.name === 'AbortError') {
+                    msg += 'Koneksi timeout. Periksa koneksi internet Anda.';
+                } else if (err.message.indexOf('Failed to fetch') !== -1 || err.message.indexOf('NetworkError') !== -1 || err.message.indexOf('CORS') !== -1) {
+                    msg += 'Error CORS / Network.\n\nPastikan:\n';
+                    msg += '1. URL Apps Script sudah BENAR\n';
+                    msg += '2. Apps Script sudah di-DEPLOY ULANG (Deploy -> New deployment)\n';
+                    msg += '3. Execute as: Me | Access: ANYONE\n';
+                    msg += '4. Jangan pakai Test deployment!';
+                } else {
+                    msg += err.message;
+                }
+                alert(msg);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('btn-submit').disabled = false;
+            }
+        }
+
+        function showResult(result) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('quiz').classList.add('hidden');
+            document.getElementById('result').classList.remove('hidden');
+
+            const pct = Math.round((result.score / result.total) * 100);
+            document.getElementById('score-val').textContent = result.score;
+            document.getElementById('score-pct').textContent = pct + '%';
+            document.getElementById('score-circle').style.setProperty('--pct', pct);
+            document.getElementById('res-nama').textContent = result.nama || '-';
+            document.getElementById('res-email').textContent = result.email || '-';
+
+            const statusEl = document.getElementById('status-text');
+            if (pct >= 70) { statusEl.textContent = 'LULUS'; statusEl.className = 'status-pass'; }
+            else { statusEl.textContent = 'BELUM LULUS'; statusEl.className = 'status-fail'; }
+
+            const reviewDiv = document.getElementById('review-section');
+            if (result.details && result.details.length > 0) {
+                let html = '<h3 style="margin-bottom:12px;">Pembahasan Singkat</h3>';
+                result.details.forEach(function(d, i) {
+                    const cls = d.isCorrect ? 'correct' : 'wrong';
+                    const icon = d.isCorrect ? 'OK' : 'X';
+                    html += '<div class="review-item ' + cls + '">';
+                    html += '<div><strong>' + icon + ' Soal ' + (i+1) + ':</strong> ' + escapeHtml(d.question) + '</div>';
+                    html += '<div style="font-size:0.85rem; color:var(--text-light); margin-top:4px;">';
+                    html += 'Jawaban Anda: <strong>' + String.fromCharCode(65+d.userAnswer) + '. ' + escapeHtml(d.userAnswerText) + '</strong> | ';
+                    html += 'Benar: <strong>' + String.fromCharCode(65+d.correctAnswer) + '. ' + escapeHtml(d.correctAnswerText) + '</strong>';
+                    html += '</div></div>';
+                });
+                reviewDiv.innerHTML = html;
+            }
+        }
+    </script>
+</body>
+</html>
