@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LKPD - My Holiday Quiz</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', 'Nunito', sans-serif; margin: 0; padding: 16px; background: #f7fafc; color: #333; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 16px; }
+    .header h1 { color: #2c5282; margin: 0; font-size: 26px; }
+    .header .subtitle { color: #718096; font-size: 13px; }
+    .section-title { background: #ebf8ff; color: #2b6cb0; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 15px; margin: 20px 0 12px 0; display: inline-block; }
+    .story-box { background: #fffbeb; border: 2px dashed #f6ad55; border-radius: 12px; padding: 16px; margin-bottom: 12px; line-height: 1.9; font-size: 15px; }
+    .blank { display: inline-block; min-width: 76px; height: 26px; border: 2px solid #4299e1; border-radius: 6px; margin: 0 3px; vertical-align: middle; text-align: center; line-height: 22px; font-weight: bold; color: #2c5282; background: #ebf8ff; cursor: pointer; transition: all 0.2s; font-size: 13px; }
+    .blank.filled { background: #c6f6d5; border-color: #48bb78; color: #22543d; }
+    .blank.drag-over { background: #bee3f8; border-color: #3182ce; transform: scale(1.08); }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; justify-content: center; }
+    .word-chip { background: #4299e1; color: white; padding: 6px 14px; border-radius: 20px; cursor: grab; font-weight: 600; user-select: none; box-shadow: 0 2px 4px rgba(0,0,0,0.12); transition: transform 0.1s; font-size: 13px; }
+    .word-chip:active { cursor: grabbing; transform: scale(0.95); }
+    .word-chip.used { opacity: 0.35; pointer-events: none; }
+    .unscramble-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 16px; }
+    .unscramble-row { display: flex; align-items: center; gap: 10px; background: #f7fafc; padding: 10px 14px; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .unscramble-letters { font-family: 'Courier New', monospace; font-weight: 700; color: #c53030; font-size: 16px; letter-spacing: 2px; min-width: 140px; }
+    .unscramble-input { flex: 1; padding: 8px 12px; border: 2px solid #cbd5e0; border-radius: 8px; font-size: 15px; outline: none; text-transform: lowercase; }
+    .unscramble-input:focus { border-color: #4299e1; }
+    .unscramble-input.correct { background: #c6f6d5; border-color: #48bb78; color: #22543d; }
+    .unscramble-input.wrong { background: #fed7d7; border-color: #f56565; color: #742a2a; }
+    .btn { padding: 10px 22px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin: 4px; transition: all 0.2s; }
+    .btn-primary { background: #4299e1; color: white; }
+    .btn-primary:hover { background: #3182ce; }
+    .btn-success { background: #48bb78; color: white; }
+    .btn-success:hover { background: #38a169; }
+    .btn-secondary { background: #edf2f7; color: #4a5568; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .score-board { text-align: center; font-size: 17px; margin: 14px 0; padding: 14px; background: #f0fff4; border-radius: 10px; border: 2px solid #9ae6b4; }
+    .score-board.wrong { background: #fff5f5; border-color: #fc8181; }
+    .hidden { display: none; }
+    .progress { height: 6px; background: #e2e8f0; border-radius: 3px; margin-bottom: 12px; overflow: hidden; }
+    .progress-bar { height: 100%; background: #48bb78; transition: width 0.3s; }
+    .floating-input { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 24px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000; text-align: center; }
+    .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+    .celebration { font-size: 44px; animation: bounce 1s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)} }
+    .timer { text-align: right; font-size: 13px; color: #718096; margin-bottom: 6px; }
+    .hint-text { font-size: 12px; color: #a0aec0; text-align: center; margin-bottom: 8px; }
+    .number-badge { background: #2c5282; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  </style>
+<base target="_blank">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🌴 LKPD - My Holiday</h1>
+      <p class="subtitle">Complete the story & unscramble the holiday words!</p>
+    </div>
+
+    <div id="start-screen">
+      <div style="text-align:center; padding: 36px 16px;">
+        <div style="font-size: 56px; margin-bottom: 12px;">✈️🏖️🧩</div>
+        <h2 style="color: #2c5282;">Holiday Story + Word Quiz</h2>
+        <p style="color: #718096; margin-bottom: 20px; line-height: 1.6;">Each session contains:<br>📖 <strong>1 Holiday Story</strong> (10 blanks)<br>🧩 <strong>5 Unscramble Words</strong><br><br>Drag words or type directly!</p>
+        <button class="btn btn-primary" onclick="startGame()" style="font-size: 17px; padding: 14px 32px;">Start Adventure 🚀</button>
+      </div>
+    </div>
+
+    <div id="game-screen" class="hidden">
+      <div class="timer">⏱️ Time: <span id="timer">00:00</span></div>
+      <div class="progress"><div class="progress-bar" id="progress-bar" style="width: 0%"></div></div>
+
+      <div class="section-title">📖 Part A: Complete the Story</div>
+      <div class="story-box" id="story-container"></div>
+      <div class="hint-text">🎯 Drag a word into the blank OR click a blank to type your answer</div>
+      <div class="word-bank" id="word-bank"></div>
+
+      <div class="section-title">🧩 Part B: Unscramble the Letters</div>
+      <div class="unscramble-grid" id="unscramble-container"></div>
+
+      <div style="text-align: center; margin-top: 16px;">
+        <button class="btn btn-success" onclick="checkAll()">✅ Check All Answers</button>
+        <button class="btn btn-secondary" onclick="resetAll()">🔄 Reset</button>
+        <button class="btn btn-primary" onclick="nextSession()">⏭️ Next Session</button>
+      </div>
+
+      <div id="result-area"></div>
+    </div>
+
+    <div id="overlay" class="overlay hidden" onclick="closeInput()"></div>
+    <div id="floating-input" class="floating-input hidden">
+      <div style="font-size: 32px; margin-bottom: 8px;">✏️</div>
+      <p style="margin-bottom: 12px; color: #4a5568; font-weight: 600;">Type your answer for blank #<span id="blank-num">1</span>:</p>
+      <input type="text" id="type-input" placeholder="your answer..." onkeydown="if(event.key==='Enter')submitTyped()">
+      <br><br>
+      <button class="btn btn-primary" onclick="submitTyped()">Submit</button>
+      <button class="btn btn-secondary" onclick="closeInput()">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    const stories = [
+      {
+        title: "Trip to Bali",
+        text: "Last summer holiday, my family and I (1) _______ to Bali. We travelled by (2) _______ from Jakarta. On the first day, we (3) _______ Tanah Lot Temple. The temple was very (4) _______ and sacred. After that, we went to a traditional (5) _______. I bought some souvenirs for my friends. I bought some (6) _______ and wooden crafts. On the second day, we went to the (7) _______. The (8) _______ was sunny and warm. My brother and I played with the (9) _______ on the beach. We had a wonderful time. I was very (10) _______ because I could spend my holiday with my family.",
+        answers: ["went", "plane", "visited", "beautiful", "market", "keychains", "beach", "weather", "sand", "happy"],
+        distractors: ["train", "boring", "tiring", "awesome", "great", "fun", "swam", "hot", "big", "sad"]
+      },
+      {
+        title: "Camping in Bandung",
+        text: "During the last holiday, my classmates and I (1) _______ camping in Bandung. We went there by (2) _______. When we arrived, we (3) _______ our tents near the river. The place was very (4) _______ and peaceful. In the afternoon, we (5) _______ a campfire and sang songs. At night, the sky was full of (6) _______. We told scary stories and laughed together. In the morning, we (7) _______ hiking to the waterfall. The water was very (8) _______ and fresh. We took many (9) _______ there. It was an (10) _______ holiday experience!",
+        answers: ["went", "bus", "built", "beautiful", "made", "stars", "went", "cold", "photos", "awesome"],
+        distractors: ["plane", "train", "visited", "boring", "hot", "tiring", "happy", "sad", "fun", "great"]
+      },
+      {
+        title: "Visit to Singapore",
+        text: "Last December, my parents and I (1) _______ to Singapore. We travelled by (2) _______ from Batam. On the first day, we (3) _______ Universal Studios. The rides were very (4) _______ and exciting. After that, we (5) _______ dinner at a hawker centre. The food was (6) _______ and delicious. On the second day, we went to Gardens by the Bay. The flowers were very (7) _______. We (8) _______ many photos there. The weather was a bit (9) _______ but we still had fun. I felt so (10) _______ during the trip.",
+        answers: ["went", "ferry", "visited", "fun", "had", "great", "beautiful", "took", "rainy", "happy"],
+        distractors: ["plane", "bus", "boring", "tiring", "cold", "hot", "awesome", "sad", "made", "built"]
+      },
+      {
+        title: "Holiday in Yogyakarta",
+        text: "Last school holiday, my family and I (1) _______ to Yogyakarta. We travelled by (2) _______ from our city. On the first day, we (3) _______ Borobudur Temple. The temple was very (4) _______ and big. After that, we went to a traditional market. I (5) _______ some souvenirs for my friends. I bought some (6) _______ and small bags. On the second day, we went to the (7) _______. The (8) _______ was sunny and warm. My brother and I played with the (9) _______ on the beach. We had a wonderful time. I was very (10) _______ because I could spend my holiday with my family.",
+        answers: ["went", "train", "visited", "beautiful", "bought", "keychains", "beach", "weather", "sand", "happy"],
+        distractors: ["plane", "bus", "boring", "tiring", "awesome", "great", "fun", "cold", "hot", "sad"]
+      },
+      {
+        title: "Trip to Lombok",
+        text: "During the holiday, my cousins and I (1) _______ to Lombok Island. We went there by (2) _______ from Bali. First, we (3) _______ Mount Rinjani. The mountain was very (4) _______ and majestic. Then we (5) _______ snorkeling at Gili Trawangan. The fish were so (6) _______ and colorful. We (7) _______ many beautiful corals underwater. The sea water was (8) _______ and clear. In the evening, we watched the (9) _______ set at the beach. It was a very (10) _______ moment for all of us.",
+        answers: ["went", "boat", "visited", "big", "went", "beautiful", "saw", "warm", "sun", "great"],
+        distractors: ["plane", "train", "bus", "boring", "tiring", "cold", "happy", "sad", "fun", "awesome"]
+      }
+    ];
+
+    const unscrambleSets = [
+      [
+        { jumbled: "g-r-a-e-t", answer: "great" },
+        { jumbled: "g-b-o-r-i-n", answer: "boring" },
+        { jumbled: "f-n-u", answer: "fun" },
+        { jumbled: "t-i-r-g-i-n", answer: "tiring" },
+        { jumbled: "e-a-w-o-s-m-e", answer: "awesome" }
+      ],
+      [
+        { jumbled: "e-a-c-h-b", answer: "beach" },
+        { jumbled: "n-u-n-s-y", answer: "sunny" },
+        { jumbled: "t-r-a-i-n", answer: "train" },
+        { jumbled: "l-a-n-e-p", answer: "plane" },
+        { jumbled: "a-p-p-y-h", answer: "happy" }
+      ],
+      [
+        { jumbled: "t-s-a-r-s", answer: "stars" },
+        { jumbled: "h-o-t-o-s-p", answer: "photos" },
+        { jumbled: "d-n-a-s", answer: "sand" },
+        { jumbled: "r-a-i-n-y", answer: "rainy" },
+        { jumbled: "w-a-r-m", answer: "warm" }
+      ],
+      [
+        { jumbled: "e-r-y-f-r", answer: "ferry" },
+        { jumbled: "o-a-t-b", answer: "boat" },
+        { jumbled: "u-b-s", answer: "bus" },
+        { jumbled: "t-r-i-p", answer: "trip" },
+        { jumbled: "c-a-m-p", answer: "camp" }
+      ],
+      [
+        { jumbled: "t-w-e-n", answer: "went" },
+        { jumbled: "w-s-a", answer: "saw" },
+        { jumbled: "o-k-o-t", answer: "took" },
+        { jumbled: "d-i-a-b", answer: "badi" },
+        { jumbled: "u-l-f-b-t-i", answer: "beautiful" }
+      ],
+      [
+        { jumbled: "l-d-o-c", answer: "cold" },
+        { jumbled: "t-h-o", answer: "hot" },
+        { jumbled: "e-i-g-b", answer: "big" },
+        { jumbled: "l-l-s-a-m", answer: "small" },
+        { jumbled: "d-o-l", answer: "old" }
+      ],
+      [
+        { jumbled: "r-e-t-s-u-o-v-n-i-r", answer: "souvenir" },
+        { jumbled: "m-a-r-k-e-t", answer: "market" },
+        { jumbled: "h-o-t-e-l", answer: "hotel" },
+        { jumbled: "i-s-l-a-n-d", answer: "island" },
+        { jumbled: "m-u-s-e-u-m", answer: "museum" }
+      ],
+      [
+        { jumbled: "s-w-i-m", answer: "swim" },
+        { jumbled: "p-l-a-y", answer: "play" },
+        { jumbled: "v-i-s-i-t", answer: "visit" },
+        { jumbled: "w-a-l-k", answer: "walk" },
+        { jumbled: "h-i-k-e", answer: "hike" }
+      ],
+      [
+        { jumbled: "s-u-n", answer: "sun" },
+        { jumbled: "s-e-a", answer: "sea" },
+        { jumbled: "s-k-y", answer: "sky" },
+        { jumbled: "s-u-r-f", answer: "surf" },
+        { jumbled: "d-i-v-e", answer: "dive" }
+      ],
+      [
+        { jumbled: "f-i-s-h", answer: "fish" },
+        { jumbled: "s-h-e-l-l", answer: "shell" },
+        { jumbled: "w-a-v-e", answer: "wave" },
+        { jumbled: "c-o-a-l-r", answer: "coral" },
+        { jumbled: "s-h-a-d-e", answer: "shade" }
+      ]
+    ];
+
+    let currentStoryIndex = -1;
+    let currentUnscrambleIndex = -1;
+    let currentAnswers = [];
+    let userAnswers = [];
+    let timerInterval;
+    let seconds = 0;
+    let activeBlankIndex = -1;
+
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startGame() {
+      document.getElementById('start-screen').classList.add('hidden');
+      document.getElementById('game-screen').classList.remove('hidden');
+      nextSession();
+    }
+
+    function nextSession() {
+      let newStory;
+      do { newStory = Math.floor(Math.random() * stories.length); }
+      while (newStory === currentStoryIndex && stories.length > 1);
+      currentStoryIndex = newStory;
+
+      let newUnscramble;
+      do { newUnscramble = Math.floor(Math.random() * unscrambleSets.length); }
+      while (newUnscramble === currentUnscrambleIndex && unscrambleSets.length > 1);
+      currentUnscrambleIndex = newUnscramble;
+
+      const story = stories[currentStoryIndex];
+      currentAnswers = story.answers;
+      userAnswers = new Array(10).fill('');
+
+      document.getElementById('result-area').innerHTML = '';
+      document.getElementById('progress-bar').style.width = '0%';
+      resetTimer();
+      startTimer();
+
+      let html = story.text;
+      for (let i = 1; i <= 10; i++) {
+        html = html.replace(`(${i}) _______`, `<span class="blank" data-index="${i-1}" onclick="openInput(${i-1})" ondragover="allowDrop(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">?</span>`);
+      }
+      document.getElementById('story-container').innerHTML = `<strong style="color:#2c5282;">📖 ${story.title}</strong><br><br>` + html;
+
+      const pool = shuffleArray([...story.answers, ...story.distractors.slice(0, 5)]);
+      const bankHtml = pool.map((word, idx) =>
+        `<span class="word-chip" draggable="true" ondragstart="drag(event)" data-word="${word}" id="chip-${idx}">${word}</span>`
+      ).join('');
+      document.getElementById('word-bank').innerHTML = bankHtml;
+
+      const usSet = unscrambleSets[currentUnscrambleIndex];
+      const usHtml = usSet.map((item, idx) => `
+        <div class="unscramble-row">
+          <div class="number-badge">${idx+1}</div>
+          <div class="unscramble-letters">${item.jumbled}</div>
+          <input type="text" class="unscramble-input" id="us-input-${idx}" placeholder="Type answer..." oninput="updateProgress()">
+        </div>
+      `).join('');
+      document.getElementById('unscramble-container').innerHTML = usHtml;
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.dataset.word);
+      ev.dataTransfer.setData("chipId", ev.target.id);
+    }
+    function allowDrop(ev) { ev.preventDefault(); ev.target.classList.add('drag-over'); }
+    function dragLeave(ev) { ev.target.classList.remove('drag-over'); }
+    function drop(ev) {
+      ev.preventDefault();
+      ev.target.classList.remove('drag-over');
+      const word = ev.dataTransfer.getData("text");
+      const chipId = ev.dataTransfer.getData("chipId");
+      const idx = parseInt(ev.target.dataset.index);
+      fillBlank(idx, word);
+      const chip = document.getElementById(chipId);
+      if (chip) chip.classList.add('used');
+    }
+    function fillBlank(idx, word) {
+      userAnswers[idx] = word.toLowerCase().trim();
+      const blanks = document.querySelectorAll('.blank');
+      blanks[idx].textContent = word;
+      blanks[idx].classList.add('filled');
+      updateProgress();
+    }
+
+    function openInput(idx) {
+      activeBlankIndex = idx;
+      document.getElementById('blank-num').textContent = idx + 1;
+      document.getElementById('overlay').classList.remove('hidden');
+      document.getElementById('floating-input').classList.remove('hidden');
+      const input = document.getElementById('type-input');
+      input.value = userAnswers[idx] || '';
+      input.focus();
+    }
+    function closeInput() {
+      document.getElementById('overlay').classList.add('hidden');
+      document.getElementById('floating-input').classList.add('hidden');
+      activeBlankIndex = -1;
+    }
+    function submitTyped() {
+      const val = document.getElementById('type-input').value;
+      if (activeBlankIndex >= 0 && val.trim()) {
+        fillBlank(activeBlankIndex, val.trim());
+      }
+      closeInput();
+    }
+
+    function updateProgress() {
+      let filled = userAnswers.filter(a => a).length;
+      for (let i = 0; i < 5; i++) {
+        const el = document.getElementById(`us-input-${i}`);
+        if (el && el.value.trim()) filled++;
+      }
+      document.getElementById('progress-bar').style.width = (filled / 15 * 100) + '%';
+    }
+
+    function checkAll() {
+      let storyCorrect = 0;
+      const blanks = document.querySelectorAll('.blank');
+      blanks.forEach((blank, idx) => {
+        const userAns = userAnswers[idx];
+        const correctAns = currentAnswers[idx];
+        if (userAns && userAns.toLowerCase() === correctAns.toLowerCase()) {
+          storyCorrect++;
+          blank.style.background = '#c6f6d5';
+          blank.style.borderColor = '#48bb78';
+          blank.style.color = '#22543d';
+        } else {
+          blank.style.background = '#fed7d7';
+          blank.style.borderColor = '#f56565';
+          blank.style.color = '#742a2a';
+          if (!userAns) blank.textContent = '?';
+        }
+      });
+
+      let usCorrect = 0;
+      const usSet = unscrambleSets[currentUnscrambleIndex];
+      const usDetails = [];
+      for (let i = 0; i < 5; i++) {
+        const input = document.getElementById(`us-input-${i}`);
+        const userVal = input.value.trim().toLowerCase();
+        const correct = usSet[i].answer;
+        if (userVal === correct) {
+          usCorrect++;
+          input.classList.add('correct');
+          input.classList.remove('wrong');
+        } else {
+          input.classList.add('wrong');
+          input.classList.remove('correct');
+        }
+        usDetails.push({ user: userVal || '(empty)', correct, ok: userVal === correct });
+      }
+
+      const totalCorrect = storyCorrect + usCorrect;
+      const percent = Math.round((totalCorrect / 15) * 100);
+      const isPerfect = totalCorrect === 15;
+
+      let resultHtml = `<div class="score-board ${isPerfect ? '' : 'wrong'}">
+        <div class="${isPerfect ? 'celebration' : ''}">${isPerfect ? '🎉' : '📊'}</div>
+        <strong>Total Score: ${totalCorrect}/15 (${percent}%)</strong><br>
+        <span style="font-size: 13px; color: #4a5568;">📖 Story: ${storyCorrect}/10 &nbsp;|&nbsp; 🧩 Unscramble: ${usCorrect}/5<br>Time: ${document.getElementById('timer').textContent}</span>
+      </div>`;
+
+      if (!isPerfect) {
+        resultHtml += `<div style="background:#fff5f5; padding:14px; border-radius:10px; margin-top:10px; font-size:13px; line-height:1.7;">
+          <strong style="color:#c53030;">📖 Story Corrections:</strong><br>`;
+        currentAnswers.forEach((ans, i) => {
+          const user = userAnswers[i] || '(empty)';
+          const mark = user.toLowerCase() === ans.toLowerCase() ? '✅' : '❌';
+          resultHtml += `${mark} #${i+1}: <strong>${ans}</strong> <span style="color:#718096">(you: ${user})</span><br>`;
+        });
+        resultHtml += `<br><strong style="color:#c53030;">🧩 Unscramble Corrections:</strong><br>`;
+        usDetails.forEach((d, i) => {
+          const mark = d.ok ? '✅' : '❌';
+          resultHtml += `${mark} #${i+1}: <strong>${d.correct}</strong> <span style="color:#718096">(you: ${d.user})</span><br>`;
+        });
+        resultHtml += `</div>`;
+      }
+
+      document.getElementById('result-area').innerHTML = resultHtml;
+      stopTimer();
+    }
+
+    function resetAll() {
+      userAnswers = new Array(10).fill('');
+      const blanks = document.querySelectorAll('.blank');
+      blanks.forEach(b => {
+        b.textContent = '?';
+        b.classList.remove('filled');
+        b.style.background = '#ebf8ff';
+        b.style.borderColor = '#4299e1';
+        b.style.color = '#2c5282';
+      });
+      document.querySelectorAll('.word-chip').forEach(c => c.classList.remove('used'));
+      for (let i = 0; i < 5; i++) {
+        const input = document.getElementById(`us-input-${i}`);
+        if (input) { input.value = ''; input.classList.remove('correct', 'wrong'); }
+      }
+      document.getElementById('result-area').innerHTML = '';
+      updateProgress();
+      resetTimer();
+      startTimer();
+    }
+
+    function startTimer() {
+      stopTimer();
+      seconds = 0;
+      timerInterval = setInterval(() => {
+        seconds++;
+        const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const s = String(seconds % 60).padStart(2, '0');
+        document.getElementById('timer').textContent = `${m}:${s}`;
+      }, 1000);
+    }
+    function stopTimer() { if (timerInterval) clearInterval(timerInterval); }
+    function resetTimer() { stopTimer(); seconds = 0; document.getElementById('timer').textContent = '00:00'; }
+  </script>
+</body>
+</html>
